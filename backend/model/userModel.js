@@ -1,87 +1,89 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      trim: true,
-      required: [true, 'name required'],
-    },
-    slug: {
-      type: String,
-      lowercase: true,
-    },
-    email: {
-      type: String,
-      required: [true, 'email required'],
-      unique: true,
-      lowercase: true,
-    },
-    phone: String,
-    profileImg: String,
-
-    password: {
-      type: String,
-      required: [true, 'password required'],
-      minlength: [6, 'Too short password'],
-    },
-    passwordChangedAt: Date,
-    passwordResetCode: String,
-    passwordResetExpires: Date,
-    passwordResetVerified: Boolean,
-    role: {
-      type: String,
-      enum: ['user', 'manager', 'admin'],
-      default: 'user',
-    },
-    wishlist: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: 'Product',
-      },
-    ],
-    addresses: [
-      {
-        id: { type: mongoose.Schema.Types.ObjectId },
-        alias: String,
-        details: String,
-        phone: String,
-        city: String,
-        postalCode: String,
-      },
-    ],
-    active: {
-      type: Boolean,
-      default: true,
-    },
+const userSchema = new mongoose.Schema({
+  name:{
+    type: String,
+    required: [true, "Please enter your name!"],
   },
-  { timestamps: true }
-);
-
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  // Hashing user password
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
+  email:{
+    type: String,
+    required: [true, "Please enter your email!"],
+  },
+  password:{
+    type: String,
+    required: [true, "Please enter your password"],
+    minLength: [4, "Password should be greater than 4 characters"],
+    select: false,
+  },
+  phoneNumber:{
+    type: Number,
+  },
+  addresses:[
+    {
+      country: {
+        type: String,
+      },
+      city:{
+        type: String,
+      },
+      address1:{
+        type: String,
+      },
+      address2:{
+        type: String,
+      },
+      zipCode:{
+        type: Number,
+      },
+      addressType:{
+        type: String,
+      },
+    }
+  ],
+  role:{
+    type: String,
+    default: "user",
+  },
+  avatar:{
+    public_id: {
+      type: String,
+      required: true,
+    },
+    url: {
+      type: String,
+      required: true,
+    },
+ },
+ createdAt:{
+  type: Date,
+  default: Date.now(),
+ },
+ resetPasswordToken: String,
+ resetPasswordTime: Date,
 });
-const setImageURL = (doc) => {
-  if (doc.imageCover) {
-    const imageUrl = `${process.env.BASE_URL}/users/${doc.profileImg}`;
-    doc.profileImg = imageUrl;
+
+
+//  Hash password
+userSchema.pre("save", async function (next){
+  if(!this.isModified("password")){
+    next();
   }
 
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+// jwt token
+userSchema.methods.getJwtToken = function () {
+  return jwt.sign({ id: this._id}, process.env.JWT_SECRET_KEY,{
+    expiresIn: process.env.JWT_EXPIRES,
+  });
 };
-// findOne, findAll and update
-userSchema.post('init', (doc) => {
-  setImageURL(doc);
-});
 
-// create
-userSchema.post('save', (doc) => {
-  setImageURL(doc);
-});
+// compare password
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
-const User = mongoose.model('User', userSchema);
-
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);
