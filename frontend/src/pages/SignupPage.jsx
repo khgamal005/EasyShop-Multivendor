@@ -1,8 +1,9 @@
+import Singup from "../componant/Signup/Signup"
 
 
 function SignupPage() {
   return (
-    <div>SignupPage</div>
+    <div><Singup/></div>
   )
 }
 
