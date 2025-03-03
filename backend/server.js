@@ -5,7 +5,11 @@ const connectDatabase = require("./db/Database");
 ;const morgan = require("morgan");
 // const mountRoutes = require('./routes');
 // Handling uncaught Exception
+<<<<<<< Updated upstream
 const globalError = require("./middleware/errorMiddleware");
+=======
+const globalError = require("./middleware/");
+>>>>>>> Stashed changes
 const ApiError = require('./utils/ErrorHandler');
 const cors = require("cors");
 
@@ -17,20 +21,33 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
   });
 }
 const app = express();
+<<<<<<< Updated upstream
 app.use(express.json({ limit: "10mb" }));  // Increase JSON size limit
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+=======
+
+>>>>>>> Stashed changes
 
 app.use(cors());
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
+<<<<<<< Updated upstream
 // app.use(express.json())
 // app.use(express.urlencoded({ extended: true }));
+=======
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+>>>>>>> Stashed changes
 app.use(express.static(path.join(__dirname, 'uploads')));
 
 
 const userRoute=require("./routes/userRoute");
+<<<<<<< Updated upstream
 const  {activeUser}  = require("./routes/userRoute");
+=======
+
+>>>>>>> Stashed changes
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
