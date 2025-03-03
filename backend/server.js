@@ -7,6 +7,7 @@ const connectDatabase = require("./db/Database");
 // Handling uncaught Exception
 const globalError = require("./middleware/errorMiddleware");
 const ApiError = require('./utils/ErrorHandler');
+const cors = require("cors");
 
 
 // config
@@ -16,8 +17,15 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
   });
 }
 const app = express();
+app.use(express.json({ limit: "10mb" }));  // Increase JSON size limit
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-app.use(express.json())
+app.use(cors());
+
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+
+// app.use(express.json())
+// app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'uploads')));
 
 
@@ -37,7 +45,7 @@ connectDatabase();
 //   api_key: process.env.CLOUDINARY_API_KEY,
 //   api_secret: process.env.CLOUDINARY_API_SECRET
 // })
-app.use('/api/v1/users', userRoute);
+app.use('/api/v1/user', userRoute);
 
 // Mount Routes
 // mountRoutes(app);

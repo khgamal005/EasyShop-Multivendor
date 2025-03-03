@@ -33,7 +33,7 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
 
 exports.createUser = asyncHandler(async (req, res, next) => {
 
-  const { name, email, password, avatar } = req.body;
+  const { name, email, password ,avatar} = req.body;
   const user = {
     name: name,
     email: email,
@@ -48,7 +48,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 
   const activationToken = createActivationToken(user);
 
-  const activationUrl = `http://localhost:8000/api/v1/users/activation/${activationToken}`;
+  const activationUrl = `http://localhost:8000/api/v1/user/activation/${activationToken}`;
 
   try {
     await sendMail({
@@ -61,7 +61,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
       message: `please check your email:- ${user.email} to activate your account!`,
     });
   } catch (error) {
-    return next(new ErrorHandler(error.message, 500));
+    return next(new ErrorHandler(error.message, 400));
   }
 });
 

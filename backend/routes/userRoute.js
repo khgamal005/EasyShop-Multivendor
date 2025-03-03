@@ -20,6 +20,7 @@ const {
 const router = express.Router();
 
 router.post("/signup",uploadUserImage, resizeImage, createUserValidator, createUser);
+// router.post("/signup", createUser);
 router.get("/activation/:token", activeUser); 
   
 
