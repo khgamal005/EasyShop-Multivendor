@@ -11,36 +11,63 @@ const Singup = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setpasswordConfirm] = useState("");
+
   const [visible, setVisible] = useState(false);
   const [avatar, setAvatar] = useState(null);
+  const [preview, setPreview] = useState(null);
 
-  const handleFileInputChange = (e) => {
-    const reader = new FileReader();
 
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        setAvatar(reader.result);
-      }
-    };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
 
-    reader.readAsDataURL(e.target.files[0]);
-  };
+    if (file) {
+      setAvatar(file);
+      setPreview(URL.createObjectURL(file)); // Generate preview URL
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("passwordConfirm", passwordConfirm);
+    formData.append("avatar", avatar); //
 
-    axios
-      .post(`${server}/user/create-user`, { name, email, password, avatar })
-      .then((res) => {
-        toast.success(res.data.message);
-        setName("");
-        setEmail("");
-        setPassword("");
-        setAvatar();
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-      });
+    if(password === passwordConfirm){
+
+
+      axios
+        .post(`${server}/user/signup`, formData,
+          {"Content-Type": "multipart/form-data"}
+        )
+        .then((res) => {
+          console.log(res.data.message)
+          toast.success(res.data.message);
+          setName("");
+          setEmail("");
+          setPassword("");
+          setpasswordConfirm("");
+          setAvatar();
+        })
+        .catch((error) => {
+          if (error.response && error.response.data.errors) {
+            error.response.data.errors.forEach((err) => {
+              toast.error(err.msg);
+            });
+          } else {
+            toast.error("Something went wrong! Please try again.");
+          }}
+        );
+    }else{
+      toast.error("Please check password and confirm password")
+    }
+
+
+
+
   };
 
   return (
@@ -125,6 +152,38 @@ const Singup = () => {
                 )}
               </div>
             </div>
+            <div>
+              <label
+                htmlFor="passwordConfirm"
+                className="block text-sm font-medium text-gray-700"
+              >
+                passwordConfirm
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  type={visible ? "text" : "password"}
+                  name="passwordConfirm"
+                  autoComplete="current-password"
+                  required
+                  value={passwordConfirm}
+                  onChange={(e) => setpasswordConfirm(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+                {visible ? (
+                  <AiOutlineEye
+                    className="absolute right-2 top-2 cursor-pointer"
+                    size={25}
+                    onClick={() => setVisible(false)}
+                  />
+                ) : (
+                  <AiOutlineEyeInvisible
+                    className="absolute right-2 top-2 cursor-pointer"
+                    size={25}
+                    onClick={() => setVisible(true)}
+                  />
+                )}
+              </div>
+            </div>
 
             <div>
               <label
@@ -133,9 +192,9 @@ const Singup = () => {
               ></label>
               <div className="mt-2 flex items-center">
                 <span className="inline-block h-8 w-8 rounded-full overflow-hidden">
-                  {avatar ? (
+                  {preview ? (
                     <img
-                      src={avatar}
+                      src={preview}
                       alt="avatar"
                       className="h-full w-full object-cover rounded-full"
                     />
@@ -153,22 +212,22 @@ const Singup = () => {
                     name="avatar"
                     id="file-input"
                     accept=".jpg,.jpeg,.png"
-                    onChange={handleFileInputChange}
+                  onChange={handleFileChange} 
                     className="sr-only"
                   />
                 </label>
               </div>
             </div>
 
-            <div>
+        
               <button
                 type="submit"
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white cursor-pointer bg-blue-600 hover:bg-blue-700"
               >
                 Submit
               </button>
-            </div>
-            <div className={`${styles.noramlFlex} w-full`}>
+          
+            <div className={`${styles.noramlFlex} w-full `}>
               <h4>Already have an account?</h4>
               <Link to="/login" className="text-blue-600 pl-2">
                 Sign In
