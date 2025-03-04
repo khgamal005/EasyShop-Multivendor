@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const ErrorHandler = require("../utils/ErrorHandler");
+const bcrypt = require("bcryptjs");
 
 
 exports.uploadUserImage = uploadSingleImage("avatar");
@@ -29,11 +30,8 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
   next();
 });
 
-
-
 exports.createUser = asyncHandler(async (req, res, next) => {
-
-  const { name, email, password ,avatar} = req.body;
+  const { name, email, password, avatar } = req.body;
   const user = {
     name: name,
     email: email,
@@ -43,12 +41,12 @@ exports.createUser = asyncHandler(async (req, res, next) => {
       url: avatar,
     },
   };
-  console.log(user)
+
   // create activation token
 
   const activationToken = createActivationToken(user);
 
-  const activationUrl = `http://localhost:8000/api/v1/user/activation/${activationToken}`;
+  const activationUrl = `http://localhost:5173/activation/${activationToken}`;
 
   try {
     await sendMail({
@@ -67,19 +65,15 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 
 const createActivationToken = (user) => {
   return jwt.sign(user, process.env.ACTIVATION_SECRET, {
-    expiresIn: "5m",
+    expiresIn: "10m",
   });
 };
 
-exports.activeUser=asyncHandler(async(req,res,next)=>{
-
+exports.activeUser = asyncHandler(async (req, res, next) => {
   try {
-    const { token} = req.params;
+    const { token } = req.params;
 
-    const newUser = jwt.verify(
-      token,
-      process.env.ACTIVATION_SECRET
-    );
+    const newUser = jwt.verify(token, process.env.ACTIVATION_SECRET);
 
     if (!newUser) {
       return next(new ErrorHandler("Invalid token", 400));
@@ -102,8 +96,17 @@ exports.activeUser=asyncHandler(async(req,res,next)=>{
   } catch (error) {
     return next(new ErrorHandler(error.message, 500));
   }
+});
 
+// login user
 
+exports.login = asyncHandler(async (req, res, next) => {
+  const user = await userModel.findOne({ email: req.body.email }).select('+password');
 
+  if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+    return next(new ErrorHandler("Incorrect email or password", 401));
+  }
 
-})
+  delete user._doc.password;
+  sendToken(user, 201, res);
+});

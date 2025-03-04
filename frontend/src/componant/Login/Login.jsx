@@ -16,24 +16,29 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios
-      .post(
-        `${server}/user/login-user`,
-        {
-          email,
-          password,
-        },
-        { withCredentials: true }
-      )
-      // eslint-disable-next-line no-unused-vars
-      .then((res) => {
-        toast.success("Login Success!");
-        navigate("/");
-        window.location.reload(true); 
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message);
-      });
+   await  axios.post(`${server}/user/login`, {
+      email,
+      password,
+    }, { withCredentials: true })
+    .then((res)=>{
+      console.log(res)
+      toast.success(res.data.message);
+      navigate("/");
+    
+
+    }).catch((error)=>{
+      console.log(error)
+      if (error.response &&  error.response.data.message) {
+        toast.error(error.response.data.message);
+       
+      } else {
+        toast.error("Something went wrong! Please try again.");
+      }}
+
+    )
+
+
+
   };
 
   return (

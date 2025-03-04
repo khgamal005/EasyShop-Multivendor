@@ -44,7 +44,7 @@ const Singup = () => {
           {"Content-Type": "multipart/form-data"}
         )
         .then((res) => {
-          console.log(res.data.message)
+
           toast.success(res.data.message);
           setName("");
           setEmail("");
