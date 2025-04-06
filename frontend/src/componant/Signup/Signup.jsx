@@ -39,8 +39,7 @@ const Singup = () => {
     if(password === passwordConfirm){
 
 
-      axios
-        .post(`${server}/user/signup`, formData,
+      axios.post(`${server}/user/signup`, formData,
           {"Content-Type": "multipart/form-data"}
         )
         .then((res) => {
