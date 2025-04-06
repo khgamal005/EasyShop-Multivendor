@@ -8,45 +8,30 @@ const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const ErrorHandler = require("../utils/ErrorHandler");
 const bcrypt = require("bcryptjs");
+const { saveTempAvatar, getTempAvatar, deleteTempAvatar } = require('../utils/tempImageStore');
+
 
 
 exports.uploadUserImage = uploadSingleImage("avatar");
 
-// Image processing
-exports.resizeImage = asyncHandler(async (req, res, next) => {
-  const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
 
-  if (req.file) {
-    await sharp(req.file.buffer)
-      .resize(600, 600)
-      .toFormat("jpeg")
-      .jpeg({ quality: 95 })
-      .toFile(`uploads/users/${filename}`);
-
-    // Save image into our db
-    req.body.avatar = filename;
-  }
-
-  next();
-});
 
 exports.createUser = asyncHandler(async (req, res, next) => {
   const { name, email, password, avatar } = req.body;
+  const avatarBuffer = req.file?.buffer;
+  const tempAvatarId = avatarBuffer ? saveTempAvatar(avatarBuffer) : null;
   const user = {
     name: name,
     email: email,
     password: password,
-    avatar: {
-      public_id: `user-${uuidv4()}-${Date.now()}`,
-      url: avatar,
-    },
+    tempAvatarId
   };
 
   // create activation token
 
   const activationToken = createActivationToken(user);
 
-  const activationUrl = `http://localhost:5173/activation/${activationToken}`;
+  const activationUrl = `${process.env.FRONTEND_URL}/activation/${activationToken}`;
 
   try {
     await sendMail({
@@ -78,13 +63,37 @@ exports.activeUser = asyncHandler(async (req, res, next) => {
     if (!newUser) {
       return next(new ErrorHandler("Invalid token", 400));
     }
-    const { name, email, password, avatar } = newUser;
+    const { name, email, password, tempAvatarId  } = newUser;
 
     let user = await userModel.findOne({ email });
 
     if (user) {
       return next(new ErrorHandler("User already exists", 400));
     }
+
+
+    let avatar = null;
+    if (tempAvatarId) {
+      const avatarBuffer = getTempAvatar(tempAvatarId);
+      if (avatarBuffer) {
+        const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
+
+        await sharp(avatarBuffer)
+          .resize(600, 600)
+          .toFormat('jpeg')
+          .jpeg({ quality: 95 })
+          .toFile(`uploads/users/${filename}`);
+
+        avatar = {
+          public_id: filename,
+          url: `${process.env.BACKEND_URL}/uploads/users/${filename}`,
+        };
+
+        deleteTempAvatar(tempAvatarId);
+      }
+    }
+
+
     user = await userModel.create({
       name,
       email,
