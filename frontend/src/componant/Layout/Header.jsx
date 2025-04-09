@@ -10,22 +10,22 @@ import DropDown from "../Layout/DropDown";
 import Navbar from "./Navbar";
 import EasyShopLogo from "./EasyShopLogo";
 import { categoriesData } from "../../static/data";
-
+import Cart from "../cart/Cart";
+import Wishlist from "../Wishlist/Wishlist";
 
 const Header = ({
-
   searchTerm,
   handleSearchChange,
   searchData,
   isSeller,
-  setOpenCart,
-  setOpenWishlist,
   active,
   activeHeading,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { isAuthenticated, user } = useSelector((state) => state.user);
+  const [openCart, setOpenCart] = useState(false);
+  const [openWishlist, setOpenWishlist] = useState(false);
 
   return (
     <header
@@ -109,6 +109,8 @@ const Header = ({
               ❤
             </span>
           </button>
+          {/* wishlist popup */}
+          {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} /> : null}
 
           <button onClick={() => setOpenCart(true)} className="relative">
             <AiOutlineShoppingCart size={24} />
@@ -116,6 +118,8 @@ const Header = ({
               🛒
             </span>
           </button>
+          {/* cart popup */}
+          {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
 
           {isAuthenticated ? (
             <Link to="/profile">
@@ -132,7 +136,10 @@ const Header = ({
           )}
 
           <div className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm">
-            <Link to={isSeller ? "/dashboard" : "/shop-create"} className="flex items-center">
+            <Link
+              to={isSeller ? "/dashboard" : "/shop-create"}
+              className="flex items-center"
+            >
               {isSeller ? "Dashboard" : "Become Seller"}
               <IoIosArrowForward className="ml-1" />
             </Link>
@@ -149,7 +156,7 @@ const Header = ({
 
       {/* Mobile Menu */}
       {showMobileMenu && (
-        <div className="md:hidden px-4 pb-4">
+        <div className="md:hidden px-4 pb-4 ">
           <div className="mt-2 space-y-2">
             <Link to="/login" className="block text-sm hover:text-blue-600">
               Login

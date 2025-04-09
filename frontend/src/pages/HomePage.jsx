@@ -1,28 +1,32 @@
 import  { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { loadUser } from '../redux/slices/userSlice';
+import Hero from '../componant/Hero/Hero';
+import Categories from '../componant/Categories/Categories';
+import BestDeals from '../componant/Route/BestDeals/BestDeals';
+import Events from "../componant/Events/Events";
+import FeaturedProduct from '../componant/FeaturedProduct/FeaturedProduct';
+import Sponsored from '../componant/Route/Sponsored';
 
 const HomePage = () => {
   const dispatch = useDispatch();
 
-  const { user, loading, error } = useSelector((state) => state.user);
+
 
   useEffect(() => {
-    dispatch(loadUser()); // Dispatch the action to load user data when component mounts
+    dispatch(loadUser()); 
   }, [dispatch]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
 
   return (
     <div>
-      <h1>Welcome, {user ? user.name : 'Guest'}</h1>
-      {/* Your other components or JSX here */}
+     <Hero/>
+     <Categories />
+     <BestDeals />
+     <Events />
+     <FeaturedProduct />
+     <Sponsored />
+
     </div>
   );
 };

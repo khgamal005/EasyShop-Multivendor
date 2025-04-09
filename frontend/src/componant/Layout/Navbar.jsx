@@ -1,11 +1,12 @@
-import React from 'react'
+
 import { Link } from 'react-router-dom'
 import { navItems } from '../../static/data'
-import styles from '../../styles/styles'
 
+
+// eslint-disable-next-line react/prop-types
 const Navbar = ({active}) => {
   return (
-    <div className="  hidden md:flex  justify-center items-center bg-blue-300">
+    <div className="  hidden md:flex  justify-center items-center">
          {
             navItems && navItems.map((i,index) => (
                 <div key={index} >
