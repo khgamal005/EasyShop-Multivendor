@@ -10,12 +10,19 @@ import ProductDetailsPage from '../pages/ProductDetailsPage'
 import BestSellingPage from '../pages/BestSellingPage'
 import FAQPage from '../pages/FAQPage'
 import EventsPage from '../pages/EventsPage'
+import ProfilePage from '../pages/ProfilePage'
+import ErrorPage from '../pages/ErrorPage'
+import ProtectedRoute from './ProtectedRoute'
 
 
 const router = createBrowserRouter([
+
+
+    
     {
         path : "/",
         element :<App/>,
+        errorElement: <ErrorPage />,
         children : [
             {
                 path : "",
@@ -58,10 +65,14 @@ const router = createBrowserRouter([
                 element : <FAQPage/>
             },
             {
-                path : "profile",
-                element : <ProfilePage/>
-            },
-             
+                path: "profile",
+                element: (
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                ),
+            }
+
 
         ]
     }

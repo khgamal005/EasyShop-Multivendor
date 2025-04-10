@@ -3,10 +3,14 @@ import './index.css';
 import { RouterProvider } from 'react-router-dom';
 import router from './routes'; // Your router configuration
 import { Provider } from "react-redux";
-import Store from "./redux/store.js";
+import { store, persistor } from "./redux/store.js"; // Import store and persistor
+import { PersistGate } from 'redux-persist/integration/react'; // Import PersistGat
+
 
 createRoot(document.getElementById('root')).render(
-  <Provider store={Store}>
-    <RouterProvider router={router} />
-   </Provider>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}> {/* PersistGate */}
+      <RouterProvider router={router} />
+    </PersistGate>
+  </Provider>
 );

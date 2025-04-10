@@ -1,2 +1,20 @@
 @import "tailwindcss";
 
+.grid {
+    display: grid;
+    justify-items: center;
+    row-gap: 50px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .notFound {
+    text-align: center;
+  }
+  
+  .notFound h1 {
+    font-size: 130px;
+  }
+  .notFound p {
+    font-size: 50px;
+  }
+  
