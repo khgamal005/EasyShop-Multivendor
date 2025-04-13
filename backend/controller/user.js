@@ -86,7 +86,7 @@ exports.activeUser = asyncHandler(async (req, res, next) => {
 
         avatar = {
           public_id: filename,
-          url: `${process.env.BACKEND_URL}/uploads/users/${filename}`,
+          url: `${process.env.BACKEND_URL}/users/${filename}`,
         };
 
         deleteTempAvatar(tempAvatarId);
@@ -119,3 +119,41 @@ exports.login = asyncHandler(async (req, res, next) => {
   delete user._doc.password;
   sendToken(user, 201, res);
 });
+
+
+// load user
+exports.getuser= asyncHandler(async (req, res, next) => {
+    try {
+      const user = await userModel.findById(req.user.id);
+
+      if (!user) {
+        return next(new ErrorHandler("User doesn't exists", 400));
+      }
+      console.log(user)
+
+      res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+
+
+  // log out user
+  exports.logout=asyncHandler(async (req, res, next) => {
+
+      res.cookie("token", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+      res.status(201).json({
+        success: true,
+        message: "Log out successful!",
+      });
+    
+  })
+

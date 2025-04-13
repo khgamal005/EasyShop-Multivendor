@@ -1,7 +1,7 @@
 const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("./catchAsyncErrors");
 const jwt = require("jsonwebtoken");
-const User = require("../model/user");
+const User = require("../model/userModel");
 const Shop = require("../model/shop");
 
 exports.isAuthenticated = catchAsyncErrors(async(req,res,next) => {
@@ -33,11 +33,11 @@ exports.isSeller = catchAsyncErrors(async(req,res,next) => {
 });
 
 
-exports.isAdmin = (...roles) => {
-    return (req,res,next) => {
-        if(!roles.includes(req.user.role)){
-            return next(new ErrorHandler(`${req.user.role} can not access this resources!`))
-        };
-        next();
-    }
-}
+// exports.isAdmin = (...roles) => {
+//     return (req,res,next) => {
+//         if(!roles.includes(req.user.role)){
+//             return next(new ErrorHandler(`${req.user.role} can not access this resources!`))
+//         };
+//         next();
+//     }
+// }

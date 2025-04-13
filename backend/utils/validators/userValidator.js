@@ -67,10 +67,7 @@ exports.loginValidator = [
   validatorMiddleware,
 ];
 
-// exports.getUserValidator = [
-//   check('id').isMongoId().withMessage('Invalid User id format'),
-//   validatorMiddleware,
-// ];
+
 
 // exports.updateUserValidator = [
 //   check('id').isMongoId().withMessage('Invalid User id format'),
