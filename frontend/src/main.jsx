@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { store, persistor } from "./redux/store.js"; // Import store and persistor
 import { PersistGate } from 'redux-persist/integration/react'; // Import PersistGat
 
-
+ 
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}> {/* PersistGate */}
