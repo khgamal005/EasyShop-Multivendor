@@ -7,7 +7,6 @@ const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const ErrorHandler = require("../utils/ErrorHandler");
-const bcrypt = require("bcryptjs");
 const { saveTempAvatar, getTempAvatar, deleteTempAvatar } = require('../utils/tempImageStore');
 const sendShopToken = require("../utils/shopToken");
 
@@ -85,7 +84,7 @@ exports.activeSeller = asyncHandler(async (req, res, next) => {
           if (tempAvatarId) {
             const avatarBuffer = getTempAvatar(tempAvatarId);
             if (avatarBuffer) {
-              const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
+              const filename = `seller-${uuidv4()}-${Date.now()}.jpeg`;
       
               await sharp(avatarBuffer)
                 .resize(600, 600)
@@ -95,7 +94,7 @@ exports.activeSeller = asyncHandler(async (req, res, next) => {
       
               avatar = {
                 public_id: filename,
-                url: `${process.env.BACKEND_URL}/seller/${filename}`,
+                url: `${process.env.BACKEND_URL}/sellers/${filename}`,
               };
       
               deleteTempAvatar(tempAvatarId);
