@@ -42,18 +42,19 @@ const productSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Brand',
   },
-  images: [
-    {
-      public_id: {
-        type: String,
-        required: true,
-      },
-      url: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+  // images: [
+  //   {
+  //     public_id: {
+  //       type: String,
+  //       required: true,
+  //     },
+  //     url: {
+  //       type: String,
+  //       required: true,
+  //     },
+  //   },
+  // ],
+  images: [String],
   reviews: [
     {
       user: {
@@ -81,10 +82,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  shop: {
-    type: Object,
-    required: true,
-  },
+  // shop: {
+  //   type: Object,
+  //   required: true,
+  // },
   sold_out: {
     type: Number,
     default: 0,
@@ -93,6 +94,16 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+});
+
+
+// Mongoose query middleware
+productSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'category',
+    select: 'name -_id',
+  });
+  next();
 });
 
 module.exports = mongoose.model("Product", productSchema);

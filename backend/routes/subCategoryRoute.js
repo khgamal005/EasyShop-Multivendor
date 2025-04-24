@@ -9,7 +9,7 @@ const {
 
 const {
   createSubCategory,
-  getSubCategory,
+  getsubCategory,
   getSubCategories,
   updateSubCategory,
   deleteSubCategory,
@@ -17,13 +17,12 @@ const {
   createFilterObj,
 } = require("../controller/subcategory");
 
-// const subcategoriesRoute = require('./subCategoryRoute');
 
 const { isSeller, isAdmin } = require("../middleware/auth");
 
 const router = express.Router({ mergeParams: true });
 
-// router.route("/").get(createFilterObj, getSubCategories);
+router.route("/").get(createFilterObj, getSubCategories);
 
 router
   .route("/create-subCategory")
@@ -34,21 +33,19 @@ router
     createSubCategoryValidator,
     createSubCategory
   );
-// router
-//   .route("/:id")
-//   .get(getSubCategoryValidator, getSubCategory)
-//   .put(
-//     isSeller,
-//     isAdmin("Seller", "admin"),
-
-//     resizeImage,
-//     updateSubCategoryValidator,
-//     updateSubCategory
-//   )
-//   .delete(
-//     isSeller,
-//     isAdmin("Seller", "admin"),
-//     deleteSubCategoryValidator,
-//     deleteSubCategory
-//   );
+router
+  .route("/:id")
+  .get(getSubCategoryValidator, getsubCategory)
+  .put(
+    isSeller,
+    isAdmin("Seller", "admin"),
+    updateSubCategoryValidator,
+    updateSubCategory
+  )
+  .delete(
+    isSeller,
+    isAdmin("Seller", "admin"),
+    deleteSubCategoryValidator,
+    deleteSubCategory
+  );
 module.exports = router;

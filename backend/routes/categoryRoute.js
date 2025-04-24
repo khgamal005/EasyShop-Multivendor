@@ -17,7 +17,7 @@ const {
   resizeImage
 } = require('../controller/category')
 
-// const subcategoriesRoute = require('./subCategoryRoute');
+const subcategoriesRoute = require('./subCategoryRoute');
 
 const{
     isSeller,isAdmin
@@ -25,12 +25,10 @@ const{
 
 const router = express.Router();
 
-// router.use('/:categoryId/subcategories', subcategoriesRoute);
+router.use('/:categoryId/subcategories', subcategoriesRoute);
 
-router
+
 router.route("/").get(
-  isSeller,
-  isAdmin("Seller","admin"),
   getCategories
 )
 

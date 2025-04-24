@@ -126,13 +126,10 @@ exports.getbrand = asyncHandler(async (req, res, next) => {
 
 
 exports.getBrands = asyncHandler(async (req, res) => {
-    let filter = {};
-    if (req.filterObj) {
-      filter = req.filterObj;
-    }
+
     // Build query
     const documentsCounts = await brand.countDocuments();
-    const apiFeatures = new ApiFeatures(brand.find(filter), req.query)
+    const apiFeatures = new ApiFeatures(brand.find(), req.query)
       .paginate(documentsCounts)
       .filter()
       .search(brand)

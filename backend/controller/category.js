@@ -118,13 +118,10 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCategories = asyncHandler(async (req, res) => {
-  let filter = {};
-  if (req.filterObj) {
-    filter = req.filterObj;
-  }
+
   // Build query
   const documentsCounts = await category.countDocuments();
-  const apiFeatures = new ApiFeatures(category.find(filter), req.query)
+  const apiFeatures = new ApiFeatures(category.find(), req.query)
     .paginate(documentsCounts)
     .filter()
     .search(category)
