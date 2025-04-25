@@ -42,10 +42,17 @@ const userSchema = new mongoose.Schema({
       },
     }
   ],
-  role:{
+  role: {
     type: String,
-    default: "user",
+    enum: ['user', 'admin'],
+    default: 'user',
   },
+  wishlist: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Product',
+    },
+  ],
   avatar:{
     public_id: {
       type: String,

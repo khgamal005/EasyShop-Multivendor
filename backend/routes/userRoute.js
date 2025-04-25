@@ -15,6 +15,8 @@ const {
     login,
     getuser,
     logout,
+    updateuserinfo,
+    updateAvatar,
 
 
 }= require("../controller/user")
@@ -31,6 +33,8 @@ router.get("/activation/:token", activeUser);
 router.post('/login', loginValidator, login);
 router.get('/getuser',isAuthenticated, getuser);
 router.get('/logout', logout);
+router.get("/update-user-info",isAuthenticated, updateuserinfo);
+router.put( "/update-avatar",isAuthenticated,uploadUserImage, updateAvatar);
   
 
 // Admin

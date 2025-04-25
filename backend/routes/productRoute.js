@@ -14,7 +14,8 @@ const {
   getProduct,
   getproducts,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getallproductsofshop
 
 
 } = require('../controller/product');
@@ -59,6 +60,8 @@ router
     deleteProductValidator,
     deleteProduct
   );
+
+  router.route("/get-all-products-shop/:id").get(getallproductsofshop)
 
 router
 module.exports = router;
