@@ -21,7 +21,7 @@ const {
 } = require('../controller/product');
 
 const{
-  isSeller,isAdmin
+  isSeller,isAdminOrSeller
 }=require("../middleware/auth")
 
 
@@ -36,7 +36,7 @@ router.route("/").get(
 router.route("/create-product")
   .post(
     isSeller,
-    isAdmin("Seller","admin"),
+    isAdminOrSeller("Seller","admin"),
     uploadProductImages,
     resizeProductImages,
     createProductValidator,
@@ -48,7 +48,7 @@ router
   .get(getProductValidator, getProduct)
   .put(
     isSeller,
-    isAdmin("Seller","admin"),
+    isAdminOrSeller("Seller","admin"),
     uploadProductImages,
     resizeProductImages,
     updateProductValidator,
@@ -56,7 +56,7 @@ router
   )
   .delete(
     isSeller,
-    isAdmin("Seller","admin"),
+    isAdminOrSeller("Seller","admin"),
     deleteProductValidator,
     deleteProduct
   );

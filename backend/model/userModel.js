@@ -20,28 +20,19 @@ const userSchema = new mongoose.Schema({
   phoneNumber:{
     type: Number,
   },
-  addresses:[
+  addresses: [
     {
-      country: {
-        type: String,
-      },
-      city:{
-        type: String,
-      },
-      address1:{
-        type: String,
-      },
-      address2:{
-        type: String,
-      },
-      zipCode:{
-        type: Number,
-      },
-      addressType:{
-        type: String,
-      },
-    }
+      id: { type: mongoose.Schema.Types.ObjectId,auto: true },
+      country: String,
+      city : String,
+      address1: String,
+      address2: String,
+      phone: String,
+      city: String,
+      postalCode: String,
+    },
   ],
+
   role: {
     type: String,
     enum: ['user', 'admin'],
@@ -69,6 +60,23 @@ const userSchema = new mongoose.Schema({
  },
  resetPasswordToken: String,
  resetPasswordTime: Date,
+ passwordChangedAt: Date,
+ passwordResetCode: String,
+ passwordResetExpires: Date,
+ passwordResetVerified: Boolean,
+
+ passwordResetTries: {
+  type: Number,
+  default: 0,
+},
+isBlockedFromReset: {
+  type: Boolean,
+  default: false,
+},
+ active: {
+  type: Boolean,
+  default: true,
+},
 });
 
 

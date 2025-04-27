@@ -2,11 +2,12 @@ const asyncHandler = require("express-async-handler");
 const { uploadSingleImage } = require("../middleware/uploadImageMiddleware");
 const userModel = require("../model/userModel");
 const { v4: uuidv4 } = require("uuid");
+const crypto = require("crypto");
 const sharp = require("sharp");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
-const ErrorHandler = require("../utils/ErrorHandler");
+const ApiError = require("../utils/ErrorHandler");
 const bcrypt = require("bcryptjs");
 const fs = require("fs");
 const path = require("path");
@@ -235,67 +236,232 @@ exports.updateAvatar = asyncHandler(async (req, res, next) => {
   res.status(200).json({ data: updatedUser });
 });
 
+////add address
+
+// exports.addAddress = asyncHandler(async (req, res, next) => {
+//   const user = await userModel.findById(req.user.id);
+//   if (!user) return next(new ApiError("User not found", 404));
+
+//   user.addresses.push(req.body); // push new address to array
+//   await user.save();
+
+//   res.status(201).json({ message: "Address added", addresses: user.addresses });
+// });
+
+exports.addAddress = asyncHandler(async (req, res, next) => {
+  const result = await userModel.updateOne(
+    { _id: req.user.id },
+    { $push: { addresses: req.body } }
+  );
+
+  if (result.modifiedCount === 0) {
+    return next(new ApiError("Failed to add address", 400));
+  }
+
+  res.status(201).json({ message: "Address added successfully" });
+});
 
 
+//update address
+exports.updateAddress = asyncHandler(async (req, res, next) => {
+  const { addressId } = req.params;
+  const user = await userModel.findById(req.user.id);
 
-// @desc    Forgot password
-// @route   POST /api/v1/auth/forgotPassword
-// @access  Public
-exports.forgotPassword = asyncHandler(async (req, res, next) => {
-  // 1) Get user by email
-  const user = await userModel.findOne({ email: req.body.email });
   if (!user) {
+    return next(new ApiError("User not found", 404));
+  }
+
+  // Find the index of the address to update
+  const addressIndex = user.addresses.findIndex(
+    (address) => address._id.toString() === addressId
+  );
+
+  if (addressIndex === -1) {
+    return next(new ApiError("Address not found", 404));
+  }
+
+  // Update address fields
+  user.addresses[addressIndex] = {
+    ...user.addresses[addressIndex]._doc, // preserve existing fields
+    ...req.body, // apply updates
+  };
+
+  await user.save();
+
+  res.status(200).json({
+    message: "Address updated successfully",
+    addresses: user.addresses,
+  });
+});
+
+//delete address
+
+// exports.deleteAddress = asyncHandler(async (req, res, next) => {
+//   const user = await userModel.findById(req.user.id);
+//   if (!user) return next(new ApiError("User not found", 404));
+
+//   user.addresses = user.addresses.filter(
+//     (addr) => addr._id.toString() !== req.params.addressId
+//   );
+
+//   await user.save();
+
+//   res.status(200).json({ message: "Address deleted", addresses: user.addresses });
+// });
+
+exports.deleteAddress = asyncHandler(async (req, res, next) => {
+  const { addressId } = req.params;
+
+  const result = await userModel.updateOne(
+    { _id: req.user.id },
+    { $pull: { addresses: { _id: addressId } } }
+  );
+
+  if (result.modifiedCount === 0) {
+    return next(new ApiError("Address not found or already deleted", 404));
+  }
+
+  res.status(200).json({ message: "Address deleted successfully" });
+});
+
+
+// @desc    Deactivate logged user
+// @route   DELETE /api/v1/user/deleteMe
+// @access  Private/Protect
+exports.deleteLoggedUserData = asyncHandler(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+
+  res.status(204).json({ status: 'Success' });
+});
+
+
+  exports.adminallusers=asyncHandler(async (req, res, next) => {
+
+      const users = await userModel.find().sort({
+        createdAt: -1,
+      });
+      res.status(201).json({
+        success: true,
+        users,
+      });
+    })
+    
+    exports.deleteuser = asyncHandler(async (req, res, next) => {
+      const user = await userModel.findById(req.params.id);
+      if (!user) {
+        return next(new ApiError(`No document for this user ${req.user.id}`, 404));
+      }
+    
+      // If there is a new file uploaded
+     
+        // Delete the old image from disk
+        if (user.avatar?.url) {
+          const oldFilename = user.avatar.url.split("/users/")[1];
+          const oldImagePath = path.join(__dirname, "../uploads/users", oldFilename);
+    
+          fs.unlink(oldImagePath, (err) => {
+            if (err) {
+              console.error("Error deleting old image:", err.message);
+            } else {
+              console.log("Old image deleted:", oldFilename);
+            }
+          });
+        }
+    
+
+      
+  // Delete the product from DB
+  const document = await userModel.findByIdAndDelete(req.params.id);
+  if (!document) {
+    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+  }
+
+  res.status(200).json({
+    message: "user deleted successfully",
+  });
+});
+
+  
+exports.changeUserPassword = asyncHandler(async (req, res, next) => {
+  const user = await userModel.findById(req.user.id).select("+password");
+
+  const isPasswordMatched = await user.comparePassword(
+    req.body.oldPassword
+  );
+
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("Old password is incorrect!", 400));
+  }
+
+  if (req.body.newPassword !== req.body.confirmPassword) {
     return next(
-      new ApiError(`There is no user with that email ${req.body.email}`, 404)
+      new ErrorHandler("Password doesn't matched with each other!", 400)
     );
   }
-  // 2) If user exist, Generate hash reset random 6 digits and save it in db
-  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-  const hashedResetCode = crypto
-    .createHash("sha256")
-    .update(resetCode)
-    .digest("hex");
+  user.password = req.body.newPassword;
 
-  // Save hashed password reset code into db
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password updated successfully!",
+  });
+});
+
+// // @desc    Forgot password
+// // @route   POST /api/v1/auth/forgotPassword
+// // @access  Public
+exports.forgotPassword = asyncHandler(async (req, res, next) => {
+  // 1) Find the user by email
+  const user = await userModel.findOne({ email: req.body.email });
+  if (!user) {
+    return next(new ApiError(`There is no user with email ${req.body.email}`, 404));
+  }
+
+  // 2) Reset any previous tries or block status
+  user.passwordResetTries = 0;
+  user.isBlockedFromReset = false;
+
+  // 3) Generate a new OTP
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const hashedResetCode = crypto.createHash("sha256").update(resetCode).digest("hex");
+
+
   user.passwordResetCode = hashedResetCode;
-  // Add expiration time for password reset code (10 min)
-  user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // expires in 10 mins
   user.passwordResetVerified = false;
 
   await user.save();
 
-  // 3) Send the reset code via email
-  const message = `Hi ${user.name},\n We received a request to reset the password on your E-shop Account. \n ${resetCode}
-   \n Enter this code to complete the reset. \n Thanks for helping us keep your account secure.\n The E-shop Team`;
+  // 4) Send the OTP code via email
+  const message = `Hi ${user.name},\nWe received a request to reset the password.\nYour reset code: ${resetCode}\nValid for 10 minutes.`;
+  
   try {
-    await sendEmail({
+    await sendMail({
       email: user.email,
-      subject: "Your password reset code (valid for 10 min)",
+      subject: "Your password reset code",
       message,
     });
+
+    res.status(200).json({ status: "Success", message: "Reset code sent to email" });
   } catch (err) {
+    // Rollback in case of email failure
     user.passwordResetCode = undefined;
     user.passwordResetExpires = undefined;
     user.passwordResetVerified = undefined;
-
     await user.save();
-    return next(new ApiError("There is an error in sending email", 500));
+    return next(new ApiError("There is an error sending the email", 500));
   }
-
-  res
-    .status(200)
-    .json({ status: "Success", message: "Reset code sent to email" });
 });
 
-// @desc    Verify password reset code
-// @route   POST /api/v1/auth/verifyResetCode
-// @access  Public
+
+// // @desc    Verify password reset code
+// // @route   POST /api/v1/auth/verifyResetCode
+// // @access  Public
 exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
   // 1) Get user based on reset code
-  const hashedResetCode = crypto
-    .createHash("sha256")
-    .update(req.body.resetCode)
-    .digest("hex");
+  const hashedResetCode = crypto.createHash("sha256").update(req.body.resetCode).digest("hex");
+
 
   const user = await userModel.findOne({
     passwordResetCode: hashedResetCode,
@@ -304,19 +470,42 @@ exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
   if (!user) {
     return next(new ApiError("Reset code invalid or expired"));
   }
+    // Bonus: If OTP expired, auto-block
+    if (user.passwordResetExpires < Date.now()) {
+      user.isBlockedFromReset = true;
+      await user.save();
+      return next(new ApiError("Reset code expired. Please request a new one.", 400));
+    }
+  if (user.isBlockedFromReset) {
+    return next(new ApiError("You have been blocked from resetting password. Please request a new code.", 400));
+  }
 
+  if (hashedResetCode !== user.passwordResetCode) {
+    user.passwordResetTries += 1;
+
+    // If tries exceed 5, block the user
+    if (user.passwordResetTries >= 5) {
+      user.isBlockedFromReset = true;
+    }
+
+    await user.save();
+    return next(new ApiError("Invalid reset code", 400));
+  }
   // 2) Reset code valid
   user.passwordResetVerified = true;
+  user.passwordResetTries = 0; // reset tries
+  user.isBlockedFromReset = false;
   await user.save();
 
   res.status(200).json({
     status: "Success",
+    message: "Reset code verified successfully",
   });
 });
 
-// @desc    Reset password
-// @route   POST /api/v1/auth/resetPassword
-// @access  Public
+// // @desc    Reset password
+// // @route   POST /api/v1/auth/resetPassword
+// // @access  Public
 exports.resetPassword = asyncHandler(async (req, res, next) => {
   // 1) Get user based on email
   const user = await userModel.findOne({ email: req.body.email });
@@ -339,5 +528,8 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   await user.save();
 
   // 3) if everything is ok, generate token
-  sendToken(user, 201, res);
+  res.status(200).json({
+    status: "Success",
+    message: "password updated successfully",
+  });
 });
