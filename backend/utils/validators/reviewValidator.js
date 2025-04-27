@@ -1,6 +1,6 @@
 const { check, body } = require('express-validator');
-const validatorMiddleware = require('../../middlewares/validatorMiddleware');
-const Review = require('../../models/reviewModel');
+const validatorMiddleware = require("../../middleware/validatorMiddleware");
+const Review = require('../../model/review');
 
 exports.createReviewValidator = [
   check('title').optional(),
@@ -17,7 +17,6 @@ exports.createReviewValidator = [
       // Check if logged user create review before
       Review.findOne({ user: req.user._id, product: req.body.product }).then(
         (review) => {
-          console.log(review);
           if (review) {
             return Promise.reject(
               new Error('You already created a review before')

@@ -24,7 +24,6 @@ exports.setCategoryIdToBody = (req, res, next) => {
     let filterObject = {};
     if (req.params.categoryId) filterObject = { category: req.params.categoryId };
     req.filterObj = filterObject;
-    console.log(filterObject)
     next();
   };
   

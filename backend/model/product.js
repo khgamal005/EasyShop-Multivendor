@@ -55,28 +55,14 @@ const productSchema = new mongoose.Schema({
   //   },
   // ],
   images: [String],
-  reviews: [
-    {
-      user: {
-        type: Object,
-      },
-      rating: {
-        type: Number,
-      },
-      comment: {
-        type: String,
-      },
-      productId: {
-        type: String,
-      },
-      createdAt:{
-        type: Date,
-        default: Date.now(),
-      }
-    },
-  ],
-  ratings: {
+  ratingsAverage: {
     type: Number,
+    min: [1, 'Rating must be above or equal 1.0'],
+    max: [5, 'Rating must be below or equal 5.0'],
+  },
+  ratingsQuantity: {
+    type: Number,
+    default: 0,
   },
   shopId: {
     type: String,
