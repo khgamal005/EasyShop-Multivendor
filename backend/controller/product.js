@@ -43,15 +43,21 @@ exports.resizeProductImages = asyncHandler(async (req, res, next) => {
 
 // create product
 exports.createProduct = asyncHandler(async (req, res, next) => {
-  const shopId = req.body.shopId;
+  const shopId = req.seller.id;
+
   const shop = await Shop.findById(shopId);
   if (!shop) {
     return next(new ErrorHandler("Shop Id is invalid!", 400));
-  } else {
-    const newDoc = await Product.create(req.body);
-    res.status(201).json({ message: "productcreated", data: newDoc });
   }
+
+  // Add the shopId to the product body
+  req.body.shopId = shopId;
+
+  const newDoc = await Product.create(req.body);
+
+  res.status(201).json({ message: "Product created", data: newDoc });
 });
+
 
 exports.getProduct = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
@@ -59,7 +65,7 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
   const document = await Product.findById(id);
 
   if (!document) {
-    return next(new ApiError(`No document for this id ${id}`, 404));
+    return next(new ErrorHandler(`No document for this id ${id}`, 404));
   }
   res.status(200).json({ data: document });
 });
@@ -87,9 +93,9 @@ exports.getproducts = asyncHandler(async (req, res) => {
 
 
 exports.updateProduct = asyncHandler(async (req, res, next) => {
-  const existingProduct = await Product.findById(req.params.id);
+  const existingProduct = req.product; // from validator
   if (!existingProduct) {
-    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+    return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
   }
 
   // If new images are provided, check which old images need to be deleted
@@ -121,16 +127,16 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
   });
 
   if (!document) {
-    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+    return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
   }
 
   res.status(200).json({ data: document });
 });
 
 exports.deleteProduct = asyncHandler(async (req, res, next) => {
-  const existingProduct = await Product.findById(req.params.id);
+  const existingProduct =  req.product
   if (!existingProduct) {
-    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+    return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
   }
 
   // Delete images from disk (if filenames are stored directly)
@@ -151,7 +157,7 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
   // Delete the product from DB
   const document = await Product.findByIdAndDelete(req.params.id);
   if (!document) {
-    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+    return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
   }
 
   res.status(200).json({
@@ -182,117 +188,3 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
     .status(200)
     .json({ results: documents.length, paginationResult, data: documents });
 });
-
-
-
-  
-  
-
-
-// // delete product of a shop
-// router.delete(
-//   "/delete-shop-product/:id",
-//   isSeller,
-//   catchAsyncErrors(async (req, res, next) => {
-//     try {
-//       const product = await Product.findById(req.params.id);
-
-//       if (!product) {
-//         return next(new ErrorHandler("Product is not found with this id", 404));
-//       }
-
-//       for (let i = 0; 1 < product.images.length; i++) {
-//         const result = await cloudinary.v2.uploader.destroy(
-//           product.images[i].public_id
-//         );
-//       }
-
-//       await product.remove();
-
-//       res.status(201).json({
-//         success: true,
-//         message: "Product Deleted successfully!",
-//       });
-//     } catch (error) {
-//       return next(new ErrorHandler(error, 400));
-//     }
-//   })
-// );
-
-
-// // review for a product
-// router.put(
-//   "/create-new-review",
-//   isAuthenticated,
-//   catchAsyncErrors(async (req, res, next) => {
-//     try {
-//       const { user, rating, comment, productId, orderId } = req.body;
-
-//       const product = await Product.findById(productId);
-
-//       const review = {
-//         user,
-//         rating,
-//         comment,
-//         productId,
-//       };
-
-//       const isReviewed = product.reviews.find(
-//         (rev) => rev.user._id === req.user._id
-//       );
-
-//       if (isReviewed) {
-//         product.reviews.forEach((rev) => {
-//           if (rev.user._id === req.user._id) {
-//             (rev.rating = rating), (rev.comment = comment), (rev.user = user);
-//           }
-//         });
-//       } else {
-//         product.reviews.push(review);
-//       }
-
-//       let avg = 0;
-
-//       product.reviews.forEach((rev) => {
-//         avg += rev.rating;
-//       });
-
-//       product.ratings = avg / product.reviews.length;
-
-//       await product.save({ validateBeforeSave: false });
-
-//       await Order.findByIdAndUpdate(
-//         orderId,
-//         { $set: { "cart.$[elem].isReviewed": true } },
-//         { arrayFilters: [{ "elem._id": productId }], new: true }
-//       );
-
-//       res.status(200).json({
-//         success: true,
-//         message: "Reviwed succesfully!",
-//       });
-//     } catch (error) {
-//       return next(new ErrorHandler(error, 400));
-//     }
-//   })
-// );
-
-// // all products --- for admin
-// router.get(
-//   "/admin-all-products",
-//   isAuthenticated,
-//   isAdmin("Admin"),
-//   catchAsyncErrors(async (req, res, next) => {
-//     try {
-//       const products = await Product.find().sort({
-//         createdAt: -1,
-//       });
-//       res.status(201).json({
-//         success: true,
-//         products,
-//       });
-//     } catch (error) {
-//       return next(new ErrorHandler(error.message, 500));
-//     }
-//   })
-// );

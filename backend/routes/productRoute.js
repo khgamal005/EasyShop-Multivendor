@@ -4,6 +4,7 @@ const {
   createProductValidator,
    updateProductValidator,
    deleteProductValidator,
+   
 } = require('../utils/validators/productValidator');
 
 const {
@@ -15,13 +16,14 @@ const {
   getproducts,
   updateProduct,
   deleteProduct,
-  getallproductsofshop
+  getallproductsofshop,
+  
 
 
 } = require('../controller/product');
 
 const{
-  isSeller,isAdminOrSeller
+  isSeller,isAdminOrSeller,isAuthenticated
 }=require("../middleware/auth")
 
 
@@ -35,8 +37,8 @@ router.route("/").get(
 
 router.route("/create-product")
   .post(
-    isSeller,
-    isAdminOrSeller("Seller","admin"),
+    isAuthenticated,               // Authenticate and attach req.user or req.seller
+    isAdminOrSeller, // Admin or Seller check
     uploadProductImages,
     resizeProductImages,
     createProductValidator,
@@ -47,21 +49,22 @@ router
   .route('/:id')
   .get(getProductValidator, getProduct)
   .put(
-    isSeller,
-    isAdminOrSeller("Seller","admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     uploadProductImages,
     resizeProductImages,
     updateProductValidator,
     updateProduct
   )
   .delete(
-    isSeller,
-    isAdminOrSeller("Seller","admin"),
-    deleteProductValidator,
-    deleteProduct
+    isAuthenticated,               // Authenticate and attach req.user or req.seller
+    isAdminOrSeller, // Admin or Seller check
+    deleteProductValidator,        // Validate product ownership
+    deleteProduct    
   );
 
   router.route("/get-all-products-shop/:id").get(getallproductsofshop)
+
 
 router
 module.exports = router;

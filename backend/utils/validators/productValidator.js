@@ -1,9 +1,9 @@
-
 const { check } = require("express-validator");
 
 const validatorMiddleware = require("../../middleware/validatorMiddleware");
 const Category = require("../../model/category");
 const SubCategory = require("../../model/subCategory");
+const Product = require("../../model/product");
 
 exports.createProductValidator = [
   check("name")
@@ -67,37 +67,45 @@ exports.createProductValidator = [
       })
     ),
 
-  check('subcategories')
-  .optional()
-  .customSanitizer((value) => {
-    if (!value) return [];
-    return Array.isArray(value) ? value : [value];
-  })
-  .isArray()
-  .withMessage('Subcategories must be an array of MongoDB IDs')
-  .custom((arr) => {
-    const isValid = arr.every((id) => /^[0-9a-fA-F]{24}$/.test(id));
-    if (!isValid) {
-      throw new Error('One or more subcategory IDs are not valid MongoDB ObjectIds');
-    }
-    return true;
-  })
-  .custom((subcategoriesIds) =>
-    SubCategory.find({ _id: { $in: subcategoriesIds } }).then((result) => {
-      if (result.length !== subcategoriesIds.length) {
-        return Promise.reject(new Error(`Invalid subcategories Ids`));
-      }
+  check("subcategories")
+    .optional()
+    .customSanitizer((value) => {
+      if (!value) return [];
+      return Array.isArray(value) ? value : [value];
     })
-  )
-  .custom((val, { req }) =>
-    SubCategory.find({ category: req.body.category }).then((subcategories) => {
-      const subCategoriesIdsInDB = subcategories.map((sub) => sub._id.toString());
-      const allBelong = val.every((v) => subCategoriesIdsInDB.includes(v));
-      if (!allBelong) {
-        return Promise.reject(new Error(`Subcategories do not belong to the selected category`));
+    .isArray()
+    .withMessage("Subcategories must be an array of MongoDB IDs")
+    .custom((arr) => {
+      const isValid = arr.every((id) => /^[0-9a-fA-F]{24}$/.test(id));
+      if (!isValid) {
+        throw new Error(
+          "One or more subcategory IDs are not valid MongoDB ObjectIds"
+        );
       }
+      return true;
     })
-  ),
+    .custom((subcategoriesIds) =>
+      SubCategory.find({ _id: { $in: subcategoriesIds } }).then((result) => {
+        if (result.length !== subcategoriesIds.length) {
+          return Promise.reject(new Error(`Invalid subcategories Ids`));
+        }
+      })
+    )
+    .custom((val, { req }) =>
+      SubCategory.find({ category: req.body.category }).then(
+        (subcategories) => {
+          const subCategoriesIdsInDB = subcategories.map((sub) =>
+            sub._id.toString()
+          );
+          const allBelong = val.every((v) => subCategoriesIdsInDB.includes(v));
+          if (!allBelong) {
+            return Promise.reject(
+              new Error(`Subcategories do not belong to the selected category`)
+            );
+          }
+        }
+      )
+    ),
 
   check("brand").optional().isMongoId().withMessage("Invalid ID formate"),
   check("ratingsAverage")
@@ -122,6 +130,32 @@ exports.getProductValidator = [
 ];
 
 exports.updateProductValidator = [
+  check('id')
+    .isMongoId()
+    .withMessage('Invalid product id format')
+    .custom(async (val, { req }) => {
+      const product = await Product.findById(val);
+
+      if (!product) {
+        return Promise.reject(new Error('No product found with this id'));
+      }
+
+    // Admin can delete any product
+    if (req.role === 'admin') {
+      req.product = product; // Attach product to req for controller
+      return true;
+    }
+
+    // Seller can only delete their own products
+    if (req.role === 'Seller' && product.shopId.toString() !== req.seller.id.toString()) {
+      return Promise.reject(new Error('You are not allowed to edit this product'));
+    }
+
+    req.product = product; // Attach product to req for controller
+    return true;
+    }),
+
+  // Fields Validations
   check("name")
     .isLength({ min: 2 })
     .optional()
@@ -135,7 +169,7 @@ exports.updateProductValidator = [
     .isLength({ max: 2000 })
     .withMessage("Too long description"),
   check("stock")
-  .optional()
+    .optional()
     .notEmpty()
     .withMessage("Product quantity is required")
     .isNumeric()
@@ -145,7 +179,7 @@ exports.updateProductValidator = [
     .isNumeric()
     .withMessage("Product quantity must be a number"),
   check("originalPrice")
-  .optional()
+    .optional()
     .notEmpty()
     .withMessage("Product price is required")
     .isNumeric()
@@ -173,7 +207,7 @@ exports.updateProductValidator = [
     .isArray()
     .withMessage("images should be array of string"),
   check("category")
-  .optional()
+    .optional()
     .notEmpty()
     .withMessage("Product must be belong to a category")
     .isMongoId()
@@ -188,37 +222,45 @@ exports.updateProductValidator = [
       })
     ),
 
-  check('subcategories')
-  .optional()
-  .customSanitizer((value) => {
-    if (!value) return [];
-    return Array.isArray(value) ? value : [value];
-  })
-  .isArray()
-  .withMessage('Subcategories must be an array of MongoDB IDs')
-  .custom((arr) => {
-    const isValid = arr.every((id) => /^[0-9a-fA-F]{24}$/.test(id));
-    if (!isValid) {
-      throw new Error('One or more subcategory IDs are not valid MongoDB ObjectIds');
-    }
-    return true;
-  })
-  .custom((subcategoriesIds) =>
-    SubCategory.find({ _id: { $in: subcategoriesIds } }).then((result) => {
-      if (result.length !== subcategoriesIds.length) {
-        return Promise.reject(new Error(`Invalid subcategories Ids`));
-      }
+  check("subcategories")
+    .optional()
+    .customSanitizer((value) => {
+      if (!value) return [];
+      return Array.isArray(value) ? value : [value];
     })
-  )
-  .custom((val, { req }) =>
-    SubCategory.find({ category: req.body.category }).then((subcategories) => {
-      const subCategoriesIdsInDB = subcategories.map((sub) => sub._id.toString());
-      const allBelong = val.every((v) => subCategoriesIdsInDB.includes(v));
-      if (!allBelong) {
-        return Promise.reject(new Error(`Subcategories do not belong to the selected category`));
+    .isArray()
+    .withMessage("Subcategories must be an array of MongoDB IDs")
+    .custom((arr) => {
+      const isValid = arr.every((id) => /^[0-9a-fA-F]{24}$/.test(id));
+      if (!isValid) {
+        throw new Error(
+          "One or more subcategory IDs are not valid MongoDB ObjectIds"
+        );
       }
+      return true;
     })
-  ),
+    .custom((subcategoriesIds) =>
+      SubCategory.find({ _id: { $in: subcategoriesIds } }).then((result) => {
+        if (result.length !== subcategoriesIds.length) {
+          return Promise.reject(new Error(`Invalid subcategories Ids`));
+        }
+      })
+    )
+    .custom((val, { req }) =>
+      SubCategory.find({ category: req.body.category }).then(
+        (subcategories) => {
+          const subCategoriesIdsInDB = subcategories.map((sub) =>
+            sub._id.toString()
+          );
+          const allBelong = val.every((v) => subCategoriesIdsInDB.includes(v));
+          if (!allBelong) {
+            return Promise.reject(
+              new Error(`Subcategories do not belong to the selected category`)
+            );
+          }
+        }
+      )
+    ),
 
   check("brand").optional().isMongoId().withMessage("Invalid ID formate"),
   check("ratingsAverage")
@@ -237,7 +279,31 @@ exports.updateProductValidator = [
   validatorMiddleware,
 ];
 
+
+
 exports.deleteProductValidator = [
-  check("id").isMongoId().withMessage("Invalid ID formate"),
+  check('id')
+    .isMongoId()
+    .withMessage('Invalid product id format')
+    .custom(async (val, { req }) => {
+      const product = await Product.findById(val);
+      if (!product) {
+        return Promise.reject(new Error('No product found with this id'));
+      }
+
+       // Admin can delete any product
+       if (req.role === 'admin') {
+        req.product = product; // Attach product to req for controller
+        return true;
+      }
+
+      // Seller can only delete their own products
+      if (req.role === 'Seller' && product.shopId.toString() !== req.seller.id.toString()) {
+        return Promise.reject(new Error('You are not allowed to delete this product'));
+      }
+
+      req.product = product; // Attach product to req for controller
+      return true;
+    }),
   validatorMiddleware,
 ];

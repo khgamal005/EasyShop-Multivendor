@@ -64,14 +64,14 @@ exports.activeUser = asyncHandler(async (req, res, next) => {
     const newUser = jwt.verify(token, process.env.ACTIVATION_SECRET);
 
     if (!newUser) {
-      return next(new ErrorHandler("Invalid token", 400));
+      return next(new ("Invalid token", 400));
     }
     const { name, email, password, tempAvatarId } = newUser;
 
     let user = await userModel.findOne({ email });
 
     if (user) {
-      return next(new ErrorHandler("User already exists", 400));
+      return next(new ("User already exists", 400));
     }
 
     let avatar = null;
@@ -104,7 +104,7 @@ exports.activeUser = asyncHandler(async (req, res, next) => {
 
     sendToken(user, 201, res);
   } catch (error) {
-    return next(new ErrorHandler(error.message, 500));
+    return next(new (error.message, 500));
   }
 });
 
@@ -116,7 +116,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     .select("+password");
 
   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-    return next(new ErrorHandler("Incorrect email or password", 401));
+    return next(new ("Incorrect email or password", 401));
   }
 
   delete user._doc.password;
@@ -129,7 +129,7 @@ exports.getuser = asyncHandler(async (req, res, next) => {
     const user = await userModel.findById(req.user.id);
 
     if (!user) {
-      return next(new ErrorHandler("User doesn't exists", 400));
+      return next(new ("User doesn't exists", 400));
     }
 
     res.status(200).json({
@@ -137,7 +137,7 @@ exports.getuser = asyncHandler(async (req, res, next) => {
       user,
     });
   } catch (error) {
-    return next(new ErrorHandler(error.message, 500));
+    return next(new (error.message, 500));
   }
 });
 
@@ -163,14 +163,14 @@ exports.updateuserinfo = asyncHandler(async (req, res, next) => {
   const user = await userModel.findOne({ email }).select("+password");
 
   if (!user) {
-    return next(new ErrorHandler("User not found", 400));
+    return next(new ("User not found", 400));
   }
 
   const isPasswordValid = await user.comparePassword(password);
 
   if (!isPasswordValid) {
     return next(
-      new ErrorHandler("Please provide the correct information", 400)
+      new ("Please provide the correct information", 400)
     );
   }
 
@@ -390,12 +390,12 @@ exports.changeUserPassword = asyncHandler(async (req, res, next) => {
   );
 
   if (!isPasswordMatched) {
-    return next(new ErrorHandler("Old password is incorrect!", 400));
+    return next(new ("Old password is incorrect!", 400));
   }
 
   if (req.body.newPassword !== req.body.confirmPassword) {
     return next(
-      new ErrorHandler("Password doesn't matched with each other!", 400)
+      new ("Password doesn't matched with each other!", 400)
     );
   }
   user.password = req.body.newPassword;
