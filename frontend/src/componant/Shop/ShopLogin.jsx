@@ -28,7 +28,6 @@ const ShopLogin = () => {
         { withCredentials: true }
       )
       .then((res) => {
-          console.log(res)
               toast.success(res.data.message);
               dispatch(loadSeller());
               navigate("/");

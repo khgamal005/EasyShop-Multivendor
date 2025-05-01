@@ -9,22 +9,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 const Cart = ({ setOpenCart }) => {
-  // const { cart } = useSelector((state) => state.cart);
-  const { cart ,setc } = useState(1);
+  const { cart } = useSelector((product) => state.product);
   const dispatch = useDispatch();
 
   const removeFromCartHandler = (data) => {
-    // dispatch(removeFromCart(data));
+    dispatch(removeFromCart(data));
   };
 
-  // const totalPrice = cart.reduce(
-  //   (acc, item) => acc + item.qty * item.discountPrice,
-  //   0
-  // );
-     const totalPrice = 2
+  const totalPrice = cart.reduce(
+    (acc, item) => acc + item.qty * item.discountPrice,
+    0
+  );
 
   const quantityChangeHandler = (data) => {
-    // dispatch(addTocart(data));
+    dispatch(addTocart(data));
   };
 
   return (

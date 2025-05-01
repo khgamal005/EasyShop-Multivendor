@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../pages/HomePage";
 import SignupPage from "../pages/SignupPage";
-import LoginPage from "../pages/shop/LoginSellerPage";
+import LoginPage from "../pages/LoginPage";
 import ActivationPage from "../pages/ActivationPage";
 
 import App from "../App";
@@ -16,12 +16,16 @@ import ProtectedRoute from "./ProtectedRoute";
 import ShopCreatePage from "../pages/shop/ShopCreate";
 import ActivationShop from "../pages/shop/Activationshop";
 import ShopHomePage from "../pages/shop/ShopHomePage";
-import ShopLoginPage from "../pages/shop/ShopLoginPage";
 import SellerProtectedRoute from "./SellerProtectedRoute";
 import ShopDashboardPage from "../pages/shop/ShopDashboardPage";
 import DashboardHero from "../componant/Shop/DashboardHero";
 import AllOrders from "../componant/Shop/AllOrders";
 import ShopPreviewPage from "../pages/shop/ShopPreviewPage";
+import CreateProduct from "../componant/Shop/CreateProduct";
+import CreateBrand from "../componant/Shop/createBrand";
+import ShopLoginPage from "../pages/shop/ShopLoginPage";
+import CreateCategory from "../componant/Shop/CreateCategory";
+import CreateSubCategory from "../componant/Shop/CreateSubCategory ";
 
 const router = createBrowserRouter([
   {
@@ -121,7 +125,10 @@ const router = createBrowserRouter([
             element: <AllOrders />,
           },
           { path: "products", element: <div>All Products</div> },
-          { path: "create-product", element: <div>Create Product</div> },
+          { path: "create-product", element: <CreateProduct/> },
+          { path: "create-brand", element: <CreateBrand/> },
+          { path: "create-category", element: <CreateCategory/> },
+          { path: "create-subcategory", element: <CreateSubCategory/> },
           { path: "events", element: <div>All Events</div> },
           { path: "create-event", element: <div>Create Event</div> },
           { path: "withdraw", element: <div>Withdraw Money</div> },

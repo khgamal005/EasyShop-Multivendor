@@ -10,7 +10,7 @@ import DropDown from "../Layout/DropDown";
 import Navbar from "./Navbar";
 import EasyShopLogo from "./EasyShopLogo";
 import { categoriesData } from "../../static/data";
-import Cart from "../cart/Cart";
+// import Cart from "../cart/Cart";
 import Wishlist from "../Wishlist/Wishlist";
 
 const Header = ({
@@ -119,7 +119,7 @@ const Header = ({
             </span>
           </button>
           {/* cart popup */}
-          {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
+          {/* {openCart ? <Cart setOpenCart={setOpenCart} /> : null} */}
 
           {isAuthenticated ? (
             <Link to="/profile">

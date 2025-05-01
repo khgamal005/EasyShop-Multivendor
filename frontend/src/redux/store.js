@@ -1,30 +1,53 @@
 import { configureStore } from '@reduxjs/toolkit';
+
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // Use localStorage
-import userReducer from './slices/userSlice'; // Your user slice
-import sellerReducer from "./slices/sellerslice";
 import { combineReducers } from 'redux';
+
+import userReducer from './slices/userSlice';
+import sellerReducer from './slices/sellerslice';
+import productReducer from './slices/productslice';
+import brandReducer from './slices/brandSlice';
+import categoryReducer from './slices/categorySlice';
+import subCategoryReducer from './slices/subcategorySlice';
 
 // Persist configuration
 const persistConfig = {
-  key: 'root', // Key for localStorage
-  storage, // Use localStorage
-  whitelist: ['user',"seller"], 
+  key: 'root',
+  storage,
+  whitelist: ['user', 'seller', 'product', 'brand', 'category', 'subCategory'],
 };
 
 // Combine reducers
 const rootReducer = combineReducers({
   user: userReducer,
   seller: sellerReducer,
+  product: productReducer,
+  brand: brandReducer,
+  category: categoryReducer,
+  subCategory: subCategoryReducer,
 });
 
 // Persist reducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+// Fix: Add middleware to ignore non-serializable warnings from redux-persist
 const store = configureStore({
-  reducer: persistedReducer, // Use persisted reducer
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [
+          'persist/PERSIST',
+          'persist/REHYDRATE',
+          'persist/PAUSE',
+          'persist/FLUSH',
+          'persist/PURGE',
+          'persist/REGISTER',
+        ],
+      },
+    }),
 });
-
 const persistor = persistStore(store);
 
 export { store, persistor };

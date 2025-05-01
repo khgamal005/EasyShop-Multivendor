@@ -35,6 +35,24 @@ const sidebarItems = [
     id: "create-product",
   },
   {
+    label: "Create brand",
+    icon: AiOutlineFolderAdd,
+    path: "create-brand",
+    id: "create-brand",
+  },
+  {
+    label: "Create category",
+    icon: AiOutlineFolderAdd,
+    path: "create-category",
+    id: "create-category",
+  },
+  {
+    label: "Create subcategory",
+    icon: AiOutlineFolderAdd,
+    path: "create-subcategory",
+    id: "create-subcategory",
+  },
+  {
     label: "All Events",
     icon: MdOutlineLocalOffer,
     path: "events",

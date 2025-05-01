@@ -46,6 +46,10 @@ const sellerSlice = createSlice({
     clearErrors: (state) => {
       state.error = null;
     },
+    logoutSeller: (state) => {
+      state.isSeller = false;
+      state.seller = null;
+    },
   },
   extraReducers: (builder) => {
     // Load seller
@@ -80,6 +84,6 @@ const sellerSlice = createSlice({
   },
 });
 
-export const { clearErrors } = sellerSlice.actions;
+export const { clearErrors,logoutSeller } = sellerSlice.actions;
 
 export default sellerSlice.reducer;

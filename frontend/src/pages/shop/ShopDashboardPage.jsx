@@ -1,5 +1,5 @@
 
-
+import { ToastContainer } from "react-toastify";
 
 import DashboardHeader from "../../componant/Shop/Layout/DashboardHeader";
 import DashboardSideBar from "../../componant/Shop/Layout/DashboardSideBar";
@@ -8,6 +8,17 @@ import { Outlet } from "react-router-dom";
 const ShopDashboardPage = () => {
   return (
     <div>
+        <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     <DashboardHeader />
     <div className="flex items-start justify-between w-full">
       {/* Sidebar takes 1/4 */}
