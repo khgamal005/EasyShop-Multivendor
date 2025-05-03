@@ -46,7 +46,6 @@ export const createCategory = createAsyncThunk(
       );
       return {
         category: data.data,
-        message: data.message,
       };
     } catch (error) {
       if (error.response && error.response.data.errors) {

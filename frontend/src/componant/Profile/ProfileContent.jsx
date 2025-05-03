@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import React, { useState } from "react";
 import {
   AiOutlineArrowRight,
   AiOutlineCamera,
@@ -11,12 +11,11 @@ import styles from "../../styles/styles";
 import { Link } from "react-router-dom";
 import { MdTrackChanges } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
-// import {
-//   deleteUserAddress,
-//   loadUser,
-//   updatUserAddress,
-//   updateUserInformation,
-// } from "../../redux/actions/user";
+import {
+
+  loadUser,
+
+} from "../../redux/slices/userSlice"
 import { Country, State } from "country-state-city";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
@@ -47,7 +46,7 @@ const ProfileContent = ({ active }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updateUserInformation(name, email, phoneNumber, password));
+    // dispatch(updateUserInformation(name, email, phoneNumber, password));
   };
 
   const handleImage = async (e) => {
@@ -587,7 +586,7 @@ const Address = () => {
 
   const handleDelete = (item) => {
     const id = item._id;
-    // dispatch(deleteUserAddress(id));
+    dispatch(deleteUserAddress(id));
   };
 
   return (

@@ -7,40 +7,32 @@ import { server } from "../../server";
 // Async actions (thunks)
 
 // Create product
-export const createProduct = createAsyncThunk(
+export const createPro = createAsyncThunk(
   "product/create",
-  async (
-    {
-      name,
-      description,
-      category,
-      tags,
-      originalPrice,
-      discountPrice,
-      stock,
-      shopId,
-      images,
-    },
-    { rejectWithValue }
-  ) => {
+  async (formData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${server}/product/create-product`, {
-        name,
-        description,
-        category,
-        tags,
-        originalPrice,
-        discountPrice,
-        stock,
-        shopId,
-        images,
-      });
-      return data.product;
+      const { data } = await axios.post(
+        `${server}/product/create-product`,
+        formData,
+         { withCredentials: true},
+
+      );
+      return data.data;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
     }
+  
   }
 );
+
 
 // Get all products of a shop
 export const getAllProductsShop = createAsyncThunk(
@@ -94,7 +86,6 @@ const initialState = {
   product: null,
   products: [],
   allProducts: [],
-  message: null,
   error: null,
   success: false,
 };
@@ -114,15 +105,15 @@ const productSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Create Product
-      .addCase(createProduct.pending, (state) => {
+      .addCase(createPro.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(createProduct.fulfilled, (state, action) => {
+      .addCase(createPro.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.product = action.payload;
+        state.products.push(action.payload);
         state.success = true;
       })
-      .addCase(createProduct.rejected, (state, action) => {
+      .addCase(createPro.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })

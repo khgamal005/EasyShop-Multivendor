@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 const CreateCategory = () => {
 
     const dispatch = useDispatch();
-  const { isLoading, success, error, message } = useSelector((state) => state.category);
+  const { isLoading, success, error } = useSelector((state) => state.category);
 
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
@@ -14,7 +14,7 @@ const CreateCategory = () => {
     setImage(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     if (!name || !image) {
       toast.error("Please provide both brand name and image.");
@@ -24,22 +24,30 @@ const CreateCategory = () => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("image", image);
-    dispatch(createCategory(formData));
+    const action = await dispatch(createCategory(formData));
+        if (createCategory.fulfilled.match(action)) {
+          toast.success("Category created successfully");
+          setName("");
+          setImage("");
+        } else {
+          toast.error(action.payload || "Failed to create category");
+        }
   };
+  //   useEffect(() => {
+  //   if (success ) {
+  //     toast.success("message");
+  //     setName("");
+  //     setImage(null);
+  //     dispatch(clearSuccess());
+  //   }
 
-  useEffect(() => {
-    if (success && message) {
-      toast.success(message);
-      setName("");
-      setImage(null);
-      dispatch(clearSuccess());
-    }
+  //   if (error) {
+  //     toast.error(error);
+  //     dispatch(clearErrors());
+  //   }
+  // }, [success, error, dispatch]);
 
-    if (error) {
-      toast.error(error);
-      dispatch(clearErrors());
-    }
-  }, [success, error, message, dispatch]);
+
 
   return (
     <div>

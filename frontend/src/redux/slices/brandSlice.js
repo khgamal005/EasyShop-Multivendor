@@ -13,14 +13,11 @@ export const createBrand = createAsyncThunk(
         withCredentials: true,
       });
       
-      return {
-        brand: data.data,
-        message: data.message,
-      };
+      return  data.data
     } catch (error) {
       // Handle validation errors from express-validator
       if (error.response && error.response.data.errors) {
-        // Get the first validation error message
+    console.log(error.response.data.errors)
         return rejectWithValue(error.response.data.errors[0].msg);
       }
 
@@ -41,7 +38,6 @@ const initialState = {
   brands: [],
   brand: null,
   success: false,
-  message: null,
   error: null,
 };
 
@@ -61,15 +57,11 @@ const brandSlice = createSlice({
     builder
       .addCase(createBrand.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
-        state.success = false;
       })
       .addCase(createBrand.fulfilled, (state, action) => {
         state.isLoading = false;
         state.success = true;
-        state.brand = action.payload.brand;
-        state.brands.push(action.payload.brand);
-        state.message = action.payload.message;
+        state.brands.push(action.payload);
       })
       .addCase(createBrand.rejected, (state, action) => {
         state.isLoading = false;

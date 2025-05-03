@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 const CreateBrand = () => {
   const dispatch = useDispatch();
-  const { isLoading, success, error, message } = useSelector((state) => state.brand);
+  const { isLoading, success, error } = useSelector((state) => state.brand);
 
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
@@ -14,7 +14,7 @@ const CreateBrand = () => {
     setImage(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     if (!name || !image) {
       toast.error("Please provide both brand name and image.");
@@ -24,22 +24,29 @@ const CreateBrand = () => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("image", image);
-    dispatch(createBrand(formData));
+  const action =await  dispatch(createBrand(formData));
+    if (createBrand.fulfilled.match(action)) {
+  toast.success("brand created successfully");
+  setName("");
+  setImage("");
+} else {
+  toast.error(action.payload || "Failed to create brand");
+}
   };
 
-  useEffect(() => {
-    if (success && message) {
-      toast.success(message);
-      setName("");
-      setImage(null);
-      dispatch(clearSuccess());
-    }
+  // useEffect(() => {
+  //   if (success ) {
+  //     toast.success("message");
+  //     setName("");
+  //     setImage(null);
+  //     dispatch(clearSuccess());
+  //   }
 
-    if (error) {
-      toast.error(error);
-      dispatch(clearErrors());
-    }
-  }, [success, error, message, dispatch]);
+  //   if (error) {
+  //     toast.error(error);
+  //     dispatch(clearErrors());
+  //   }
+  // }, [success, error, dispatch]);
 
   return (
     <div>
@@ -82,3 +89,4 @@ const CreateBrand = () => {
 };
 
 export default CreateBrand;
+

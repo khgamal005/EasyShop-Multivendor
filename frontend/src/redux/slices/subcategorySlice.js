@@ -16,7 +16,7 @@ export const getSubCategories = createAsyncThunk(
         url = `${server}/category/${categoryId}/subcategories`; // nested route
       }
       const { data } = await axios.get(url);
-      return data.subCategories; // assuming { subCategories: [...] }
+      return data.data; // assuming { subCategories: [...] }
     } catch (error) {
       return rejectWithValue(error.response.data.message);
     }
@@ -46,12 +46,12 @@ export const createSubCategory = createAsyncThunk(
         formData,
         { withCredentials: true }
       );
-      return data.subCategory;
+      return data.data;
     } catch (error) {
       if (error.response && error.response.data.errors) {
         // Get the first validation error message
         {  console.log(error.response.data.errors)}
-        return rejectWithValue(error.response.data.errors);
+        return rejectWithValue(error.response.data.errors[0].msg);
       }
 
       // Handle other server errors

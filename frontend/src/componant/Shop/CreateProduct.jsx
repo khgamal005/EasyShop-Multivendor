@@ -2,82 +2,107 @@ import React, { useEffect, useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-// import { createProduct } from "../../redux/actions/product";
-import { categoriesData } from "../../static/data";
+import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
+import { getSubCategories } from "../../redux/slices/subcategorySlice";
+import { createPro } from "../../redux/slices/productslice";
+import { HexColorPicker } from "react-colorful";
 
 const CreateProduct = () => {
   const { seller } = useSelector((state) => state.seller);
   const { success, error } = useSelector((state) => state.seller);
+  const { categories } = useSelector((state) => state.category);
+  const { subCategories } = useSelector((state) => state.subCategory);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [subCategoryIds, setSubCategoryIds] = useState([]);
   const [images, setImages] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [tags, setTags] = useState("");
   const [originalPrice, setOriginalPrice] = useState();
   const [discountPrice, setDiscountPrice] = useState();
   const [stock, setStock] = useState();
+  const [sold_out, setSoldOut] = useState();
+  const [color, setColor] = useState("#aabbcc");
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-    if (success) {
-      toast.success("Product created successfully!");
-      navigate("/dashboard");
-      window.location.reload();
-    }
-  }, [dispatch, error, success]);
 
+  const handleCategoryChange = (e) => {
+    const selectedId = e.target.value;
+    setCategoryId(selectedId);
+    setSubCategoryId(""); // clear subcategory selection
+    if (selectedId) {
+      dispatch(getSubCategories(selectedId));
+    }
+  };
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-
-    setImages([]);
-
-    files.forEach((file) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setImages((old) => [...old, reader.result]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    setImages(files); // Save the actual File objects
   };
 
-  const handleSubmit = (e) => {
+  const handleDrop = (acceptedFiles) => {
+    setImages((prev) => [...prev, ...acceptedFiles]);
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: handleDrop,
+    accept: { "image/*": [] },
+    multiple: true,
+    maxFiles: 7, // optional
+  });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      !name ||
+      !description ||
+      !categoryId ||
+      !subCategoryIds ||
+      !originalPrice ||
+      !discountPrice ||
+      !stock ||
+      images.length === 0
+    ) {
+      return toast.error(
+        "Please fill in all required fields including at least one image."
+      );
+    }
 
     const newForm = new FormData();
+    images.forEach((file) => newForm.append("images", file)); // Each file added under 'images'
 
-    images.forEach((image) => {
-      newForm.set("images", image);
-    });
     newForm.append("name", name);
     newForm.append("description", description);
-    newForm.append("category", category);
+    newForm.append("category", categoryId);
+    subCategoryIds.forEach(id => newForm.append("subcategories[]", id));
     newForm.append("tags", tags);
     newForm.append("originalPrice", originalPrice);
     newForm.append("discountPrice", discountPrice);
     newForm.append("stock", stock);
     newForm.append("shopId", seller._id);
-    dispatch(
-      createProduct({
-        name,
-        description,
-        category,
-        tags,
-        originalPrice,
-        discountPrice,
-        stock,
-        shopId: seller._id,
-        images,
-      })
-    );
+    newForm.append("sold_out", sold_out);
+    newForm.append("color", color);
+
+
+    const action = await dispatch(createPro(newForm));
+    if (createPro.fulfilled.match(action)) {
+      toast.success("create product successfully");
+      setName("");
+      setDescription("");
+      setCategoryId("");
+      subCategoryIds([]);
+      setTags("");
+      setOriginalPrice("");
+      setDiscountPrice("");
+      setStock("");
+      setSoldOut(false);
+      setImages([]);
+    } else {
+      toast.error(action.payload || "Failed to create product");
+    }
   };
 
   return (
@@ -117,25 +142,47 @@ const CreateProduct = () => {
           ></textarea>
         </div>
         <br />
+        {/* Category Select */}
         <div>
-          <label className="pb-2">
-            Category <span className="text-red-500">*</span>
-          </label>
+          <label className="block text-sm font-medium mb-1">Category</label>
           <select
-            className="w-full mt-2 border h-[35px] rounded-[5px]"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={categoryId}
+            onChange={handleCategoryChange}
           >
-            <option value="Choose a category">Choose a category</option>
-            {categoriesData &&
-              categoriesData.map((i) => (
-                <option value={i.title} key={i.title}>
-                  {i.title}
+            <option value="">Select Category</option>
+            {Array.isArray(categories) &&
+              categories.map((cat) => (
+                <option key={cat._id} value={cat.category._id}>
+                  {cat.category.name}
                 </option>
               ))}
           </select>
         </div>
         <br />
+        {/* Subcategory Select */}
+        {categoryId && (
+  <div className="mt-4">
+    <label className="block text-sm font-medium mb-1">Subcategories</label>
+    <select
+      className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      multiple
+      value={subCategoryIds}
+      onChange={(e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+        setSubCategoryIds(selectedOptions);
+      }}
+    >
+      <option value="">Select Subcategories</option>
+      {subCategories.map((sub) => (
+        <option key={sub._id} value={sub._id}>
+          {sub.name}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
         <div>
           <label className="pb-2">Tags</label>
           <input
@@ -190,31 +237,53 @@ const CreateProduct = () => {
         <br />
         <div>
           <label className="pb-2">
-            Upload Images <span className="text-red-500">*</span>
+            sold out <span className="text-red-500">*</span>
           </label>
           <input
-            type="file"
-            name=""
-            id="upload"
-            className="hidden"
-            multiple
-            onChange={handleImageChange}
+            type="number"
+            name="price"
+            value={sold_out}
+            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            onChange={(e) => setSoldOut(e.target.value)}
+            placeholder="Enter your product stock..."
           />
-          <div className="w-full flex items-center flex-wrap">
-            <label htmlFor="upload">
-              <AiOutlinePlusCircle size={30} className="mt-3" color="#555" />
-            </label>
-            {images &&
-              images.map((i) => (
-                <img
-                  src={i}
-                  key={i}
-                  alt=""
-                  className="h-[120px] w-[120px] object-cover m-2"
-                />
-              ))}
+        </div>
+        <br />
+                    <div className="mt-4">
+              <label className="block text-sm font-medium mb-1">Product Color</label>
+              <HexColorPicker color={color} onChange={setColor} />
+              <p className="mt-2">Selected: <span style={{ color }}>{color}</span></p>
+            </div>
+
+        <br />
+
+        <div className="mb-4">
+          <label className="block font-medium mb-2">
+            Upload Images <span className="text-red-500">*</span>
+          </label>
+
+          <div
+            {...getRootProps()}
+            className="w-full min-h-[120px] border-2 border-dashed border-gray-400 rounded-md p-4 cursor-pointer flex flex-col items-center justify-center text-gray-600"
+          >
+            <input {...getInputProps()} />
+            <AiOutlinePlusCircle size={30} />
+            <p className="text-sm mt-2">
+              Click or drag and drop images here (max 7)
+            </p>
           </div>
-          <br />
+
+          <div className="flex flex-wrap mt-4">
+            {images.map((file, index) => (
+              <div key={index} className="relative m-2">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`preview-${index}`}
+                  className="h-[120px] w-[120px] object-cover rounded shadow"
+                />
+              </div>
+            ))}
+          </div>
           <div>
             <input
               type="submit"

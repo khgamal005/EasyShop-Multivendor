@@ -7,7 +7,7 @@ const CreateSubCategory = () => {
   const dispatch = useDispatch();
 
   const {  categories } = useSelector((state) => state.category);
-  const { isLoading, error  , success, message } = useSelector((state) => state.subCategory);
+  const { isLoading, error  , success } = useSelector((state) => state.subCategory);
 
 
   const [name, setName] = useState("");
