@@ -20,7 +20,7 @@ const {
 const subcategoriesRoute = require('./subCategoryRoute');
 
 const{
-    isSeller,isAdmin
+  isAdminOrSeller,isAuthenticated
   }=require("../middleware/auth")
 
 const router = express.Router();
@@ -35,27 +35,27 @@ router.route("/").get(
 
 router.route("/create-category")
   .post(
-    isSeller,
-    isAdmin("Seller","admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     uploadCategoryImage,
-    resizeImage,
     createCategoryValidator,
+    resizeImage,
     createCategory
   );
 router
   .route('/:id')
   .get(getCategoryValidator, getCategory)
   .put(
-    isSeller,
-    isAdmin("Seller","admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     uploadCategoryImage,
     resizeImage,
     updateCategoryValidator,
     updateCategory
   )
   .delete(
-    isSeller,
-    isAdmin("Seller","admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     deleteCategoryValidator,
     deleteCategory
   );

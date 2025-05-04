@@ -2,9 +2,8 @@ const asyncHandler = require("express-async-handler");
 const { uploadSingleImage } = require("../middleware/uploadImageMiddleware");
 const subCategory = require("../model/subCategory");
 const { v4: uuidv4 } = require("uuid");
-const sharp = require("sharp");
-const fs = require("fs");
-const path = require("path");
+const ApiError = require("../utils/ErrorHandler");
+
 const ApiFeatures = require("../utils/apiFeatures");
 
 // Upload single image

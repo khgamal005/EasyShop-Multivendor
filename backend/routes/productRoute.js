@@ -23,7 +23,7 @@ const {
 } = require('../controller/product');
 
 const{
-  isSeller,isAdminOrSeller,isAuthenticated
+ isAdminOrSeller,isAuthenticated
 }=require("../middleware/auth")
 
 
@@ -37,11 +37,11 @@ router.route("/").get(
 
 router.route("/create-product")
   .post(
-    isAuthenticated,               // Authenticate and attach req.user or req.seller
-    isAdminOrSeller, // Admin or Seller check
+    isAuthenticated,
+    isAdminOrSeller,
     uploadProductImages,
-    resizeProductImages,
     createProductValidator,
+    resizeProductImages,
     createProduct
   );
 

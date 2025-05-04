@@ -42,18 +42,6 @@ const productSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'Brand',
   },
-  // images: [
-  //   {
-  //     public_id: {
-  //       type: String,
-  //       required: true,
-  //     },
-  //     url: {
-  //       type: String,
-  //       required: true,
-  //     },
-  //   },
-  // ],
   images: [String],
   ratingsAverage: {
     type: Number,
@@ -68,13 +56,13 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // shop: {
-  //   type: Object,
-  //   required: true,
-  // },
   sold_out: {
     type: Number,
     default: 0,
+  },
+  color: {
+    type: String,
+
   },
   createdAt: {
     type: Date,

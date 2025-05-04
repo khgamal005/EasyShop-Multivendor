@@ -18,42 +18,43 @@ const {
 
 
 const{
-  isSeller,isAdmin
+  isAuthenticated,
+  isAdminOrSeller,
 }=require("../middleware/auth")
 
 
 const router = express.Router();
 
 router.route("/").get(
-  isSeller,
-  isAdmin("Seller","admin"),
+    isAuthenticated,
+    isAdminOrSeller,
   getBrands
 )
 
 
 router.route("/create-brand")
   .post(
-    isSeller,
-    isAdmin("Seller","admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     uploadBrandImage,
-    resizeImage,
     createBrandValidator,
+    resizeImage,
     createBrand
   );
 router
   .route('/:id')
   .get(getBrandValidator, getbrand)
   .put(
-    isSeller,
-    isAdmin("Seller","admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     uploadBrandImage,
     resizeImage,
     updateBrandValidator,
     updateBrand
   )
   .delete(
-    isSeller,
-    isAdmin("Seller","admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     deleteBrandValidator,
     deleteBrand
   );

@@ -18,7 +18,7 @@ const {
 } = require("../controller/subcategory");
 
 
-const { isSeller, isAdmin } = require("../middleware/auth");
+const { isAuthenticated,isAdminOrSeller} = require("../middleware/auth");
 
 const router = express.Router({ mergeParams: true });
 
@@ -27,8 +27,8 @@ router.route("/").get(createFilterObj, getSubCategories);
 router
   .route("/create-subCategory")
   .post(
-    isSeller,
-    isAdmin("Seller", "admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     setCategoryIdToBody,
     createSubCategoryValidator,
     createSubCategory
@@ -37,14 +37,14 @@ router
   .route("/:id")
   .get(getSubCategoryValidator, getsubCategory)
   .put(
-    isSeller,
-    isAdmin("Seller", "admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     updateSubCategoryValidator,
     updateSubCategory
   )
   .delete(
-    isSeller,
-    isAdmin("Seller", "admin"),
+    isAuthenticated,
+    isAdminOrSeller,
     deleteSubCategoryValidator,
     deleteSubCategory
   );

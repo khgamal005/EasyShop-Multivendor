@@ -6,6 +6,7 @@ const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
 const ApiFeatures = require("../utils/apiFeatures");
+const ApiError = require("../utils/ErrorHandler");
 
 // Upload single image
 exports.uploadCategoryImage = uploadSingleImage("image");
@@ -31,7 +32,14 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
 });
 
 exports.createCategory = asyncHandler(async (req, res) => {
-  const newDoc = await category.create(req.body);
+  const { name, image } = req.body;
+  if (!name || !image) {
+    return res.status(400).json({ message: "Name and image are required" });
+  }
+  const newDoc = await category.create({
+    name,
+    image,
+  });
   res.status(201).json({ message: "categorycreated", data: newDoc });
 });
 

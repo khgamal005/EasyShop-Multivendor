@@ -106,9 +106,8 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
     // Images to delete = ones that existed before but not in the updated list
     const imagesToDelete = oldImages.filter(img => !newImages.includes(img));
 
-    imagesToDelete.forEach((img) => {
-      const filename = img.split("/products/")[1]; // adjust folder name if needed
-      const imagePath = path.join(__dirname, "../uploads/products", img);
+    imagesToDelete.forEach((filename) => {
+      const imagePath = path.join(__dirname, "../uploads/products", filename);
 
       fs.unlink(imagePath, (err) => {
         if (err) {

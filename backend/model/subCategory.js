@@ -9,10 +9,6 @@ const subCategorySchema = new mongoose.Schema(
       minlength: [2, 'To short SubCategory name'],
       maxlength: [32, 'To long SubCategory name'],
     },
-    slug: {
-      type: String,
-      lowercase: true,
-    },
     category: {
       type: mongoose.Schema.ObjectId,
       ref: 'Category',

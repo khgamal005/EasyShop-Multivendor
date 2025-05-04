@@ -30,14 +30,48 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
 
   next();
 });
+// exports.resizeImage = asyncHandler(async (req, res, next) => {
+//   try {
+//     if (!req.file) return next();
+
+//     const filename = `brand-${uuidv4()}-${Date.now()}.jpeg`;
+
+//     console.log("Processing image:", req.file.originalname); // Debug log
+
+//     await sharp(req.file.buffer)
+//       .resize(600, 600)
+//       .toFormat("jpeg")
+//       .jpeg({ quality: 95 })
+//       .toFile(`uploads/brands/${filename}`)
+//       .catch((err) => {
+//         console.error("Sharp error:", err); // Log Sharp errors
+//         throw err;
+//       });
+
+//     req.body.image = filename;
+//     next();
+//   } catch (err) {
+//     console.error("Error in resizeImage:", err); // Log general errors
+//     next(err);
+//   }
+// });
 
 
 
-  exports.createBrand = asyncHandler(async (req, res) => {
+exports.createBrand = asyncHandler(async (req, res) => {
+  const { name, image } = req.body;
 
-   const newDoc = await brand.create(req.body);
-    res.status(201).json({ message: "Brand created", data: newDoc });
+  if (!name || !image) {
+    return res.status(400).json({ message: "Name and image are required" });
+  }
+
+  const newDoc = await brand.create({
+    name,
+    image,
   });
+
+  res.status(201).json({ message: "Brand created successfully", data: newDoc });
+});
 
 
 
