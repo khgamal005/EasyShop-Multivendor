@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 const CreateCategory = () => {
 
     const dispatch = useDispatch();
-  const { isLoading, success, error } = useSelector((state) => state.category);
+  const { isLoading} = useSelector((state) => state.category);
 
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
@@ -33,19 +33,6 @@ const CreateCategory = () => {
           toast.error(action.payload || "Failed to create category");
         }
   };
-  //   useEffect(() => {
-  //   if (success ) {
-  //     toast.success("message");
-  //     setName("");
-  //     setImage(null);
-  //     dispatch(clearSuccess());
-  //   }
-
-  //   if (error) {
-  //     toast.error(error);
-  //     dispatch(clearErrors());
-  //   }
-  // }, [success, error, dispatch]);
 
 
 

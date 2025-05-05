@@ -1,16 +1,21 @@
-import { Button } from "@material-ui/core";
-import { DataGrid } from "@material-ui/data-grid";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { getAllProductsShop } from "../../redux/actions/product";
-import { deleteProduct } from "../../redux/actions/product";
+import { getAllProductsShop, getProduct } from "../../redux/slices/productslice";
+import { deleteProduct } from "../../redux/slices/productslice";
 import Loader from "../Layout/Loader";
+import { Button } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { toast } from "react-toastify";
+import EditProduct from "./EditProduct";
 
 const AllProducts = () => {
-  const { products, isLoading } = useSelector((state) => state.products);
+  const { products, isLoading ,product } = useSelector((state) => state.product);
+  console.log(product)
   const { seller } = useSelector((state) => state.seller);
+  const [edit, setEdit] = useState(false);
+
 
   const dispatch = useDispatch();
 
@@ -18,10 +23,19 @@ const AllProducts = () => {
     dispatch(getAllProductsShop(seller._id));
   }, [dispatch]);
 
-  const handleDelete = (id) => {
-    dispatch(deleteProduct(id));
-    window.location.reload();
+  const handleDelete = async (id) => {
+    const action = await dispatch(deleteProduct(id));
+    if (deleteProduct.fulfilled.match(action)) {
+      toast.success("product created successfully");
+      dispatch(getAllProductsShop(seller._id));
+    } else {
+      toast.error(action.payload || "Failed to create product");
+    }
   };
+     const getSpscificProduct=async(id)=>{
+     const product=  await dispatch(getProduct(id));
+
+  }
 
   const columns = [
     { field: "id", headerName: "Product Id", minWidth: 150, flex: 0.7 },
@@ -62,11 +76,14 @@ const AllProducts = () => {
       renderCell: (params) => {
         return (
           <>
-            <Link to={`/product/${params.id}`}>
-              <Button>
-                <AiOutlineEye size={20} />
-              </Button>
-            </Link>
+            <button
+              onClick={() => {
+                getSpscificProduct(params.id);
+                setEdit(true);
+              }}
+            >
+              Edit
+            </button>
           </>
         );
       },
@@ -117,6 +134,9 @@ const AllProducts = () => {
             autoHeight
           />
         </div>
+      )}
+      {edit && (
+        <EditProduct onClose={() => setEdit(false)} product={product} />
       )}
     </>
   );

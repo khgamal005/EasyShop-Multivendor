@@ -26,6 +26,7 @@ import CreateBrand from "../componant/Shop/createBrand";
 import ShopLoginPage from "../pages/shop/ShopLoginPage";
 import CreateCategory from "../componant/Shop/CreateCategory";
 import CreateSubCategory from "../componant/Shop/CreateSubCategory ";
+import AllProducts from "../componant/Shop/AllProducts";
 
 const router = createBrowserRouter([
   {
@@ -124,7 +125,7 @@ const router = createBrowserRouter([
             path: "dashboard-orders",
             element: <AllOrders />,
           },
-          { path: "products", element: <div>All Products</div> },
+          { path: "products", element: <AllProducts/> },
           { path: "create-product", element: <CreateProduct/> },
           { path: "create-brand", element: <CreateBrand/> },
           { path: "create-category", element: <CreateCategory/> },

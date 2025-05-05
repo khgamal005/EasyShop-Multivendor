@@ -42,9 +42,17 @@ export const getAllProductsShop = createAsyncThunk(
       const { data } = await axios.get(
         `${server}/product/get-all-products-shop/${id}`
       );
-      return data.products;
+      return data.data;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
     }
   }
 );
@@ -55,17 +63,48 @@ export const deleteProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const { data } = await axios.delete(
-        `${server}/product/delete-shop-product/${id}`,
+        `${server}/product/${id}`,
         {
           withCredentials: true,
         }
       );
-      return data.message;
+      return data.data;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
     }
   }
 );
+// productSlice.js
+
+export const updateProduct = createAsyncThunk(
+  'product/updateProduct',
+  async ({ id, formData }, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.put(`${server}/product/${id}`, formData, 
+          { withCredentials: true},);
+      return data.data ;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
+);
+
 
 // Get all products
 export const getAllProducts = createAsyncThunk(
@@ -75,17 +114,48 @@ export const getAllProducts = createAsyncThunk(
       const { data } = await axios.get(`${server}/product/get-all-products`);
       return data.products;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
     }
   }
 );
+
+export const getProduct = createAsyncThunk(
+  "product/getproduct",
+  async (id,{ rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`${server}/product/${id}`,{
+         withCredentials: true
+      });
+      // console.log(data)
+      return data.data;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
+);
+
 
 // Initial state
 const initialState = {
   isLoading: false,
   product: null,
   products: [],
-  allProducts: [],
   error: null,
   success: false,
 };
@@ -137,25 +207,49 @@ const productSlice = createSlice({
       })
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.message = action.payload;
+        state.product = action.payload;
       })
       .addCase(deleteProduct.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
-
-      // Get All Products
-      .addCase(getAllProducts.pending, (state) => {
+      // update Product
+      .addCase(updateProduct.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(getAllProducts.fulfilled, (state, action) => {
+      .addCase(updateProduct.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.allProducts = action.payload;
+        state.product = action.payload;
       })
-      .addCase(getAllProducts.rejected, (state, action) => {
+      .addCase(updateProduct.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
+      })
+      // get Product
+      .addCase(getProduct.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getProduct.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.product = action.payload;
+      })
+      .addCase(getProduct.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+      // // Get All Products
+      // .addCase(getAllProducts.pending, (state) => {
+      //   state.isLoading = true;
+      // })
+      // .addCase(getAllProducts.fulfilled, (state, action) => {
+      //   state.isLoading = false;
+      //   state.allProducts = action.payload;
+      // })
+      // .addCase(getAllProducts.rejected, (state, action) => {
+      //   state.isLoading = false;
+      //   state.error = action.payload;
+      // });
   },
 });
 

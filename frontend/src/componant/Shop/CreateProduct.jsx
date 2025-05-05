@@ -7,10 +7,11 @@ import { toast } from "react-toastify";
 import { getSubCategories } from "../../redux/slices/subcategorySlice";
 import { createPro } from "../../redux/slices/productslice";
 import { HexColorPicker } from "react-colorful";
+import { MdDelete } from "react-icons/md";
+import DisplayImage from "./DisplayImage";
 
 const CreateProduct = () => {
   const { seller } = useSelector((state) => state.seller);
-  const { success, error } = useSelector((state) => state.seller);
   const { categories } = useSelector((state) => state.category);
   const { subCategories } = useSelector((state) => state.subCategory);
 
@@ -28,19 +29,16 @@ const CreateProduct = () => {
   const [stock, setStock] = useState();
   const [sold_out, setSoldOut] = useState();
   const [color, setColor] = useState("#aabbcc");
-
+  const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState("");
 
   const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
     setCategoryId(selectedId);
-    setSubCategoryId(""); // clear subcategory selection
+    setSubCategoryIds([])// clear subcategory selection
     if (selectedId) {
       dispatch(getSubCategories(selectedId));
     }
-  };
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImages(files); // Save the actual File objects
   };
 
   const handleDrop = (acceptedFiles) => {
@@ -53,6 +51,10 @@ const CreateProduct = () => {
     multiple: true,
     maxFiles: 7, // optional
   });
+
+  const handleDeleteProductImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,7 +79,7 @@ const CreateProduct = () => {
     newForm.append("name", name);
     newForm.append("description", description);
     newForm.append("category", categoryId);
-    subCategoryIds.forEach(id => newForm.append("subcategories[]", id));
+    subCategoryIds.forEach((id) => newForm.append("subcategories[]", id));
     newForm.append("tags", tags);
     newForm.append("originalPrice", originalPrice);
     newForm.append("discountPrice", discountPrice);
@@ -86,14 +88,13 @@ const CreateProduct = () => {
     newForm.append("sold_out", sold_out);
     newForm.append("color", color);
 
-
     const action = await dispatch(createPro(newForm));
     if (createPro.fulfilled.match(action)) {
       toast.success("create product successfully");
       setName("");
       setDescription("");
       setCategoryId("");
-      subCategoryIds([]);
+      setSubCategoryIds([]);
       setTags("");
       setOriginalPrice("");
       setDiscountPrice("");
@@ -153,7 +154,7 @@ const CreateProduct = () => {
             <option value="">Select Category</option>
             {Array.isArray(categories) &&
               categories.map((cat) => (
-                <option key={cat._id} value={cat.category._id}>
+                <option key={cat.category._id} value={cat.category._id}>
                   {cat.category.name}
                 </option>
               ))}
@@ -162,26 +163,31 @@ const CreateProduct = () => {
         <br />
         {/* Subcategory Select */}
         {categoryId && (
-  <div className="mt-4">
-    <label className="block text-sm font-medium mb-1">Subcategories</label>
-    <select
-      className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      multiple
-      value={subCategoryIds}
-      onChange={(e) => {
-        const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-        setSubCategoryIds(selectedOptions);
-      }}
-    >
-      <option value="">Select Subcategories</option>
-      {subCategories.map((sub) => (
-        <option key={sub._id} value={sub._id}>
-          {sub.name}
-        </option>
-      ))}
-    </select>
-  </div>
-)}
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-1">
+              Subcategories
+            </label>
+            <select
+              className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              multiple
+              value={subCategoryIds}
+              onChange={(e) => {
+                const selectedOptions = Array.from(
+                  e.target.selectedOptions,
+                  (option) => option.value
+                ).filter((val) => val !== ""); // prevent empty selections;
+                setSubCategoryIds(selectedOptions);
+              }}
+            >
+              <option value="" disabled>Select Subcategories</option>
+              {subCategories.map((sub) => (
+                <option key={sub._id} value={sub._id}>
+                  {sub.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div>
           <label className="pb-2">Tags</label>
@@ -202,7 +208,7 @@ const CreateProduct = () => {
             name="price"
             value={originalPrice}
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            onChange={(e) => setOriginalPrice(e.target.value)}
+            onChange={(e) => setOriginalPrice(Number(e.target.value))}
             placeholder="Enter your product price..."
           />
         </div>
@@ -216,7 +222,7 @@ const CreateProduct = () => {
             name="price"
             value={discountPrice}
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            onChange={(e) => setDiscountPrice(e.target.value)}
+            onChange={(e) => setDiscountPrice(Number(e.target.value))}
             placeholder="Enter your product price with discount..."
           />
         </div>
@@ -230,7 +236,7 @@ const CreateProduct = () => {
             name="price"
             value={stock}
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            onChange={(e) => setStock(e.target.value)}
+            onChange={(e) => setStock(Number(e.target.value))}
             placeholder="Enter your product stock..."
           />
         </div>
@@ -244,16 +250,20 @@ const CreateProduct = () => {
             name="price"
             value={sold_out}
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            onChange={(e) => setSoldOut(e.target.value)}
+            onChange={(e) => setSoldOut(Number(e.target.value))}
             placeholder="Enter your product stock..."
           />
         </div>
         <br />
-                    <div className="mt-4">
-              <label className="block text-sm font-medium mb-1">Product Color</label>
-              <HexColorPicker color={color} onChange={setColor} />
-              <p className="mt-2">Selected: <span style={{ color }}>{color}</span></p>
-            </div>
+        <div className="mt-4">
+          <label className="block text-sm font-medium mb-1">
+            Product Color
+          </label>
+          <HexColorPicker color={color} onChange={setColor} />
+          <p className="mt-2">
+            Selected: <span style={{ color }}>{color}</span>
+          </p>
+        </div>
 
         <br />
 
@@ -264,7 +274,8 @@ const CreateProduct = () => {
 
           <div
             {...getRootProps()}
-            className="w-full min-h-[120px] border-2 border-dashed border-gray-400 rounded-md p-4 cursor-pointer flex flex-col items-center justify-center text-gray-600"
+            className="w-full min-h-[120px] border-2 border-dashed
+     border-gray-400 rounded-md p-4 cursor-pointer flex flex-col items-center justify-center text-gray-600"
           >
             <input {...getInputProps()} />
             <AiOutlinePlusCircle size={30} />
@@ -273,26 +284,49 @@ const CreateProduct = () => {
             </p>
           </div>
 
-          <div className="flex flex-wrap mt-4">
-            {images.map((file, index) => (
-              <div key={index} className="relative m-2">
+          {/* Show uploaded images */}
+          <div className="flex flex-wrap gap-4 mt-4">
+            {images.map((image, index) => (
+              <div key={index} className="relative w-24 h-24">
                 <img
-                  src={URL.createObjectURL(file)}
-                  alt={`preview-${index}`}
-                  className="h-[120px] w-[120px] object-cover rounded shadow"
+                  src={URL.createObjectURL(image)}
+                  alt={`upload-${index}`}
+                  className="w-full h-full object-cover rounded-md"
+                  onClick={() => {
+                    setOpenFullScreenImage(true);
+                    setFullScreenImage(image);
+                  }}
                 />
+                <button
+                  type="button"
+                  onClick={() => handleDeleteProductImage(index)}
+                  className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                >
+                  <MdDelete size={16} />
+                </button>
               </div>
             ))}
           </div>
-          <div>
-            <input
-              type="submit"
-              value="Create"
-              className="mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
+        </div>
+
+        <div>
+          <input
+            type="submit"
+            value="Create"
+            className="mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          />
         </div>
       </form>
+
+       {/***display image full screen */}
+       {
+       openFullScreenImage && (
+        <DisplayImage
+        onClose={() => setOpenFullScreenImage(false)}
+          imgUrl={URL.createObjectURL(fullScreenImage)} // ✅ FIXED
+        />
+      )
+       }
     </div>
   );
 };
