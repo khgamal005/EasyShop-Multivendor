@@ -202,10 +202,22 @@ exports.updateProductValidator = [
     .optional()
     .isArray()
     .withMessage("availableColors should be array of string"),
-  check("images")
+    check("images")
     .optional()
-    .isArray()
-    .withMessage("images should be array of string"),
+    .custom((value) => {
+      // Accept either:
+      // 1. An array of strings
+      // 2. A single string
+      // 3. Undefined/null (handled by .optional())
+      if (value === undefined || value === null) return true;
+      if (typeof value === 'string') return true;
+      if (Array.isArray(value)) {
+        return value.every(item => typeof item === 'string');
+      }
+      return false;
+    })
+    .withMessage("Images must be either a string or an array of strings"),
+  
   check("category")
     .optional()
     .notEmpty()

@@ -3,10 +3,14 @@ const express = require('express');
 const {
     createUserValidator,
     loginValidator,
-    getUserValidator
+    getUserValidator,
+    updateSellerValidator
 }
 
 =require('../utils/validators/userValidator');
+const{
+ isAdminOrSeller,isAuthenticated
+}=require("../middleware/auth")
 
 const {
     createSeller,
@@ -14,7 +18,8 @@ const {
     activeSeller,
     loginSeller,
     logoutSeller,
-    getSeller
+    getSeller,
+    editSellerInfo,resizeImage
 
 
 }= require("../controller/shop")
@@ -30,6 +35,8 @@ router.get("/activation/:token", activeSeller);
 router.post('/login-shop', loginValidator, loginSeller);
 router.get('/getSeller',isSeller, getSeller);
 router.get('/logoutSeller', logoutSeller);
+router.put('/update-seller', isAuthenticated,isAdminOrSeller,uploadUserImage,
+ editSellerInfo);
   
 
 // Admin

@@ -58,7 +58,6 @@ exports.createProduct = asyncHandler(async (req, res, next) => {
   res.status(201).json({ message: "Product created", data: newDoc });
 });
 
-
 exports.getProduct = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   // 1) Build query
@@ -69,8 +68,6 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
   }
   res.status(200).json({ data: document });
 });
-
-
 
 exports.getproducts = asyncHandler(async (req, res) => {
   // Build query
@@ -91,51 +88,64 @@ exports.getproducts = asyncHandler(async (req, res) => {
     .json({ results: documents.length, paginationResult, data: documents });
 });
 
-
 exports.updateProduct = asyncHandler(async (req, res, next) => {
-  const existingProduct = req.product; // from validator
-  if (!existingProduct) {
-    return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
+  const existingProduct = req.product;
+
+  // 1. Get new uploaded files
+
+  // 1. Handle incoming images data
+  let incomingImages = [];
+
+  if (req.body.images !== undefined && req.body.images !== null) {
+    incomingImages = Array.isArray(req.body.images)
+      ? req.body.images
+      : [req.body.images];
+
+    // Filter out any empty/null values
+    incomingImages = incomingImages
+      .map((img) => (typeof img === "string" ? img.trim() : null))
+      .filter(Boolean);
   }
 
-  // If new images are provided, check which old images need to be deleted
-  if (req.body.images && Array.isArray(req.body.images) && existingProduct.images) {
-    const oldImages = existingProduct.images;
-    const newImages = req.body.images;
+  // 2. Get new uploaded files
+  const uploadedFiles = req.files?.images || [];
+  const uploadedFilenames = uploadedFiles.map((file) => file.filename);
 
-    // Images to delete = ones that existed before but not in the updated list
-    const imagesToDelete = oldImages.filter(img => !newImages.includes(img));
+  // 3. Combine existing and new images
+  const finalImages = [...incomingImages, ...uploadedFilenames];
 
-    imagesToDelete.forEach((filename) => {
-      const imagePath = path.join(__dirname, "../uploads/products", filename);
+  // 5. Delete removed images (only if they're not in finalImages)
+  const imagesToDelete = existingProduct.images.filter(
+    (img) => img && !finalImages.includes(img)
+  );
 
-      fs.unlink(imagePath, (err) => {
-        if (err) {
-          console.error("Error deleting image:", err.message);
-        } else {
-          console.log("Deleted old image:", filename);
-        }
+  // Delete files asynchronously
+  await Promise.all(
+    imagesToDelete.map((filename) => {
+      const filePath = path.join(__dirname, "../uploads/products", filename);
+      return fs.promises.unlink(filePath).catch((err) => {
+        console.error("Failed to delete:", filename, err);
       });
-    });
-  }
+    })
+  );
 
-  // Update the product with new data
-  const document = await Product.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
+  // 6. Update and save product
+  existingProduct.images = finalImages.filter(Boolean); // Final safety check
+  const updatedProduct = await existingProduct.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Product updated successfully",
+    product: updatedProduct,
   });
-
-  if (!document) {
-    return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
-  }
-
-  res.status(200).json({ data: document });
 });
 
 exports.deleteProduct = asyncHandler(async (req, res, next) => {
-  const existingProduct =  req.product
+  const existingProduct = req.product;
   if (!existingProduct) {
-    return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
+    return next(
+      new ErrorHandler(`No document for this id ${req.params.id}`, 404)
+    );
   }
 
   // Delete images from disk (if filenames are stored directly)
@@ -156,7 +166,9 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
   // Delete the product from DB
   const document = await Product.findByIdAndDelete(req.params.id);
   if (!document) {
-    return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
+    return next(
+      new ErrorHandler(`No document for this id ${req.params.id}`, 404)
+    );
   }
 
   res.status(200).json({
@@ -164,15 +176,15 @@ exports.deleteProduct = asyncHandler(async (req, res, next) => {
   });
 });
 
-
-
 // get all products of a shop
 
- exports.getallproductsofshop = asyncHandler(async (req, res, next) => {
-
+exports.getallproductsofshop = asyncHandler(async (req, res, next) => {
   // Build query
   const documentsCounts = await Product.countDocuments();
-  const apiFeatures = new ApiFeatures(Product.find({ shopId: req.params.id }), req.query)
+  const apiFeatures = new ApiFeatures(
+    Product.find({ shopId: req.params.id }),
+    req.query
+  )
     .paginate(documentsCounts)
     .filter()
     .search(Product)

@@ -170,5 +170,15 @@ exports.changePasswordValidator = [
   validatorMiddleware,
 ];
 
-
+exports.updateSellerValidator = [
+  check('id').isMongoId().withMessage('Invalid seller id format')
+  .custom((value, { req }) => {
+      // Check if seller is authenticated and trying to update their own profile
+      if (req.role !== "seller" || !req.seller || req.seller._id.toString() !== value) {
+        throw new Error("You are not authorized to update this seller profile");
+      }
+      return true;
+    }),
+  validatorMiddleware,
+];
 

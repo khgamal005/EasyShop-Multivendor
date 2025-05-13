@@ -12,7 +12,8 @@ exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
       req.user = await User.findById(decoded.id);
       if (req.user) {
-        req.role = req.user.role; // Set user role on req object
+        req.role = req.user.role;
+         return next(); // Set user role on req object
       }
     }
   
@@ -21,7 +22,8 @@ exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
       const decoded = jwt.verify(seller_token, process.env.JWT_SECRET_KEY);
       req.seller = await Shop.findById(decoded.id);
       if (req.seller) {
-        req.role = req.seller.role; // Set seller role on req object
+        req.role = req.seller.role;
+         return next(); // Set seller role on req object
       }
     }
   
