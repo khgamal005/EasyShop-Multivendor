@@ -7,6 +7,8 @@ const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const ErrorHandler = require("../utils/ErrorHandler");
+const fs = require("fs");
+const path = require("path");
 const {
   saveTempAvatar,
   getTempAvatar,
@@ -16,24 +18,7 @@ const sendShopToken = require("../utils/shopToken");
 
 exports.uploadUserImage = uploadSingleImage("avatar");
 
-exports.resizeImage = asyncHandler(async (req, res, next) => {
-  const filename = `category-${uuidv4()}-${Date.now()}.jpeg`;
-  if (req.file) {
-    await sharp(req.file.buffer)
-      .resize(600, 600, {
-        fit: "contain",
-        background: { r: 255, g: 255, b: 255 }, // optional white background padding
-      })
-      .toFormat("jpeg")
-      .jpeg({ quality: 95 })
-      .toFile(`uploads/sellers/${filename}`);
-  }
 
-  // Save image into our db
-  req.body.image = filename;
-
-  next();
-});
 
 // create shop
 exports.createSeller = asyncHandler(async (req, res, next) => {
@@ -118,7 +103,7 @@ exports.activeSeller = asyncHandler(async (req, res, next) => {
 
         avatar = {
           public_id: filename,
-          url: `${process.env.BACKEND_URL}/sellers/${filename}`,
+          url: filename,
         };
 
         deleteTempAvatar(tempAvatarId);
@@ -208,25 +193,21 @@ exports.editSellerInfo = asyncHandler(async (req, res, next) => {
   }
 
   // Delete old avatar if new one is sent
-  if (req.body.avatar?.url && seller.avatar?.url) {
-    const oldFilename = seller.avatar.url.split("/sellers/")[1];
+if (req.file && seller?.avatar?.url) {
+  const oldFilename = path.basename(seller.avatar.url);
+  const oldImagePath = path.join(__dirname, "../uploads/sellers", oldFilename);
 
-    if (oldFilename) {
-      const oldImagePath = path.join(
-        __dirname,
-        "../uploads/sellers",
-        oldFilename
-      );
-
-      fs.unlink(oldImagePath, (err) => {
-        if (err) {
-          console.error("Error deleting old image:", err.message);
-        } else {
-          console.log("Old image deleted:", oldFilename);
-        }
-      });
-    }
+  if (fs.existsSync(oldImagePath)) {
+    fs.unlink(oldImagePath, (err) => {
+      if (err) console.error("Error deleting old image:", err.message);
+      else console.log("Old image deleted:", oldFilename);
+    });
+  } else {
+    console.warn("Old image file not found:", oldImagePath);
   }
+}
+
+
   const updates = {
     ...req.body,
   };
@@ -247,7 +228,7 @@ exports.editSellerInfo = asyncHandler(async (req, res, next) => {
 
     avatar = {
       public_id: filename,
-      url: `${process.env.BACKEND_URL}/sellers/${filename}`,
+      url: filename,
     };
     updates.avatar = avatar;
   }
