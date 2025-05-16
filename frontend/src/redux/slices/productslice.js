@@ -83,7 +83,6 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 // productSlice.js
-
 export const updateProduct = createAsyncThunk(
   'product/updateProduct',
   async ({ id, formData }, { rejectWithValue }) => {
@@ -104,6 +103,7 @@ export const updateProduct = createAsyncThunk(
     }
   }
 );
+
 
 
 // Get all products

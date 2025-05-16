@@ -7,10 +7,7 @@ import { getSubCategories } from "../../redux/slices/subcategorySlice";
 import { updateProduct, getProduct } from "../../redux/slices/productslice";
 import { HexColorPicker } from "react-colorful";
 import { MdDelete } from "react-icons/md";
-import DisplayImage from "../../utils/DisplayImage";
-import { getProductImageUrl } from '../../utils/imageHelpers';
-  
-
+import DisplayImage from "./DisplayImage";
 
 const EditProduct = ({ onClose, product }) => {
   const { seller } = useSelector((state) => state.seller);
@@ -21,6 +18,7 @@ const EditProduct = ({ onClose, product }) => {
   const API_BASE_URL = "http://localhost:8000"; // Your backend base URL
   const PRODUCT_IMAGE_PATH = "/products/"; // The path where product images are served
   const [subCategoryIds, setSubCategoryIds] = useState([]);
+  const [images, setImages] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -30,12 +28,10 @@ const EditProduct = ({ onClose, product }) => {
   const [stock, setStock] = useState(0);
   const [sold_out, setSoldOut] = useState(0);
   const [color, setColor] = useState("#aabbcc");
+  const [existingImages, setExistingImages] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
     const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
     const [fullScreenImage, setFullScreenImage] = useState("");
-    const [newFiles, setNewFiles] = useState([]);
-    const [existingImages, setExistingImages] = useState([]);
-    const [removedImages, setRemovedImages] = useState([]);
-
 
   useEffect(() => {
     if (product) {
@@ -49,10 +45,7 @@ const EditProduct = ({ onClose, product }) => {
       setStock(product.stock);
       setSoldOut(product.sold_out || 0);
       setColor(product.color || "#aabbcc");
-      // Filter out any null values from the existing images array
-    const validExistingImages = product.images.filter((img) => img !== null);
-    setExistingImages(validExistingImages);
-  
+      setExistingImages(product.images || []);
 
       // Load subcategories if category is set
       if (product.category?._id) {
@@ -71,7 +64,7 @@ const EditProduct = ({ onClose, product }) => {
   };
 
   const handleDrop = (acceptedFiles) => {
-    setNewFiles((prev) => [...prev, ...acceptedFiles]);
+    setImages((prev) => [...prev, ...acceptedFiles]);
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -81,26 +74,16 @@ const EditProduct = ({ onClose, product }) => {
     maxFiles: 7
   });
 
-  // const handleDeleteImage = (index, isExisting) => {
-  //   if (isExisting) {
-  //     setRemovedImages((prev) => [...prev, existingImages[index]]);
-  //     setExistingImages((prev) => prev.filter((_, i) => i !== index));
-  //   } else {
-  //     setImages((prev) => prev.filter((_, i) => i !== index));
-  //   }
-  // };
   const handleDeleteImage = (index, isExisting) => {
     if (isExisting) {
-      // For existing images, we need to track which ones were removed
-      const imageToRemove = existingImages[index];
-      setExistingImages(prev => prev.filter((_, i) => i !== index));
-      setRemovedImages(prev => [...prev, imageToRemove]);
+      // For existing images, mark them for removal
+      setRemovedImages([...removedImages, existingImages[index]]);
+      setExistingImages(existingImages.filter((_, i) => i !== index));
     } else {
-      // For new files, just remove from the array
-      setNewFiles(prev => prev.filter((_, i) => i !== index));
+      // For newly uploaded images, just remove from preview
+      setImages(images.filter((_, i) => i !== index));
     }
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,34 +101,10 @@ const EditProduct = ({ onClose, product }) => {
         "Please fill in all required fields including at least one image."
       );
     }
-      // Ensure product._id is defined
-  if (!product._id) {
-    console.error("Product ID is missing!");
-    return;}
-  // Ensure at least one image remains
-  if (existingImages.length + newFiles.length === 0) {
-    alert('Product must have at least one image');
-    return;
-  }
+
     const newForm = new FormData();
+    images.forEach((file) => newForm.append("images", file)); // Each file added under 'images'ck removed images
 
-    
-
-  // Handle images:
-  // If only one image remains, send it as string
-  // If multiple, send as array
-  if (existingImages.length === 1) {
-    newForm.append('images', existingImages[0]);
-  } else if (existingImages.length > 1) {
-    existingImages.forEach(img => {
-      newForm.append('images[]', img); // Note the [] for arrays
-    });
-  }
-
-  // Add new files
-  newFiles.forEach(file => {
-    newForm.append('images', file);
-  });
     newForm.append("name", name);
     newForm.append("description", description);
     newForm.append("category", categoryId);
@@ -158,11 +117,10 @@ const EditProduct = ({ onClose, product }) => {
     newForm.append("sold_out", sold_out);
     newForm.append("color", color);
 
-
     try {
       const action = await dispatch(updateProduct({
-        id: product._id,  // Explicitly name the ID field
-        formData: newForm     // Explicitly name the form data
+        productId: product._id,  // Explicitly name the ID field
+        productData: newForm     // Explicitly name the form data
       }));
       if (updateProduct.fulfilled.match(action)) {
         toast.success("Product updated successfully");
@@ -176,34 +134,10 @@ const EditProduct = ({ onClose, product }) => {
       toast.error(error.message || error);
     }
   };
-
-
-  useEffect(() => {
-    return () => {
-      // Clean up object URLs to avoid memory leaks
-      newFiles.forEach(file => {
-        if (file.preview) URL.revokeObjectURL(file.preview);
-      });
-    };
-  }, [newFiles]);
-
-  
   const getImageUrl = (img) => {
-    // Check if the image is valid
-    if (!img) return "/images/image-placeholder.jpg"; // Fallback image for invalid values
-  
-    // If the image is a string, it could be a URL; return it directly
-    if (typeof img === "string") {
-      return `${API_BASE_URL}${PRODUCT_IMAGE_PATH}${img}`;
-    }
-  
-    // If it's a File or Blob, create an Object URL
-    if (img instanceof Blob || img instanceof File) {
-      return URL.createObjectURL(img);
-    }
-  
-    // Return a default fallback or null in case of an invalid type
-    return "/images/image-placeholder.jpg"; // Fallback image
+    return typeof img === "string" 
+      ? `${API_BASE_URL}${PRODUCT_IMAGE_PATH}${img}`
+      : URL.createObjectURL(img);
   };
 
   return (
@@ -382,16 +316,16 @@ const EditProduct = ({ onClose, product }) => {
                 {existingImages.map((img, index) => (
                   <div key={index} className="relative w-24 h-24">
                     <img
-                     src={
-                      getProductImageUrl(img)
-                    }
+                      src={`${API_BASE_URL}${PRODUCT_IMAGE_PATH}${img}`}
                       alt={`Product preview ${index + 1}`}
                       className="w-full h-full object-cover rounded-md"
                       
                       onClick={() => {
                         setOpenFullScreenImage(true);
                         setFullScreenImage(
-                          getProductImageUrl(img)
+                          typeof img === "string"
+                            ? `${API_BASE_URL}${PRODUCT_IMAGE_PATH}${img}`
+                            : URL.createObjectURL(img)
                         );
                       }}
                       onError={(e) => {
@@ -412,25 +346,25 @@ const EditProduct = ({ onClose, product }) => {
             </div>
             <div className="flex flex-wrap gap-4 mt-4">
               {/* New Images */}
-              {newFiles.map((file, index) => (
+              {images.map((img, index) => (
                 <div key={index} className="relative w-24 h-24">
                   <img
                     src={
-                      getProductImageUrl(file)
+                      getImageUrl(img)
                     }
                     alt="preview"
                     className="w-full h-full object-cover rounded-md"
                     onClick={() => {
                       setOpenFullScreenImage(true);
                       setFullScreenImage(
-                        getProductImageUrl(file)
+                        getImageUrl(img)
                       );
                     }}
                   />
                   {/* ... delete button ... */}
                   <button
                     type="button"
-                    onClick={() => handleDeleteImage(index ,false)}
+                    onClick={() => handleDeleteImage(index)}
                     className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1"
                   >
                     <MdDelete size={16} />
@@ -472,3 +406,194 @@ const EditProduct = ({ onClose, product }) => {
 };
 
 export default EditProduct;
+
+
+// exports.updateProduct = asyncHandler(async (req, res, next) => {
+//   const existingProduct = req.product; // from validator
+//   if (!existingProduct) {
+//     return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
+//   }
+
+//   // If new images are provided, check which old images need to be deleted
+//   if (req.body.images && Array.isArray(req.body.images) && existingProduct.images) {
+//     const oldImages = existingProduct.images;
+//     const newImages = req.body.images;
+
+//     // Images to delete = ones that existed before but not in the updated list
+//     const imagesToDelete = oldImages.filter(img => !newImages.includes(img));
+
+//     imagesToDelete.forEach((filename) => {
+//       const imagePath = path.join(__dirname, "../uploads/products", filename);
+
+//       fs.unlink(imagePath, (err) => {
+//         if (err) {
+//           console.error("Error deleting image:", err.message);
+//         } else {
+//           console.log("Deleted old image:", filename);
+//         }
+//       });
+//     });
+//   }
+//     // Update the product with new data
+//   const document = await Product.findByIdAndUpdate(req.params.id, req.body, {
+//     new: true,
+//     runValidators: true,
+//   });
+
+//   if (!document) {
+//     return next(new ErrorHandler(`No document for this id ${req.params.id}`, 404));
+//   }
+
+//   res.status(200).json({ data: document });
+// });
+
+
+exports.updateProductValidator = [
+  check('id')
+    .isMongoId()
+    .withMessage('Invalid product id format')
+    .custom(async (val, { req }) => {
+      const product = await Product.findById(val);
+
+      if (!product) {
+        return Promise.reject(new Error('No product found with this id'));
+      }
+
+    // Admin can delete any product
+    if (req.role === 'admin') {
+      req.product = product; // Attach product to req for controller
+      return true;
+    }
+
+    // Seller can only delete their own products
+    if (req.role === 'Seller' && product.shopId.toString() !== req.seller.id.toString()) {
+      return Promise.reject(new Error('You are not allowed to edit this product'));
+    }
+
+    req.product = product; // Attach product to req for controller
+    return true;
+    }),
+
+  // Fields Validations
+  check("name")
+    .isLength({ min: 2 })
+    .optional()
+    .withMessage("must be at least 2 chars")
+    .notEmpty()
+    .withMessage("Product required"),
+  check("description")
+    .notEmpty()
+    .optional()
+    .withMessage("Product description is required")
+    .isLength({ max: 2000 })
+    .withMessage("Too long description"),
+  check("stock")
+    .optional()
+    .notEmpty()
+    .withMessage("Product quantity is required")
+    .isNumeric()
+    .withMessage("Product quantity must be a number"),
+  check("sold_out")
+    .optional()
+    .isNumeric()
+    .withMessage("Product quantity must be a number"),
+  check("originalPrice")
+    .optional()
+    .notEmpty()
+    .withMessage("Product price is required")
+    .isNumeric()
+    .withMessage("Product price must be a number")
+    .isLength({ max: 32 })
+    .withMessage("To long price"),
+  check("discountPrice")
+    .optional()
+    .isNumeric()
+    .withMessage("Product discountPrice must be a number")
+    .toFloat()
+    .custom((value, { req }) => {
+      if (req.body.price <= value) {
+        throw new Error("priceAfterDiscount must be lower than price");
+      }
+      return true;
+    }),
+
+  check("colors")
+    .optional()
+    .isArray()
+    .withMessage("availableColors should be array of string"),
+  check("images")
+    .optional()
+    .isArray()
+    .withMessage("images should be array of string"),
+  check("category")
+    .optional()
+    .notEmpty()
+    .withMessage("Product must be belong to a category")
+    .isMongoId()
+    .withMessage("Invalid ID formate")
+    .custom((categoryId) =>
+      Category.findById(categoryId).then((category) => {
+        if (!category) {
+          return Promise.reject(
+            new Error(`No category for this id: ${categoryId}`)
+          );
+        }
+      })
+    ),
+
+  check("subcategories")
+    .optional()
+    .customSanitizer((value) => {
+      if (!value) return [];
+      return Array.isArray(value) ? value : [value];
+    })
+    .isArray()
+    .withMessage("Subcategories must be an array of MongoDB IDs")
+    .custom((arr) => {
+      const isValid = arr.every((id) => /^[0-9a-fA-F]{24}$/.test(id));
+      if (!isValid) {
+        throw new Error(
+          "One or more subcategory IDs are not valid MongoDB ObjectIds"
+        );
+      }
+      return true;
+    })
+    .custom((subcategoriesIds) =>
+      SubCategory.find({ _id: { $in: subcategoriesIds } }).then((result) => {
+        if (result.length !== subcategoriesIds.length) {
+          return Promise.reject(new Error(`Invalid subcategories Ids`));
+        }
+      })
+    )
+    .custom((val, { req }) =>
+      SubCategory.find({ category: req.body.category }).then(
+        (subcategories) => {
+          const subCategoriesIdsInDB = subcategories.map((sub) =>
+            sub._id.toString()
+          );
+          const allBelong = val.every((v) => subCategoriesIdsInDB.includes(v));
+          if (!allBelong) {
+            return Promise.reject(
+              new Error(`Subcategories do not belong to the selected category`)
+            );
+          }
+        }
+      )
+    ),
+
+  check("brand").optional().isMongoId().withMessage("Invalid ID formate"),
+  check("ratingsAverage")
+    .optional()
+    .isNumeric()
+    .withMessage("ratingsAverage must be a number")
+    .isLength({ min: 1 })
+    .withMessage("Rating must be above or equal 1.0")
+    .isLength({ max: 5 })
+    .withMessage("Rating must be below or equal 5.0"),
+  check("ratingsQuantity")
+    .optional()
+    .isNumeric()
+    .withMessage("ratingsQuantity must be a number"),
+
+  validatorMiddleware,
+];

@@ -60,7 +60,8 @@ const DashboardHeader = () => {
   />
 
   {/* Hover Text */}
-  <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap">
+  <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2
+   bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap">
     Visit Seller Page
   </div>
 </Link>

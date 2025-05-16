@@ -8,7 +8,7 @@ import { getSubCategories } from "../../redux/slices/subcategorySlice";
 import { createPro } from "../../redux/slices/productslice";
 import { HexColorPicker } from "react-colorful";
 import { MdDelete } from "react-icons/md";
-import DisplayImage from "./DisplayImage";
+import DisplayImage from "../../utils/DisplayImage";
 
 const CreateProduct = () => {
   const { seller } = useSelector((state) => state.seller);

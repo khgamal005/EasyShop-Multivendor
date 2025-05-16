@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { getAllProductsShop, getProduct } from "../../redux/slices/productslice";
 import { deleteProduct } from "../../redux/slices/productslice";
 import Loader from "../Layout/Loader";
@@ -12,7 +11,6 @@ import EditProduct from "./EditProduct";
 
 const AllProducts = () => {
   const { products, isLoading ,product } = useSelector((state) => state.product);
-  console.log(product)
   const { seller } = useSelector((state) => state.seller);
   const [edit, setEdit] = useState(false);
 

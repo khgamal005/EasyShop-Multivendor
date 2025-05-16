@@ -20,13 +20,14 @@ import SellerProtectedRoute from "./SellerProtectedRoute";
 import ShopDashboardPage from "../pages/shop/ShopDashboardPage";
 import DashboardHero from "../componant/Shop/DashboardHero";
 import AllOrders from "../componant/Shop/AllOrders";
-import ShopPreviewPage from "../pages/shop/ShopPreviewPage";
+import ShopPreviewPage from "../pages/shop/EditShopPage";
 import CreateProduct from "../componant/Shop/CreateProduct";
 import CreateBrand from "../componant/Shop/createBrand";
 import ShopLoginPage from "../pages/shop/ShopLoginPage";
 import CreateCategory from "../componant/Shop/CreateCategory";
 import CreateSubCategory from "../componant/Shop/CreateSubCategory ";
 import AllProducts from "../componant/Shop/AllProducts";
+import EditShopPage from "../pages/shop/EditShopPage";
 
 const router = createBrowserRouter([
   {
@@ -102,9 +103,13 @@ const router = createBrowserRouter([
           </SellerProtectedRoute>
         ),
       },
+      // {
+      //   path: "/shop/preview/:id",
+      //   element: <ShopPreviewPage />,
+      // },
       {
-        path: "/shop/preview/:id",
-        element: <ShopPreviewPage />,
+        path: "shop/:id/setting",
+        element: <EditShopPage />,
       },
     ],
   },
