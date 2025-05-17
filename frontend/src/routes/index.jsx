@@ -28,6 +28,8 @@ import CreateCategory from "../componant/Shop/CreateCategory";
 import CreateSubCategory from "../componant/Shop/CreateSubCategory ";
 import AllProducts from "../componant/Shop/AllProducts";
 import EditShopPage from "../pages/shop/EditShopPage";
+import CreateEvent from "../componant/Shop/CreateEvent";
+import AllEvents from "../componant/Shop/AllEvents";
 
 const router = createBrowserRouter([
   {
@@ -135,8 +137,8 @@ const router = createBrowserRouter([
           { path: "create-brand", element: <CreateBrand/> },
           { path: "create-category", element: <CreateCategory/> },
           { path: "create-subcategory", element: <CreateSubCategory/> },
-          { path: "events", element: <div>All Events</div> },
-          { path: "create-event", element: <div>Create Event</div> },
+          { path: "events", element: <AllEvents/> },
+          { path: "create-event", element: <CreateEvent/> },
           { path: "withdraw", element: <div>Withdraw Money</div> },
           { path: "messages", element: <div>Shop Inbox</div> },
           { path: "coupons", element: <div>Discount Codes</div> },

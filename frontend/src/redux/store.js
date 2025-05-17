@@ -10,12 +10,13 @@ import productReducer from './slices/productslice';
 import brandReducer from './slices/brandSlice';
 import categoryReducer from './slices/categorySlice';
 import subCategoryReducer from './slices/subcategorySlice';
+import eventReducer from './slices/eventSlice';
 
 // Persist configuration
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['user', 'seller', 'product', 'brand', 'category', 'subCategory'],
+  whitelist: ['user', 'seller', 'product', 'brand', 'category', 'subCategory','events'],
 };
 
 // Combine reducers
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   brand: brandReducer,
   category: categoryReducer,
   subCategory: subCategoryReducer,
+  events: eventReducer
 });
 
 // Persist reducer
