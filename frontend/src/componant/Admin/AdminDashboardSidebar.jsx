@@ -1,3 +1,4 @@
+
 import { NavLink, useLocation } from "react-router-dom";
 import { RxDashboard } from "react-icons/rx";
 import { FiShoppingBag, FiPackage } from "react-icons/fi";
@@ -7,6 +8,10 @@ import { VscNewFile } from "react-icons/vsc";
 import { CiMoneyBill, CiSettings } from "react-icons/ci";
 import { BiMessageSquareDetail } from "react-icons/bi";
 import { HiOutlineReceiptRefund } from "react-icons/hi";
+
+
+
+
 
 const sidebarItems = [
   {
@@ -22,16 +27,16 @@ const sidebarItems = [
     id: "orders",
   },
   {
-    label: "All Products",
+    label: "All Coupons",
     icon: FiPackage,
-    path: "products",
-    id: "products",
+    path: "All-Coupons",
+    id: "Coupones",
   },
   {
-    label: "Create Product",
+    label: "Create coupone",
     icon: AiOutlineFolderAdd,
-    path: "create-product",
-    id: "create-product",
+    path: "create-coupone",
+    id: "create-coupone",
   },
   {
     label: "Create brand",
@@ -94,35 +99,34 @@ const sidebarItems = [
     id: "settings",
   },
 ];
-
-const DashboardSideBar = () => {
+const AdminDashboardSidebar = () => {
   return (
-    <div className="w-full h-[90vh] bg-white shadow-sm overflow-y-scroll sticky top-0 left-0 z-10">
-      {sidebarItems.map((item, index) => {
-        const Icon = item.icon;
+       <div className="w-full h-[90vh] bg-white shadow-sm overflow-y-scroll sticky top-0 left-0 z-10">
+         {sidebarItems.map((item, index) => {
+           const Icon = item.icon;
+   
+           return (
+             <div key={index} className="w-full flex items-center p-4">
+               <NavLink
+                 to={item.path}
+                 className={({ isActive }) =>
+                   `w-full flex items-center ${isActive ? "text-[crimson]" : "text-[#555]"}`
+                 }
+                 end={item.path === ""} // Only match exactly for dashboard
+               >
+                 <Icon
+                   size={30}
+                   className={({ isActive }) => isActive ? "text-[crimson]" : "text-[#555]"}
+                 />
+                   <h5 className="hidden md:block pl-2 text-[18px] font-[400]">
+                   {item.label}
+                 </h5>
+               </NavLink>
+             </div>
+           );
+         })}
+       </div>
+  )
+}
 
-        return (
-          <div key={index} className="w-full flex items-center p-4">
-            <NavLink
-              to={item.path}
-              className={({ isActive }) =>
-                `w-full flex items-center ${isActive ? "text-[crimson]" : "text-[#555]"}`
-              }
-              end={item.path === ""} // Only match exactly for dashboard
-            >
-              <Icon
-                size={30}
-                className={({ isActive }) => isActive ? "text-[crimson]" : "text-[#555]"}
-              />
-                <h5 className="hidden md:block pl-2 text-[18px] font-[400]">
-                {item.label}
-              </h5>
-            </NavLink>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-export default DashboardSideBar;
+export default AdminDashboardSidebar

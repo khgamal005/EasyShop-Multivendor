@@ -30,6 +30,10 @@ import AllProducts from "../componant/Shop/AllProducts";
 import EditShopPage from "../pages/shop/EditShopPage";
 import CreateEvent from "../componant/Shop/CreateEvent";
 import AllEvents from "../componant/Shop/AllEvents";
+import AdminProtectedRoute from "./AdminProtectedRoute";
+import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
+import CreateCoupon from "../componant/Admin/CreateCoupone";
+import AllCoupons from "../pages/Admin/AllCoupons";
 
 const router = createBrowserRouter([
   {
@@ -141,6 +145,24 @@ const router = createBrowserRouter([
           { path: "create-event", element: <CreateEvent/> },
           { path: "withdraw", element: <div>Withdraw Money</div> },
           { path: "messages", element: <div>Shop Inbox</div> },
+          { path: "coupons", element: <div>Discount Codes</div> },
+          { path: "refunds", element: <div>Refunds</div> },
+          { path: "settings", element: <div>Settings</div> },
+
+    ]
+  },
+  {
+    path: "admin-dashboard",
+    element: (
+      <AdminProtectedRoute>
+        <AdminDashboardPage />
+      </AdminProtectedRoute>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+
+          { path: "All-Coupons", element:  <AllCoupons/>},
+          { path: "create-coupone", element: <CreateCoupon/> },
           { path: "coupons", element: <div>Discount Codes</div> },
           { path: "refunds", element: <div>Refunds</div> },
           { path: "settings", element: <div>Settings</div> },

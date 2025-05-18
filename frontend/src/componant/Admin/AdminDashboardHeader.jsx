@@ -3,11 +3,14 @@ import { FiPackage, FiShoppingBag } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { BiMessageSquareDetail } from "react-icons/bi";
-import EasyShopLogo from "../../Layout/EasyShopLogo";
-import { getSellerImageUrl } from "../../../utils/imageHelpers";
+import EasyShopLogo from "../Layout/EasyShopLogo";
+import { MdOutlineLocalOffer } from "react-icons/md";
 
-const DashboardHeader = () => {
-  const { seller } = useSelector((state) => state.seller);
+// ...
+
+const AdminDashboardHeader = () => {
+  const { user } = useSelector((state) => state.user);
+
   return (
     <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4 ">
       <div>
@@ -25,7 +28,7 @@ const DashboardHeader = () => {
             />
           </Link>
           <Link to="/dashboard-events" className="hidden sm:block ">
-            <smOutlineLocalOffer
+            <MdOutlineLocalOffer
               color="#555"
               size={30}
               className="mx-5 cursor-pointer"
@@ -48,26 +51,25 @@ const DashboardHeader = () => {
               className="mx-5 cursor-pointer"
             />
           </Link>
-          <Link
-  to={`/shop/${seller?._id}`}
-  className="relative group inline-block"
->
-  <img
-    src={getSellerImageUrl(seller.avatar?.url)}
-    alt="Seller"
-    className="w-[50px] h-[50px] rounded-full object-cover transition-transform duration-200 group-hover:scale-105"
-  />
+          <Link to={`/profile`} className="relative group inline-block">
+            <img
+              src={user.avatar?.url}
+              alt="Seller"
+              className="w-[50px] h-[50px] rounded-full object-cover transition-transform duration-200 group-hover:scale-105"
+            />
 
-  {/* Hover Text */}
-  <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2
-   bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap">
-    Visit Seller Page
-  </div>
-</Link>
+            {/* Hover Text */}
+            <div
+              className="absolute bottom-[-30px] left-1/2 -translate-x-1/2
+   bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap"
+            >
+              Visit admin Page
+            </div>
+          </Link>
         </div>
       </div>
     </div>
   );
 };
 
-export default DashboardHeader;
+export default AdminDashboardHeader;
