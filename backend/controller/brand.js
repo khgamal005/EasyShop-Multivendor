@@ -30,32 +30,6 @@ exports.resizeImage = asyncHandler(async (req, res, next) => {
 
   next();
 });
-// exports.resizeImage = asyncHandler(async (req, res, next) => {
-//   try {
-//     if (!req.file) return next();
-
-//     const filename = `brand-${uuidv4()}-${Date.now()}.jpeg`;
-
-//     console.log("Processing image:", req.file.originalname); // Debug log
-
-//     await sharp(req.file.buffer)
-//       .resize(600, 600)
-//       .toFormat("jpeg")
-//       .jpeg({ quality: 95 })
-//       .toFile(`uploads/brands/${filename}`)
-//       .catch((err) => {
-//         console.error("Sharp error:", err); // Log Sharp errors
-//         throw err;
-//       });
-
-//     req.body.image = filename;
-//     next();
-//   } catch (err) {
-//     console.error("Error in resizeImage:", err); // Log general errors
-//     next(err);
-//   }
-// });
-
 
 
 exports.createBrand = asyncHandler(async (req, res) => {
