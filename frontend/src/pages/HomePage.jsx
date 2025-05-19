@@ -5,17 +5,29 @@ import BestDeals from '../componant/Route/BestDeals/BestDeals';
 import Events from "../componant/Events/Events";
 import FeaturedProduct from '../componant/FeaturedProduct/FeaturedProduct';
 import Sponsored from '../componant/Route/Sponsored';
+import { getAllProducts } from '../redux/slices/productslice';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 
 const HomePage = () => {
+    const dispatch = useDispatch();
+  const { products } = useSelector((state) => state.product);
 
+
+
+
+
+  useEffect(()=>{
+   dispatch(getAllProducts());
+  },[])
 
   return (
     <div>
      <Hero/>
      <Categories />
-     <BestDeals />
+     <BestDeals products={products} />
      <Events />
-     <FeaturedProduct />
+     <FeaturedProduct products={products} />
      <Sponsored />
 
     </div>

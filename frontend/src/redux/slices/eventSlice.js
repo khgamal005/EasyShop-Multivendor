@@ -33,11 +33,32 @@ export const createEvent = createAsyncThunk(
 );
 
 // Get All Events of Shop
+export const getEventsOfShop = createAsyncThunk(
+  "events/getEventsofshop",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(`${server}/event`, {
+        withCredentials: true,
+      });
+      return res.data.data;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
+);
 export const getEvents = createAsyncThunk(
   "events/getEvents",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get(`${server}/event`, {
+      const res = await axios.get(`${server}/event/getallEvents`, {
         withCredentials: true,
       });
       return res.data.data;
@@ -110,6 +131,19 @@ const eventSlice = createSlice({
         state.error = action.payload;
       })
 
+      // Get Eventsofshop
+      .addCase(getEventsOfShop.pending, (state) => {
+        state.loading = true;
+         state.error = null;
+      })
+      .addCase(getEventsOfShop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.events = action.payload;
+      })
+      .addCase(getEventsOfShop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       // Get Events
       .addCase(getEvents.pending, (state) => {
         state.loading = true;

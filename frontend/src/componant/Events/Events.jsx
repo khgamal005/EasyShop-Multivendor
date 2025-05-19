@@ -1,15 +1,22 @@
-import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import  { useEffect } from "react";
+
 import styles from '../../styles/styles'
 import EventCard from "./EventCard";
+import { getEvents } from '../../redux/slices/eventSlice';
 
 const Events = () => {
-  // const {allEvents,isLoading} = useSelector((state) => state.events);  
+  
+    const dispatch = useDispatch();
+  const {events,loading} = useSelector((state) => state.events);  
    
+  useEffect(()=>{
+   dispatch(getEvents());
+  },[])
   return (
     <div>
-     {/* {
-      !isLoading && (
+     {
+      !loading && (
         <div className={`${styles.section}`}>
       <div className={`${styles.heading}`}>
         <h1>Popular Events</h1>
@@ -17,12 +24,12 @@ const Events = () => {
 
       <div className="w-full grid">
          {
-          allEvents.length !== 0 && (
-            <EventCard data={allEvents && allEvents[0]} />
+          events.length !== 0 && (
+            <EventCard data={events && events[0]} />
           )
          }
          <h4>{
-           allEvents?.length === 0 && (
+           events?.length === 0 && (
             'No Events have!'
            )
           }
@@ -32,7 +39,7 @@ const Events = () => {
      
     </div>
       )
-     } */}
+     }
   </div>
   )
 }

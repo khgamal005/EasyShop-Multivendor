@@ -3,6 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PRODUCT_IMAGE_PATH = import.meta.env.VITE_PRODUCT_IMAGE_PATH;
 const Shop_IMAGE_PATH = import.meta.env.VITE_Shop_IMAGE_PATH;
 const user_IMAGE_PATH = import.meta.env.VITE_user_IMAGE_PATH;
+const EVENT_IMAGE_PATH = import.meta.env.VITE_EVENT_IMAGE_PATH;
 
 
 
@@ -44,6 +45,18 @@ export const getUserImageUrl = (img) => {
 
   if (typeof img === "string") {
     return `${API_BASE_URL}${user_IMAGE_PATH}${img}`;
+  }
+  if (img instanceof Blob || img instanceof File) {
+    return URL.createObjectURL(img);
+  }
+  return "/images/image-placeholder.jpg"; // Fallback image
+};
+export const getEventImageUrl = (img) => {
+  if (!img) return "/images/image-placeholder.jpg"; 
+
+
+  if (typeof img === "string") {
+    return `${API_BASE_URL}${EVENT_IMAGE_PATH}${img}`;
   }
   if (img instanceof Blob || img instanceof File) {
     return URL.createObjectURL(img);

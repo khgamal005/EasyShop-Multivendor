@@ -111,8 +111,8 @@ export const getAllProducts = createAsyncThunk(
   "product/getAll",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${server}/product/get-all-products`);
-      return data.products;
+      const { data } = await axios.get(`${server}/product`);
+      return data.data;
     } catch (error) {
       if (error.response && error.response.data.errors) {
         // Get the first validation error message
@@ -239,17 +239,18 @@ const productSlice = createSlice({
       })
 
       // // Get All Products
-      // .addCase(getAllProducts.pending, (state) => {
-      //   state.isLoading = true;
-      // })
-      // .addCase(getAllProducts.fulfilled, (state, action) => {
-      //   state.isLoading = false;
-      //   state.allProducts = action.payload;
-      // })
-      // .addCase(getAllProducts.rejected, (state, action) => {
-      //   state.isLoading = false;
-      //   state.error = action.payload;
-      // });
+      .addCase(getAllProducts.pending, (state) => {
+        state.isLoading = true;
+        state.error = false;
+      })
+      .addCase(getAllProducts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.products = action.payload;
+      })
+      .addCase(getAllProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
   },
 });
 
