@@ -19,7 +19,6 @@ import {
 import { getProductImageUrl } from "../../utils/imageHelpers";
 
 const ProductDetailsCard = ({ setOpen, data }) => {
-  console.log(data)
   const wishlist = useSelector((state) => state.wishlist); // wishlist array
   const cart = useSelector((state) => state.cart); // cart array
 
@@ -42,14 +41,14 @@ const ProductDetailsCard = ({ setOpen, data }) => {
 
   const addToCartHandler = (id) => {
     const isItemExists = cart?.some((item) => item._id === id);
-    if (isItemExists) {
-      toast.error("Item already in cart!");
-    } else if (data.stock < count) {
+    if (isItemExists && data?.stock < count) {
       toast.error("Product stock limited!");
     } else {
       dispatch(addToCart({ ...data, qty: count }));
       toast.success("Item added to cart successfully!");
     }
+      console.log(data)
+
   };
 
   const removeFromWishlistHandler = (data) => {
@@ -92,7 +91,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                     // className="w-[50px] h-[50px] rounded-full mr-2 object-cover"
                   />
                   <div>
-                    <h3 className={styles.shop_name}>{data.nsme}</h3>
+                    <h3 className={styles.shop_name}>{data.name}</h3>
                     <h5 className="pb-3 text-[15px]">{data.ratings} Ratings</h5>
                   </div>
                 </Link>
@@ -105,7 +104,8 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                   Send Message <AiOutlineMessage className="ml-1" />
                 </span>
               </button>
-              <h5 className="text-[16px] text-[red] mt-5">(50) Sold out</h5>
+              <h5 className="text-[16px] text-[red] mt-5">{data.sold_out} sold out</h5> 
+              <h5 className="text-[16px] text-[red] mt-5">{data.stock} stock</h5> 
             </div>
 
             <div className="w-full 800px:w-[50%] pt-5 px-2">

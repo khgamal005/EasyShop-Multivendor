@@ -33,14 +33,16 @@ const ProductCard = ({ data, isEvent }) => {
   }, [wishlist, data._id]);
 
   const handleWishlist = () => {
-    if (click) {
-      dispatch(removeFromWishlist(data._id));
-      toast.info("Removed from wishlist");
-    } else {
-      dispatch(addToWishlist(data));
-      toast.success("Added to wishlist");
-    }
-    setClick(!click);
+  const isInWishlist = wishlist?.some((item) => item._id === data._id);
+
+  if (isInWishlist) {
+    dispatch(removeFromWishlist(data._id));
+    toast.info("Removed from wishlist");
+  } else {
+    dispatch(addToWishlist(data));
+    toast.success("Added to wishlist");
+  }
+
   };
 
   const handleAddToCart = () => {

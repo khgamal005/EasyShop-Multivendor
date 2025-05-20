@@ -25,16 +25,6 @@ const wishlistSlice = createSlice({
   },
 });
 
-// Async action creators to keep localStorage in sync if needed
-export const addToWishlistAsync = (item) => async (dispatch, getState) => {
-  dispatch(addToWishlist(item));
-  localStorage.setItem("wishlistItems", JSON.stringify(getState().wishlist));
-};
-
-export const removeFromWishlistAsync = (item) => async (dispatch, getState) => {
-  dispatch(removeFromWishlist(item._id));
-  localStorage.setItem("wishlistItems", JSON.stringify(getState().wishlist));
-};
 
 export const { addToWishlist, removeFromWishlist, clearWishlist } = wishlistSlice.actions;
 export default wishlistSlice.reducer;
