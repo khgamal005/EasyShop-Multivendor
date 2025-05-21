@@ -47,7 +47,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
       dispatch(addToCart({ ...data, qty: count }));
       toast.success("Item added to cart successfully!");
     }
-      console.log(data)
+
 
   };
 

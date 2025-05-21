@@ -8,6 +8,8 @@ import Sponsored from '../componant/Route/Sponsored';
 import { getAllProducts } from '../redux/slices/productslice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
+import { getCategories } from '../redux/slices/categorySlice';
+import { getSubCategories } from '../redux/slices/subcategorySlice';
 
 const HomePage = () => {
     const dispatch = useDispatch();
@@ -19,6 +21,8 @@ const HomePage = () => {
 
   useEffect(()=>{
    dispatch(getAllProducts());
+   dispatch(getCategories());
+   dispatch(getSubCategories());
   },[])
 
   return (

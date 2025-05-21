@@ -57,6 +57,19 @@ export const updateShopInfo = createAsyncThunk(
     
   }
 );
+export const getSellerById = createAsyncThunk(
+  "seller/getSellerById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${server}/shop/get-Specific-seller`, { id });
+      return response.data.seller;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch seller"
+      );
+    }
+  }
+);
 // --- Slice ---
 const sellerSlice = createSlice({
   name: "seller",

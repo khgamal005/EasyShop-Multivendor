@@ -12,9 +12,17 @@ export const getCategories = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${server}/category/`);
-      return data.categories; // assuming { categories: [...] }
+      return data.data; // assuming { categories: [...] }
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+    if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
     }
   }
 );
@@ -25,9 +33,17 @@ export const getCategory = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${server}/category/${id}`);
-      return data.category; // assuming { category: {...} }
+      return data.data; // assuming { category: {...} }
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
     }
   }
 );

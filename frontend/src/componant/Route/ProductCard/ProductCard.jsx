@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import Ratings from "../../Products/Ratings";
 import { addToWishlist, removeFromWishlist } from "../../../redux/slices/wishlistSlice";
 import { addToCart } from "../../../redux/slices/cartslice";
+import { getProductImageUrl } from "../../../utils/imageHelpers";
 
 const ProductCard = ({ data,isEvent }) => {
   const wishlist = useSelector((state) => state.wishlist); // wishlist is an array
@@ -61,7 +62,7 @@ const ProductCard = ({ data,isEvent }) => {
         <div className="flex justify-end"></div>
         <Link to={`${isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
           <img
-            src={`${data.images && data.images[0]?.url}`}
+            src={getProductImageUrl(data.images?.[0])}
             alt=""
             className="w-full h-[170px] object-contain"
           />

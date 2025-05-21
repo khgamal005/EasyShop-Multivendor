@@ -84,7 +84,7 @@ const CreateProduct = () => {
     newForm.append("originalPrice", originalPrice);
     newForm.append("discountPrice", discountPrice);
     newForm.append("stock", stock);
-    newForm.append("shopId", seller._id);
+    newForm.append("shop", seller._id);
     newForm.append("sold_out", sold_out);
     newForm.append("color", color);
 
@@ -154,8 +154,8 @@ const CreateProduct = () => {
             <option value="">Select Category</option>
             {Array.isArray(categories) &&
               categories.map((cat) => (
-                <option key={cat.category._id} value={cat.category._id}>
-                  {cat.category.name}
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
                 </option>
               ))}
           </select>

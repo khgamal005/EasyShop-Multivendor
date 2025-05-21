@@ -8,9 +8,7 @@ import { updateProduct, getProduct } from "../../redux/slices/productslice";
 import { HexColorPicker } from "react-colorful";
 import { MdDelete } from "react-icons/md";
 import DisplayImage from "../../utils/DisplayImage";
-import { getProductImageUrl } from '../../utils/imageHelpers';
-  
-
+import { getProductImageUrl } from "../../utils/imageHelpers";
 
 const EditProduct = ({ onClose, product }) => {
   const { seller } = useSelector((state) => state.seller);
@@ -30,12 +28,11 @@ const EditProduct = ({ onClose, product }) => {
   const [stock, setStock] = useState(0);
   const [sold_out, setSoldOut] = useState(0);
   const [color, setColor] = useState("#aabbcc");
-    const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
-    const [fullScreenImage, setFullScreenImage] = useState("");
-    const [newFiles, setNewFiles] = useState([]);
-    const [existingImages, setExistingImages] = useState([]);
-    const [removedImages, setRemovedImages] = useState([]);
-
+  const [openFullScreenImage, setOpenFullScreenImage] = useState(false);
+  const [fullScreenImage, setFullScreenImage] = useState("");
+  const [newFiles, setNewFiles] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
 
   useEffect(() => {
     if (product) {
@@ -50,9 +47,8 @@ const EditProduct = ({ onClose, product }) => {
       setSoldOut(product.sold_out || 0);
       setColor(product.color || "#aabbcc");
       // Filter out any null values from the existing images array
-    const validExistingImages = product.images.filter((img) => img !== null);
-    setExistingImages(validExistingImages);
-  
+      const validExistingImages = product.images.filter((img) => img !== null);
+      setExistingImages(validExistingImages);
 
       // Load subcategories if category is set
       if (product.category?._id) {
@@ -78,7 +74,7 @@ const EditProduct = ({ onClose, product }) => {
     onDrop: handleDrop,
     accept: { "image/*": [] },
     multiple: true,
-    maxFiles: 7
+    maxFiles: 7,
   });
 
   // const handleDeleteImage = (index, isExisting) => {
@@ -93,14 +89,13 @@ const EditProduct = ({ onClose, product }) => {
     if (isExisting) {
       // For existing images, we need to track which ones were removed
       const imageToRemove = existingImages[index];
-      setExistingImages(prev => prev.filter((_, i) => i !== index));
-      setRemovedImages(prev => [...prev, imageToRemove]);
+      setExistingImages((prev) => prev.filter((_, i) => i !== index));
+      setRemovedImages((prev) => [...prev, imageToRemove]);
     } else {
       // For new files, just remove from the array
-      setNewFiles(prev => prev.filter((_, i) => i !== index));
+      setNewFiles((prev) => prev.filter((_, i) => i !== index));
     }
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -111,59 +106,60 @@ const EditProduct = ({ onClose, product }) => {
       subCategoryIds.length === 0 ||
       !originalPrice ||
       !discountPrice ||
-      !stock 
+      !stock
       // images.length === 0
     ) {
       return toast.error(
         "Please fill in all required fields including at least one image."
       );
     }
-      // Ensure product._id is defined
-  if (!product._id) {
-    console.error("Product ID is missing!");
-    return;}
-  // Ensure at least one image remains
-  if (existingImages.length + newFiles.length === 0) {
-    alert('Product must have at least one image');
-    return;
-  }
+    // Ensure product._id is defined
+    if (!product._id) {
+      console.error("Product ID is missing!");
+      return;
+    }
+    // Ensure at least one image remains
+    if (existingImages.length + newFiles.length === 0) {
+      alert("Product must have at least one image");
+      return;
+    }
     const newForm = new FormData();
 
-    
-
-  // Handle images:
-  // If only one image remains, send it as string
-  // If multiple, send as array
-  if (existingImages.length === 1) {
-    newForm.append('images', existingImages[0]);
-  } else if (existingImages.length > 1) {
-    existingImages.forEach(img => {
-      newForm.append('images[]', img); // Note the [] for arrays
+    // Handle images:
+    // If only one image remains, send it as string
+    // If multiple, send as array
+    existingImages.forEach((img) => {
+      newForm.append("images", img); // Use same key for all
     });
-  }
 
-  // Add new files
-  newFiles.forEach(file => {
-    newForm.append('images', file);
-  });
+    // Append newly uploaded image files
+    newFiles.forEach((file) => {
+      newForm.append("images", file); // Same key
+    });
+
+    // Add basic product fields
     newForm.append("name", name);
     newForm.append("description", description);
     newForm.append("category", categoryId);
-    subCategoryIds.forEach((id) => newForm.append("subcategories[]", id));
     newForm.append("tags", tags);
-    newForm.append("originalPrice", originalPrice);
-    newForm.append("discountPrice", discountPrice);
-    newForm.append("stock", stock);
-    newForm.append("shopId", seller._id);
-    newForm.append("sold_out", sold_out);
+    newForm.append("originalPrice", originalPrice.toString());
+    newForm.append("discountPrice", discountPrice.toString());
+    newForm.append("stock", stock.toString());
+    newForm.append("sold_out", sold_out.toString());
     newForm.append("color", color);
 
+    // Append subcategories (if multiple)
+    subCategoryIds.forEach((id) => {
+      newForm.append("subcategories", id); // consistent key name
+    });
 
     try {
-      const action = await dispatch(updateProduct({
-        id: product._id,  // Explicitly name the ID field
-        formData: newForm     // Explicitly name the form data
-      }));
+      const action = await dispatch(
+        updateProduct({
+          id: product._id, // Explicitly name the ID field
+          formData: newForm, // Explicitly name the form data
+        })
+      );
       if (updateProduct.fulfilled.match(action)) {
         toast.success("Product updated successfully");
         onClose();
@@ -177,31 +173,29 @@ const EditProduct = ({ onClose, product }) => {
     }
   };
 
-
   useEffect(() => {
     return () => {
       // Clean up object URLs to avoid memory leaks
-      newFiles.forEach(file => {
+      newFiles.forEach((file) => {
         if (file.preview) URL.revokeObjectURL(file.preview);
       });
     };
   }, [newFiles]);
 
-  
   const getImageUrl = (img) => {
     // Check if the image is valid
     if (!img) return "/images/image-placeholder.jpg"; // Fallback image for invalid values
-  
+
     // If the image is a string, it could be a URL; return it directly
     if (typeof img === "string") {
       return `${API_BASE_URL}${PRODUCT_IMAGE_PATH}${img}`;
     }
-  
+
     // If it's a File or Blob, create an Object URL
     if (img instanceof Blob || img instanceof File) {
       return URL.createObjectURL(img);
     }
-  
+
     // Return a default fallback or null in case of an invalid type
     return "/images/image-placeholder.jpg"; // Fallback image
   };
@@ -256,9 +250,9 @@ const EditProduct = ({ onClose, product }) => {
             >
               <option value="">Select Category</option>
               {categories.map((cat) => (
-                 <option key={cat.category._id} value={cat.category._id}>
-                 {cat.category.name}
-               </option>
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
               ))}
             </select>
           </div>
@@ -368,9 +362,7 @@ const EditProduct = ({ onClose, product }) => {
               <input {...getInputProps()} />
               <AiOutlinePlusCircle size={30} />
               <p className="text-sm mt-2">
-                Click or drag and drop images here (max{" "}
-           
-                remaining)
+                Click or drag and drop images here (max remaining)
               </p>
             </div>
 
@@ -378,21 +370,15 @@ const EditProduct = ({ onClose, product }) => {
             <div className="mt-4">
               <h4 className="font-medium mb-2">Existing Images</h4>
               <div className="flex flex-wrap gap-4">
-
                 {existingImages.map((img, index) => (
                   <div key={index} className="relative w-24 h-24">
                     <img
-                     src={
-                      getProductImageUrl(img)
-                    }
+                      src={getProductImageUrl(img)}
                       alt={`Product preview ${index + 1}`}
                       className="w-full h-full object-cover rounded-md"
-                      
                       onClick={() => {
                         setOpenFullScreenImage(true);
-                        setFullScreenImage(
-                          getProductImageUrl(img)
-                        );
+                        setFullScreenImage(getProductImageUrl(img));
                       }}
                       onError={(e) => {
                         e.target.onerror = null;
@@ -415,22 +401,18 @@ const EditProduct = ({ onClose, product }) => {
               {newFiles.map((file, index) => (
                 <div key={index} className="relative w-24 h-24">
                   <img
-                    src={
-                      getProductImageUrl(file)
-                    }
+                    src={getProductImageUrl(file)}
                     alt="preview"
                     className="w-full h-full object-cover rounded-md"
                     onClick={() => {
                       setOpenFullScreenImage(true);
-                      setFullScreenImage(
-                        getProductImageUrl(file)
-                      );
+                      setFullScreenImage(getProductImageUrl(file));
                     }}
                   />
                   {/* ... delete button ... */}
                   <button
                     type="button"
-                    onClick={() => handleDeleteImage(index ,false)}
+                    onClick={() => handleDeleteImage(index, false)}
                     className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1"
                   >
                     <MdDelete size={16} />
@@ -458,15 +440,13 @@ const EditProduct = ({ onClose, product }) => {
           </div>
         </form>
       </div>
-          {/***display image full screen */}
-          {
-       openFullScreenImage && (
+      {/***display image full screen */}
+      {openFullScreenImage && (
         <DisplayImage
-        onClose={() => setOpenFullScreenImage(false)}
+          onClose={() => setOpenFullScreenImage(false)}
           imgUrl={fullScreenImage} // ✅ FIXED
         />
-      )
-       }
+      )}
     </div>
   );
 };

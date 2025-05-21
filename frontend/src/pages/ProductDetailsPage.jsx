@@ -26,7 +26,7 @@ return (
   <div>
     {data ? (
       <>
-        <ProductDetails data={data} />
+        <ProductDetails data={data}  eventData={eventData}/>
         {!eventData && (
           <>
             <SuggestedProduct data={data} />
