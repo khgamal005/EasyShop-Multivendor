@@ -3,61 +3,118 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { server } from "../../server";
 
-const API_BASE = "reviews";
+
 
 // Thunks
-export const fetchReviews = createAsyncThunk("review/fetchAll", async (productId, thunkAPI) => {
-  try {
-    const res = await axios.get(
-      productId ? `${server}/reviews?product=${productId}` : `${server}/reviews`
-    );
-    return res.data.data;
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.response?.data?.message || err.message);
-  }
-});
+export const fetchReviews = createAsyncThunk(
+  "review/fetchAll",
+  async (productId, thunkAPI) => {
+    try {
+      const res = await axios.get(
+        productId
+          ? `${server}/reviews?product=${productId}`
+          : `${server}/reviews`
+      );
+      return res.data.data;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return thunkAPI.rejectWithValue(error.response.data.errors[0].msg);
+      }
 
-export const fetchReview = createAsyncThunk("review/fetchOne", async (id, thunkAPI) => {
-  try {
-    const res = await axios.get(`${API_BASE}/${id}`);
-    return res.data.data;
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.response.data.message);
+      // Handle other server errors
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
   }
-});
+);
 
-export const createReview = createAsyncThunk("review/create", async (reviewData, thunkAPI) => {
-  try {
-    const res = await axios.post(API_BASE, reviewData, {
-      withCredentials: true,
-    });
-    return res.data.data;
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.response.data.message);
-  }
-});
+export const fetchReview = createAsyncThunk(
+  "review/fetchOne",
+  async ( id,thunkAPI) => {
+    try {
+      const res = await axios.get(`${server}/reviews/${id}`);
+      return res.data.data;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return thunkAPI.rejectWithValue(error.response.data.errors[0].msg);
+      }
 
-export const updateReview = createAsyncThunk("review/update", async ({ id, data }, thunkAPI) => {
-  try {
-    const res = await axios.put(`${API_BASE}/${id}`, data, {
-      withCredentials: true,
-    });
-    return res.data.data;
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.response.data.message);
+      // Handle other server errors
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
   }
-});
+);
 
-export const deleteReview = createAsyncThunk("review/delete", async (id, thunkAPI) => {
-  try {
-    await axios.delete(`${API_BASE}/${id}`, {
-      withCredentials: true,
-    });
-    return id;
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.response.data.message);
+export const createReview = createAsyncThunk(
+  "review/create",
+  async (reviewData, thunkAPI) => {
+    try {
+      const res = await axios.post(`${server}/reviews`, reviewData, {
+        withCredentials: true,
+      });
+      return res.data.data;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return thunkAPI.rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
   }
-});
+);
+
+export const updateReview = createAsyncThunk(
+  "review/update",
+  async ({ id, data }, thunkAPI) => {
+    try {
+      const res = await axios.put(`${server}/reviews/${id}`, data, {
+        withCredentials: true,
+      });
+      return res.data.data;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return thunkAPI.rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
+);
+
+export const deleteReview = createAsyncThunk(
+  "review/delete",
+  async (id, thunkAPI) => {
+    try {
+      await axios.delete(`${server}/reviews/${id}`, {
+        withCredentials: true,
+      });
+      return id;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return thunkAPI.rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
+);
 
 // Slice
 const reviewSlice = createSlice({
@@ -78,6 +135,7 @@ const reviewSlice = createSlice({
       // Fetch All
       .addCase(fetchReviews.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchReviews.fulfilled, (state, action) => {
         state.loading = false;
@@ -88,28 +146,32 @@ const reviewSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch One
-      .addCase(fetchReview.fulfilled, (state, action) => {
-        state.review = action.payload;
-      })
+  
 
-      // Create
+      // // Create
+
       .addCase(createReview.fulfilled, (state, action) => {
         state.reviews.push(action.payload);
       })
 
+
       // Update
       .addCase(updateReview.fulfilled, (state, action) => {
-        const index = state.reviews.findIndex((r) => r._id === action.payload._id);
+        const index = state.reviews.findIndex(
+          (r) => r._id === action.payload._id
+        );
         if (index !== -1) {
           state.reviews[index] = action.payload;
         }
       })
 
       // Delete
+ 
+      
       .addCase(deleteReview.fulfilled, (state, action) => {
         state.reviews = state.reviews.filter((r) => r._id !== action.payload);
-      });
+      })
+
   },
 });
 

@@ -10,13 +10,13 @@ import {
 import { Link } from "react-router-dom";
 import styles from "../../../styles/styles";
 import { useDispatch, useSelector } from "react-redux";
-import ProductDetailsCard from "../ProductDetailsCard/ProductDetailsCard";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import Ratings from "../../Products/Ratings";
 import { addToWishlist, removeFromWishlist } from "../../../redux/slices/wishlistSlice";
 import { addToCart } from "../../../redux/slices/cartslice";
 import { getProductImageUrl } from "../../../utils/imageHelpers";
+import ProductDetailsCard from "../../ProductDetailsCard/ProductDetailsCard";
 
 const ProductCard = ({ data,isEvent }) => {
   const wishlist = useSelector((state) => state.wishlist); // wishlist is an array

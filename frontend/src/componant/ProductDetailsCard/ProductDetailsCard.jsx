@@ -16,7 +16,7 @@ import {
   addToWishlist,
   removeFromWishlist,
 } from "../../redux/slices/wishlistSlice";
-import { getProductImageUrl } from "../../utils/imageHelpers";
+import { getProductImageUrl,getSellerImageUrl } from "../../utils/imageHelpers";
 
 const ProductDetailsCard = ({ setOpen, data }) => {
   const wishlist = useSelector((state) => state.wishlist); // wishlist array
@@ -81,14 +81,18 @@ const ProductDetailsCard = ({ setOpen, data }) => {
 
           <div className="block w-full 800px:flex">
             <div className="w-full 800px:w-[50%]">
-              <img 
-                src={getProductImageUrl(data.images?.[0])}              />
+              <img src={getProductImageUrl(data.images?.[0])} />
               <div className="flex mt-3">
-                <Link to={`/shop/preview/${data}`} className="flex items-center">
+                <Link
+                  to={`/shop/preview/${data}`}
+                  className="flex items-center"
+                >
                   <img
-                    // src={data.shop?.avatar || data.images?.[0]?.url}
-                    // alt={data.shop?.name || "Shop"}
-                    // className="w-[50px] h-[50px] rounded-full mr-2 object-cover"
+                    src={
+                      getSellerImageUrl(data.shop.avatar?.url) ||
+                      "/images/shop-default.png"
+                    }
+                    className="w-[50px] h-[50px] rounded-full mr-2 object-cover"
                   />
                   <div>
                     <h3 className={styles.shop_name}>{data.name}</h3>
@@ -104,16 +108,24 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                   Send Message <AiOutlineMessage className="ml-1" />
                 </span>
               </button>
-              <h5 className="text-[16px] text-[red] mt-5">{data.sold_out} sold out</h5> 
-              <h5 className="text-[16px] text-[red] mt-5">{data.stock} stock</h5> 
+              <h5 className="text-[16px] text-[red] mt-5">
+                {data.sold_out} sold out
+              </h5>
+              <h5 className="text-[16px] text-[red] mt-5">
+                {data.stock} stock
+              </h5>
             </div>
 
             <div className="w-full 800px:w-[50%] pt-5 px-2">
-              <h1 className={`${styles.productTitle} text-[20px]`}>{data.name}</h1>
+              <h1 className={`${styles.productTitle} text-[20px]`}>
+                {data.name}
+              </h1>
               <p className="mt-2">{data.description}</p>
 
               <div className="flex pt-3 items-center gap-4">
-                <h4 className={styles.productDiscountPrice}>{data.discountPrice}$</h4>
+                <h4 className={styles.productDiscountPrice}>
+                  {data.discountPrice}$
+                </h4>
                 {data.originalPrice && (
                   <h3 className={styles.price}>{data.originalPrice}$</h3>
                 )}

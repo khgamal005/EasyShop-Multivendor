@@ -6,12 +6,15 @@ import {
   AiOutlineShoppingCart,
 } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+
 import {
   addToWishlist,
   removeFromWishlist,
 } from "../../redux/slices/wishlistSlice";
 import { addToCart } from "../../redux/slices/cartslice";
 import { fetchReviews } from "../../redux/slices/reviewSlice";
+
 import Ratings from "../Products/Ratings";
 import Loader from "../Layout/Loader";
 import styles from "../../styles/styles";
@@ -20,34 +23,35 @@ import {
   getProductImageUrl,
   getSellerImageUrl,
 } from "../../utils/imageHelpers";
-import { toast } from "react-toastify";
+import ProductReviews from "./ProductReviews ";
 
 const ProductDetails = ({ data, eventData }) => {
-
   const dispatch = useDispatch();
-  const  cart  = useSelector((state) => state.cart);
-  const  wishlist  = useSelector((state) => state.wishlist);
+  const { cart } = useSelector((state) => state.cart);
+  const { wishlist } = useSelector((state) => state.wishlist);
+  const { reviews, loading } = useSelector((state) => state.review);
   const [select, setSelect] = useState(0);
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
-  console.log(wishlist);
-  useEffect(() => {
-    dispatch(fetchReviews(data._id));
-  }, [data._id, dispatch]);
 
   useEffect(() => {
-    setClick(wishlist?.some((item) => item._id === data._id));
-  }, [wishlist, data._id]);
+     
+      dispatch(fetchReviews(data._id));
+    
+  }, [data?._id, dispatch]);
 
-  const removeFromWishlistHandler = (data) => {
+  useEffect(() => {
+    setClick(wishlist?.some((item) => item._id === data?._id));
+  }, [wishlist, data?._id]);
+
+  const removeFromWishlistHandler = () => {
     dispatch(removeFromWishlist(data._id));
     setClick(false);
     toast.info("Removed from wishlist");
   };
 
-  const addToWishlistHandler = (data) => {
+  const addToWishlistHandler = () => {
     dispatch(addToWishlist(data));
-    setClick(true);
     toast.success("Added to wishlist");
   };
 
@@ -59,18 +63,16 @@ const ProductDetails = ({ data, eventData }) => {
     setCount(count + 1);
   };
 
-  const addToCartHandler = (id) => {
-    const isItemExists = cart?.some((item) => item._id === id);
-   console.log(data.stock,cart,count) 
-    if (isItemExists && data?.stock < count) {
+  const addToCartHandler = () => {
+    const isInCart = cart?.some((item) => item._id === data._id);
+    if (isInCart && data.stock < count) {
       toast.error("Product stock limited!");
     } else {
       dispatch(addToCart({ ...data, qty: count }));
-      toast.success("Item added to cart successfully!");
+      toast.success("Added to cart");
     }
-      console.log(data)
-
   };
+
   if (!data) return <Loader />;
 
   return (
@@ -123,12 +125,12 @@ const ProductDetails = ({ data, eventData }) => {
           </div>
 
           {/* Wishlist Icon */}
-          <div>
+          <div className="mt-4">
             {click ? (
               <AiFillHeart
                 size={30}
                 className="cursor-pointer"
-                onClick={() => removeFromWishlistHandler(data)}
+                onClick={removeFromWishlistHandler}
                 color="red"
                 title="Remove from wishlist"
               />
@@ -136,7 +138,7 @@ const ProductDetails = ({ data, eventData }) => {
               <AiOutlineHeart
                 size={30}
                 className="cursor-pointer"
-                onClick={() => addToWishlistHandler(data)}
+                onClick={addToWishlistHandler}
                 title="Add to wishlist"
               />
             )}
@@ -146,7 +148,7 @@ const ProductDetails = ({ data, eventData }) => {
           <div className="flex items-center mt-12 justify-between pr-3">
             <div className="flex items-center">
               <button
-                className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
+                className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2"
                 onClick={decrementCount}
               >
                 -
@@ -155,7 +157,7 @@ const ProductDetails = ({ data, eventData }) => {
                 {count}
               </span>
               <button
-                className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-r px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
+                className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-r px-4 py-2"
                 onClick={incrementCount}
               >
                 +
@@ -163,14 +165,14 @@ const ProductDetails = ({ data, eventData }) => {
             </div>
           </div>
 
-                 <button
-                className={`${styles.button} mt-6 rounded-[4px] h-11 flex items-center justify-center`}
-                onClick={() => addToCartHandler(data._id)}
-              >
-                <span className="text-white flex items-center">
-                  Add to cart <AiOutlineShoppingCart className="ml-1" />
-                </span>
-              </button>
+          <button
+            className={`${styles.button} mt-6 rounded-[4px] h-11 flex items-center justify-center`}
+            onClick={addToCartHandler}
+          >
+            <span className="text-white flex items-center">
+              Add to cart <AiOutlineShoppingCart className="ml-1" />
+            </span>
+          </button>
 
           {/* Shop Link */}
           <div className="mt-6">
@@ -185,7 +187,7 @@ const ProductDetails = ({ data, eventData }) => {
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
-                  <h3 className="font-semibold">{data.name}</h3>
+                  <h3 className="font-semibold">{data.shop.name}</h3>
                   <span className="text-sm text-gray-500">
                     ({data.ratingsQuantity}) Ratings
                   </span>
@@ -195,6 +197,13 @@ const ProductDetails = ({ data, eventData }) => {
           </div>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <ProductReviews 
+        productId={data._id} 
+        reviews={reviews} 
+        loading={loading} 
+      />
     </div>
   );
 };
