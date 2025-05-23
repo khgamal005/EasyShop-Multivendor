@@ -12,6 +12,7 @@ import EasyShopLogo from "./EasyShopLogo";
 import { categoriesData } from "../../static/data";
 // import Cart from "../cart/Cart";
 import Wishlist from "../Wishlist/Wishlist";
+import Cart from "../cart/Cart";
 
 const Header = ({
   searchTerm,
@@ -26,6 +27,9 @@ const Header = ({
   const { isSeller } = useSelector((state) => state.seller);
   const [openCart, setOpenCart] = useState(false);
   const [openWishlist, setOpenWishlist] = useState(false);
+  const cart = useSelector((state) => state.cart);
+
+  const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
 
   return (
     <header
@@ -114,12 +118,14 @@ const Header = ({
 
           <button onClick={() => setOpenCart(true)} className="relative">
             <AiOutlineShoppingCart size={24} />
-            <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full bg-green-500 text-white">
-              🛒
-            </span>
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
           </button>
           {/* cart popup */}
-          {/* {openCart ? <Cart setOpenCart={setOpenCart} /> : null} */}
+          {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
 
           {isAuthenticated ? (
             <Link to="/profile">
@@ -237,13 +243,13 @@ const Header = ({
                       className="w-[60px] h-[60px]  rounded-full border-[3px] border-[#0eae88]   "
                     />
                   </Link>
-                    {/* Hover Text */}
-                    <div
-                      className="absolute bottom-[-30px] left-1/2 -translate-x-1/2
+                  {/* Hover Text */}
+                  <div
+                    className="absolute bottom-[-30px] left-1/2 -translate-x-1/2
                    bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap"
-                    >
-                      Visit profile Page
-                    </div>
+                  >
+                    Visit profile Page
+                  </div>
                 </div>
               ) : (
                 <>

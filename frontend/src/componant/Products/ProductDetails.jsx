@@ -52,6 +52,8 @@ const ProductDetails = ({ data, eventData }) => {
 
   const addToWishlistHandler = () => {
     dispatch(addToWishlist(data));
+        setClick(true);
+
     toast.success("Added to wishlist");
   };
 

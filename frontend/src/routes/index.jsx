@@ -34,6 +34,8 @@ import AdminProtectedRoute from "./AdminProtectedRoute";
 import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
 import CreateCoupon from "../componant/Admin/CreateCoupone";
 import AllCoupons from "../pages/Admin/AllCoupons";
+import Checkout from "../componant/Checkout/Checkout";
+import OrderDetailsPage from "../pages/OrderDetailsPage";
 
 const router = createBrowserRouter([
   {
@@ -116,6 +118,14 @@ const router = createBrowserRouter([
       {
         path: "shop/:id/setting",
         element: <EditShopPage />,
+      },
+      {
+        path: "checkout",
+        element: <Checkout />,
+      },
+      {
+        path: "user/order/:id",
+        element: <OrderDetailsPage />,
       },
     ],
   },
