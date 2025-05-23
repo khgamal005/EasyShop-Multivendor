@@ -41,8 +41,8 @@ exports.getReviews = asyncHandler(async (req, res) => {
 // @route   GET /api/v1/reviews/:id
 // @access  Public
 exports.getReview = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
   // 1) Build query
+  const {id} =req.body
   const document = await Review.findById(id);
 
   if (!document) {

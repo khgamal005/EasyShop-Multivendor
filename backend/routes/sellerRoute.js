@@ -19,7 +19,8 @@ const {
     loginSeller,
     logoutSeller,
     getSeller,
-    editSellerInfo,resizeImage
+    editSellerInfo,
+    getSpecificSeller
 
 
 }= require("../controller/shop")
@@ -37,7 +38,8 @@ router.get('/getSeller',isSeller, getSeller);
 router.get('/logoutSeller', logoutSeller);
 router.put('/update-seller', isAuthenticated,isAdminOrSeller,uploadUserImage,
  editSellerInfo);
-  
+router.get("/get-Specific-seller", getSpecificSeller);
+
 
 // Admin
 

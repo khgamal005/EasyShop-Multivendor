@@ -52,10 +52,11 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  shopId: {
-    type: String,
-    required: true,
-  },
+shop: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Shop',
+  required: true,
+},
   sold_out: {
     type: Number,
     default: 0,
@@ -79,5 +80,14 @@ productSchema.pre(/^find/, function (next) {
   });
   next();
 });
+
+productSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "shop",
+    select: "name email avatar phoneNumber address", // select only what you need
+  });
+  next();
+});
+
 
 module.exports = mongoose.model("Product", productSchema);

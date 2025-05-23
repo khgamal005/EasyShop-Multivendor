@@ -30,10 +30,6 @@ const{
 
 const router = express.Router();
 
-router.route("/").get(
-
-  getproducts
-)
 
 router.route("/create-product")
   .post(
@@ -64,6 +60,7 @@ router
   );
 
   router.route("/get-all-products-shop/:id").get(getallproductsofshop)
+  router.route("/").get(getproducts)
 
 
 router

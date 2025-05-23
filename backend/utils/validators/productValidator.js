@@ -145,11 +145,13 @@ exports.updateProductValidator = [
       req.product = product; // Attach product to req for controller
       return true;
     }
+  
 
     // Seller can only delete their own products
-    if (req.role === 'Seller' && product.shopId.toString() !== req.seller.id.toString()) {
+    if (req.role === 'Seller' && product.shop._id.toString() !== req.seller.id.toString()) {
       return Promise.reject(new Error('You are not allowed to edit this product'));
     }
+   
 
     req.product = product; // Attach product to req for controller
     return true;
@@ -310,7 +312,7 @@ exports.deleteProductValidator = [
       }
 
       // Seller can only delete their own products
-      if (req.role === 'Seller' && product.shopId.toString() !== req.seller.id.toString()) {
+      if (req.role === 'Seller' && product.shop._id.toString() !== req.seller.id.toString()) {
         return Promise.reject(new Error('You are not allowed to delete this product'));
       }
 

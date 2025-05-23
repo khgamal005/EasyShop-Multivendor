@@ -89,11 +89,9 @@ exports.getproducts = asyncHandler(async (req, res) => {
 });
 
 exports.updateProduct = asyncHandler(async (req, res, next) => {
-  const existingProduct = req.product;
+  const product = req.product;
 
-  // 1. Get new uploaded files
-
-  // 1. Handle incoming images data
+  // 1. Parse images from req.body
   let incomingImages = [];
 
   if (req.body.images !== undefined && req.body.images !== null) {
@@ -101,37 +99,60 @@ exports.updateProduct = asyncHandler(async (req, res, next) => {
       ? req.body.images
       : [req.body.images];
 
-    // Filter out any empty/null values
     incomingImages = incomingImages
       .map((img) => (typeof img === "string" ? img.trim() : null))
       .filter(Boolean);
   }
 
-  // 2. Get new uploaded files
+  // 2. Uploaded new files
   const uploadedFiles = req.files?.images || [];
   const uploadedFilenames = uploadedFiles.map((file) => file.filename);
 
-  // 3. Combine existing and new images
+  // 3. Merge all image names
   const finalImages = [...incomingImages, ...uploadedFilenames];
 
-  // 5. Delete removed images (only if they're not in finalImages)
-  const imagesToDelete = existingProduct.images.filter(
+  // 4. Delete removed images from disk
+  const imagesToDelete = product.images.filter(
     (img) => img && !finalImages.includes(img)
   );
 
-  // Delete files asynchronously
   await Promise.all(
     imagesToDelete.map((filename) => {
       const filePath = path.join(__dirname, "../uploads/products", filename);
       return fs.promises.unlink(filePath).catch((err) => {
-        console.error("Failed to delete:", filename, err);
+        console.error("Failed to delete image:", filename, err);
       });
     })
   );
 
-  // 6. Update and save product
-  existingProduct.images = finalImages.filter(Boolean); // Final safety check
-  const updatedProduct = await existingProduct.save();
+  // 5. Update all fields from req.body (except protected ones)
+  const allowedFields = [
+    "name",
+    "description",
+    "category",
+    "tags",
+    "originalPrice",
+    "discountPrice",
+    "stock",
+    "subcategories",
+    "brand",
+    "sold_out",
+    "color",
+  ];
+
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      product[field] = req.body[field];
+    }
+  });
+
+  // Ensure subcategories is an array
+
+  // 6. Assign final image array
+  product.images = finalImages.filter(Boolean);
+
+  // 7. Save and respond
+  const updatedProduct = await product.save();
 
   res.status(200).json({
     success: true,
@@ -182,7 +203,7 @@ exports.getallproductsofshop = asyncHandler(async (req, res, next) => {
   // Build query
   const documentsCounts = await Product.countDocuments();
   const apiFeatures = new ApiFeatures(
-    Product.find({ shopId: req.params.id }),
+    Product.find({ shop: req.params.id }),
     req.query
   )
     .paginate(documentsCounts)

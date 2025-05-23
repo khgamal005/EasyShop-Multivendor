@@ -10,6 +10,7 @@ const {
   uploadeventImages,
   resizeventImages,
   deletEvent,
+  getallEvents
 } = require("../controller/event");
 
 const { isAuthenticated, isAdminOrSeller } = require("../middleware/auth");
@@ -35,5 +36,8 @@ router
 router
   .route("/:id")
   .delete(isAuthenticated, isAdminOrSeller, deleteEventValidator, deletEvent);
+router
+  .route("/getallEvents")
+  .get( getallEvents);
 
 module.exports = router;

@@ -247,3 +247,18 @@ if (req.file && seller?.avatar?.url) {
 
   res.status(200).json({ data: updatedSeller });
 });
+
+
+exports.getSpecificSeller = asyncHandler(async (req, res, next) => {
+  const { id } = req.body;
+  const seller = await Shop.findById(id);
+
+  if (!seller) {
+    return next(new ErrorHandler("Seller doesn't exist", 400));
+  }
+
+  res.status(200).json({
+    success: true,
+    seller,
+  });
+});
