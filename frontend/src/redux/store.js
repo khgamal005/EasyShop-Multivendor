@@ -1,19 +1,20 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // localStorage
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage"; // localStorage
 
 // Reducers
-import userReducer from './slices/userSlice';
-import sellerReducer from './slices/sellerslice';
-import productReducer from './slices/productslice';
-import brandReducer from './slices/brandSlice';
-import categoryReducer from './slices/categorySlice';
-import subCategoryReducer from './slices/subcategorySlice';
-import eventReducer from './slices/eventSlice';
-import couponReducer from './slices/couponeSlice';
-import wishlistReducer from './slices/wishlistSlice';
-import cartReducer from './slices/cartslice';
-import reviewReducer from './slices/reviewSlice';
+import userReducer from "./slices/userSlice";
+import sellerReducer from "./slices/sellerslice";
+import productReducer from "./slices/productslice";
+import brandReducer from "./slices/brandSlice";
+import categoryReducer from "./slices/categorySlice";
+import subCategoryReducer from "./slices/subcategorySlice";
+import eventReducer from "./slices/eventSlice";
+import couponReducer from "./slices/couponeSlice";
+import wishlistReducer from "./slices/wishlistSlice";
+import cartReducer from "./slices/cartslice";
+import reviewReducer from "./slices/reviewSlice";
+import orderReducer from "./slices/orderSlice";
 
 // Combine reducers
 const rootReducer = combineReducers({
@@ -27,25 +28,26 @@ const rootReducer = combineReducers({
   coupon: couponReducer,
   wishlist: wishlistReducer,
   cart: cartReducer,
-  review:reviewReducer
+  review: reviewReducer,
+  order: orderReducer,
 });
 
 // Persist configuration
 const persistConfig = {
-  key: 'root',
+  key: "root",
   storage,
   whitelist: [
-    'user',
-    'seller',
-    'product',
-    'brand',
-    'category',
-    'subCategory',
-    'events',
-    'coupon',
-    'wishlist',
-    'cart',
-    'review'
+    "user",
+    "seller",
+    "product",
+    "brand",
+    "category",
+    "subCategory",
+    "events",
+    "coupon",
+    "wishlist",
+    "cart",
+    "review",
   ],
 };
 
@@ -59,12 +61,12 @@ const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [
-          'persist/PERSIST',
-          'persist/REHYDRATE',
-          'persist/PAUSE',
-          'persist/FLUSH',
-          'persist/PURGE',
-          'persist/REGISTER',
+          "persist/PERSIST",
+          "persist/REHYDRATE",
+          "persist/PAUSE",
+          "persist/FLUSH",
+          "persist/PURGE",
+          "persist/REGISTER",
         ],
       },
     }),

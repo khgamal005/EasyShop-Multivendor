@@ -20,23 +20,37 @@ import { RxPerson } from "react-icons/rx";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutSuccess } from "../../redux/slices/userSlice";
 
 const ProfileSidebar = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.user);
+    const dispatch = useDispatch();
 
-  const logoutHandler = () => {
-    axios
-      .get(`${server}/user/logout`, { withCredentials: true })
-      .then((res) => {
-        toast.success(res.data.message);
-        navigate("/login");
-      })
-      .catch((error) => {
-        console.log(error.response.data.message);
+
+
+
+
+  const logoutHandler = async () => {
+    try {
+      const { data } = await axios.get(`${server}/user/logout`, {
+        withCredentials: true,
       });
+  
+      const persistRoot = JSON.parse(localStorage.getItem('persist:root') || '{}');
+      delete persistRoot.user;
+      localStorage.setItem('persist:root', JSON.stringify(persistRoot));
+  
+      dispatch(logoutSuccess()); // Reset Redux seller state
+      toast.success(data.message);
+      navigate("/"); // Now UI will reflect logout without reload
+    } catch (error) {
+      toast.error("Logout failed");
+      console.error(error);
+    }
   };
+  
 
   const sidebarItems = [
     {
