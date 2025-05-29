@@ -1,8 +1,6 @@
-const express = require("express");
 const ErrorHandler = require("../utils/ErrorHandler");
-const CoupounCode = require("../model/coupounCode");
+const CoupounCode = require("../model/couponModel");
 const asyncHandler = require("../middleware/catchAsyncErrors");
-const ApiFeatures = require("../utils/apiFeatures");
 
 // create coupoun code
 exports.createCoupon = asyncHandler(async (req, res) => {
@@ -37,7 +35,6 @@ exports.getAllCoupons = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: coupons });
 });
 
-
 exports.deleteCoupon = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
@@ -51,3 +48,22 @@ exports.deleteCoupon = asyncHandler(async (req, res, next) => {
     message: "CoupounCodedeleted",
   }); // No Content
 });
+
+exports.applyCoupon = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const coupon = await CoupounCode.findOne({ name });
+
+    if (!coupon) {
+      return res.status(404).json({ message: "Coupon not found" });
+    }
+
+    if (coupon.expire < Date.now()) {
+      return res.status(400).json({ message: "Coupon has expired" });
+    }
+
+    res.status(200).json({ success: true, coupon });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
