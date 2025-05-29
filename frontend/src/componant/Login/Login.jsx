@@ -6,34 +6,44 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { loadUser } from "../../redux/slices/userSlice";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+  const dispatch = useDispatch()
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios
-      .post(
-        `${server}/user/login-user`,
-        {
-          email,
-          password,
-        },
-        { withCredentials: true }
-      )
-      // eslint-disable-next-line no-unused-vars
-      .then((res) => {
-        toast.success("Login Success!");
-        navigate("/");
-        window.location.reload(true); 
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message);
-      });
+   await  axios.post(`${server}/user/login`, {
+      email,
+      password,
+    }, { withCredentials: true })
+    .then((res)=>{
+      console.log(res)
+      toast.success(res.data.message);
+      dispatch(loadUser());
+      navigate("/");
+    
+
+    }).catch((error)=>{
+      console.log(error)
+      if (error.response &&  error.response.data.message) {
+        toast.error(error.response.data.message);
+       
+      } else {
+        toast.error("Something went wrong! Please try again.");
+      }}
+
+    )
+
+
+
   };
 
   return (

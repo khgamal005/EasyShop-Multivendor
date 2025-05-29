@@ -12,64 +12,65 @@ const Singup = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setpasswordConfirm] = useState("");
-
+  const [address, setAddress] = useState("");
+  const [zipCode, setZipCode] = useState();
   const [visible, setVisible] = useState(false);
   const [avatar, setAvatar] = useState(null);
   const [preview, setPreview] = useState(null);
-
+  const [phoneNumber, setPhoneNumber] = useState();
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-
     if (file) {
       setAvatar(file);
-      setPreview(URL.createObjectURL(file)); // Generate preview URL
+      setPreview(URL.createObjectURL(file)); // Optional: for showing a preview image
     }
-  }
-
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    if (password !== passwordConfirm) {
+      toast.error("Please check password and confirm password");
+      return;
+    }
+  
     const formData = new FormData();
     formData.append("name", name);
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("passwordConfirm", passwordConfirm);
-    formData.append("avatar", avatar); //
-
-    if(password === passwordConfirm){
-
-
-      axios
-        .post(`${server}/user/signup`, formData,
-          {"Content-Type": "multipart/form-data"}
-        )
-        .then((res) => {
-          console.log(res.data.message)
-          toast.success(res.data.message);
-          setName("");
-          setEmail("");
-          setPassword("");
-          setpasswordConfirm("");
-          setAvatar();
-        })
-        .catch((error) => {
-          if (error.response && error.response.data.errors) {
-            error.response.data.errors.forEach((err) => {
-              toast.error(err.msg); 
-            });
-          } else {
-            toast.error("Something went wrong! Please try again.");
-          }
-    
+    formData.append("zipCode", zipCode);
+    formData.append("address", address);
+    formData.append("phoneNumber", phoneNumber);
+    formData.append("avatar", avatar);
+  
+    try {
+      const response = await axios.post(`${server}/shop/create-shop`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+  
+      toast.success(response.data.message);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setZipCode("");
+      setAddress("");
+      setPhoneNumber("");
+      setAvatar(null);
+      setPreview(null); // clear preview if used
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        error.response.data.errors.forEach((err) => {
+          toast.error(err.msg);
         });
-    }else{
-      toast.error("Please check password and confirm password")
+      } else {
+        toast.error(error.response?.data?.message || "Something went wrong! Please try again.");
+      }
     }
-
-
-
-
   };
+  
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

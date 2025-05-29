@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require("express");
 const path = require('path');
 const connectDatabase = require("./db/Database");
@@ -9,12 +10,12 @@ const globalError = require("./middleware/errorMiddleware");
 const ApiError = require('./utils/ErrorHandler');
 const cors = require("cors");
 
+=======
+>>>>>>> origin/main
 
-// config
+
 if (process.env.NODE_ENV !== "PRODUCTION") {
-  require("dotenv").config({
-    path: "config/.env",
-  });
+  require("dotenv").config({ path: "config/.env" });
 }
 const app = express();
 
@@ -37,6 +38,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 
+<<<<<<< HEAD
 connectDatabase();
 
 // cloudinary.config({
@@ -45,6 +47,11 @@ connectDatabase();
 //   api_secret: process.env.CLOUDINARY_API_SECRET
 // })
 app.use('/api/v1/user', userRoute);
+=======
+
+const app = require("./app");
+
+>>>>>>> origin/main
 
 // Mount Routes
 // mountRoutes(app);
@@ -53,19 +60,17 @@ app.all("*", (req, res, next) => {
   next(new ApiError(`Can't find this route: ${req.originalUrl}`, 400));
 });
 
+<<<<<<< HEAD
 // create server
 app.use(globalError);
+=======
+>>>>>>> origin/main
 const server = app.listen(process.env.PORT, () => {
-  console.log(
-    `Server is running on http://localhost:${process.env.PORT}`
-  );
+  console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
 
-// unhandled promise rejection
 process.on("unhandledRejection", (err) => {
   console.log(`Shutting down the server for ${err.message}`);
-  console.log(`shutting down the server for unhandle promise rejection`);
-
   server.close(() => {
     process.exit(1);
   });

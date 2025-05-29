@@ -1,5 +1,8 @@
-const nodemailer = require("nodemailer");
 
+<<<<<<< HEAD
+=======
+const nodemailer = require('nodemailer');
+>>>>>>> origin/main
 
 // Nodemailer
 const sendMail = async (options) => {
@@ -16,7 +19,11 @@ const sendMail = async (options) => {
 
   // 2) Define email options (like from, to, subject, email content)
   const mailOpts = {
+<<<<<<< HEAD
     from: 'E-shop App <khgamal005@gmail.com>',
+=======
+    from: 'Easyshop App <khgamal005@gmail.com>',
+>>>>>>> origin/main
     to: options.email,
     subject: options.subject,
     text: options.message,
@@ -27,3 +34,5 @@ const sendMail = async (options) => {
 };
 
 module.exports = sendMail;
+
+

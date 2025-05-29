@@ -9,4 +9,8 @@ const validatorMiddleware = (req, res, next) => {
   next();
 };
 
+<<<<<<< HEAD
 module.exports = validatorMiddleware;
+=======
+module.exports = validatorMiddleware;
+>>>>>>> origin/main
