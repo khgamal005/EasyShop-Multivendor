@@ -20,7 +20,6 @@ import SellerProtectedRoute from "./SellerProtectedRoute";
 import ShopDashboardPage from "../pages/shop/ShopDashboardPage";
 import DashboardHero from "../componant/Shop/DashboardHero";
 import AllOrders from "../componant/Shop/AllOrders";
-import ShopPreviewPage from "../pages/shop/EditShopPage";
 import CreateProduct from "../componant/Shop/CreateProduct";
 import CreateBrand from "../componant/Shop/createBrand";
 import ShopLoginPage from "../pages/shop/ShopLoginPage";
@@ -36,6 +35,13 @@ import CreateCoupon from "../componant/Admin/CreateCoupone";
 import AllCoupons from "../pages/Admin/AllCoupons";
 import Checkout from "../componant/Checkout/Checkout";
 import OrderDetailsPage from "../pages/OrderDetailsPage";
+import OrderSuccessPage from "../pages/OrderSuccessPage";
+import PaymentPage from "../pages/PaymentPage";
+import StripeWrapper from "./StripeWrapper";
+
+
+
+
 
 const router = createBrowserRouter([
   {
@@ -111,10 +117,17 @@ const router = createBrowserRouter([
           </SellerProtectedRoute>
         ),
       },
-      // {
-      //   path: "/shop/preview/:id",
-      //   element: <ShopPreviewPage />,
-      // },
+          {
+            path: "payment",
+            element: (
+              <StripeWrapper>
+                <ProtectedRoute>
+                  <PaymentPage />
+                </ProtectedRoute>
+              </StripeWrapper>
+            ),
+          },
+
       {
         path: "shop/:id/setting",
         element: <EditShopPage />,
@@ -122,6 +135,10 @@ const router = createBrowserRouter([
       {
         path: "checkout",
         element: <Checkout />,
+      },
+      {
+        path: "order/success",
+        element: <OrderSuccessPage />,
       },
       {
         path: "user/order/:id",
@@ -138,28 +155,27 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
     children: [
-        {
-            path: "",
-            element: <DashboardHero />,
-          },
-        {
-            path: "dashboard-orders",
-            element: <AllOrders />,
-          },
-          { path: "products", element: <AllProducts/> },
-          { path: "create-product", element: <CreateProduct/> },
-          { path: "create-brand", element: <CreateBrand/> },
-          { path: "create-category", element: <CreateCategory/> },
-          { path: "create-subcategory", element: <CreateSubCategory/> },
-          { path: "events", element: <AllEvents/> },
-          { path: "create-event", element: <CreateEvent/> },
-          { path: "withdraw", element: <div>Withdraw Money</div> },
-          { path: "messages", element: <div>Shop Inbox</div> },
-          { path: "coupons", element: <div>Discount Codes</div> },
-          { path: "refunds", element: <div>Refunds</div> },
-          { path: "settings", element: <div>Settings</div> },
-
-    ]
+      {
+        path: "",
+        element: <DashboardHero />,
+      },
+      {
+        path: "dashboard-orders",
+        element: <AllOrders />,
+      },
+      { path: "products", element: <AllProducts /> },
+      { path: "create-product", element: <CreateProduct /> },
+      { path: "create-brand", element: <CreateBrand /> },
+      { path: "create-category", element: <CreateCategory /> },
+      { path: "create-subcategory", element: <CreateSubCategory /> },
+      { path: "events", element: <AllEvents /> },
+      { path: "create-event", element: <CreateEvent /> },
+      { path: "withdraw", element: <div>Withdraw Money</div> },
+      { path: "messages", element: <div>Shop Inbox</div> },
+      { path: "coupons", element: <div>Discount Codes</div> },
+      { path: "refunds", element: <div>Refunds</div> },
+      { path: "settings", element: <div>Settings</div> },
+    ],
   },
   {
     path: "admin-dashboard",
@@ -170,14 +186,12 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
     children: [
-
-          { path: "All-Coupons", element:  <AllCoupons/>},
-          { path: "create-coupone", element: <CreateCoupon/> },
-          { path: "coupons", element: <div>Discount Codes</div> },
-          { path: "refunds", element: <div>Refunds</div> },
-          { path: "settings", element: <div>Settings</div> },
-
-    ]
+      { path: "All-Coupons", element: <AllCoupons /> },
+      { path: "create-coupone", element: <CreateCoupon /> },
+      { path: "coupons", element: <div>Discount Codes</div> },
+      { path: "refunds", element: <div>Refunds</div> },
+      { path: "settings", element: <div>Settings</div> },
+    ],
   },
 ]);
 
