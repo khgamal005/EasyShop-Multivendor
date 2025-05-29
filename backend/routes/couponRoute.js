@@ -5,6 +5,7 @@ const {
   getAllCoupons,
   createCoupon,
   deleteCoupon,
+  applyCoupon
 } = require('../controller/coupounCode');
 
 const { isAuthenticated, isAdminOrSeller } = require("../middleware/auth");
@@ -25,5 +26,7 @@ router
   deleteCoupon
 );
  router.route('/').get(getAllCoupons);
+ router.post("/apply", applyCoupon);
+
 
 module.exports = router;
