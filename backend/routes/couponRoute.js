@@ -1,5 +1,9 @@
 const express = require('express');
 
+const{
+  deleteCouponeValidator
+}=require("../utils/validators/couponeValidator")
+
 const {
   getCoupon,
   getAllCoupons,
@@ -23,9 +27,11 @@ router
  router.route('/:id').delete(
       isAuthenticated,
     isAdminOrSeller,
+    deleteCouponeValidator,
   deleteCoupon
 );
  router.route('/').get(getAllCoupons);
+ router.route('/seller/:id').get(getAllCoupons);
  router.post("/apply", applyCoupon);
 
 

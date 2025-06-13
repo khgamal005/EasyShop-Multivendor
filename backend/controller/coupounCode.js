@@ -1,69 +1,107 @@
 const ErrorHandler = require("../utils/ErrorHandler");
-const CoupounCode = require("../model/couponModel");
+const Coupone = require("../model/couponModel");
 const asyncHandler = require("../middleware/catchAsyncErrors");
+const Shop = require("../model/shop");
 
-// create coupoun code
-exports.createCoupon = asyncHandler(async (req, res) => {
-  const isCoupounCodeExists = await CoupounCode.find({
-    name: req.body.name,
-  });
+exports.createCoupon = asyncHandler(async (req, res, next) => {
+  let shopId = null;
 
-  if (isCoupounCodeExists.length !== 0) {
-    return next(new ErrorHandler("Coupoun code already exists!", 400));
+  // If seller is creating the coupon, validate their shop
+  if (req.seller?.id) {
+    const sellerShop = await Shop.findById(req.seller.id);
+    if (!sellerShop) {
+      return next(new ErrorHandler("Shop ID is invalid!", 400));
+    }
+    shopId = req.seller.id;
   }
 
-  const coupounCode = await CoupounCode.create(req.body);
+  const { name, value, minAmount, maxAmount, expire } = req.body;
 
-  res.status(201).json({ message: " coupon created", data: coupounCode });
+  // 🔒 Check for existing coupon with same name for this shop or globally
+  const existing = await Coupone.findOne({ name, shopId });
+  if (existing) {
+    return next(
+      new ErrorHandler(
+        shopId
+          ? "A coupon with this name already exists for your shop."
+          : "A global coupon with this name already exists.",
+        400
+      )
+    );
+  }
+
+  const coupon = await Coupone.create({
+    name,
+    value,
+    minAmount,
+    maxAmount,
+    expire: new Date(expire),
+    shopId,
+  });
+
+  res.status(201).json({
+    message: "Coupon created successfully",
+    data: coupon,
+  });
 });
+
+
+
 
 // get  coupon
 exports.getCoupon = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const CoupounCode = await CoupounCode.findById(id);
+  const Coupone = await Coupone.findById(id);
   if (!document) {
     return next(new ErrorHandler(`No document for this id ${id}`, 404));
   }
 
-  res.status(201).json({ message: " coupon ", data: CoupounCode });
+  res.status(201).json({ message: " coupon ", data: Coupone });
 });
 
 // get all coupons
 
-exports.getAllCoupons = asyncHandler(async (req, res) => {
-  const coupons = await CoupounCode.find(); // or filter by shop/seller if needed
-  res.status(200).json({ success: true, data: coupons });
-});
 
 exports.deleteCoupon = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-
+  
   // Find and delete the subCategory
-  const document = await CoupounCode.findByIdAndDelete(id);
+  const document = await Coupone.findByIdAndDelete(id);
   if (!document) {
-    return next(new ApiError(`No document for this id ${req.params.id}`, 404));
+    return next(new ErrorHandler(`No coupon found for id ${id}`, 404));
   }
-
+  
   res.status(200).json({
-    message: "CoupounCodedeleted",
+    message: "Couponedeleted",
   }); // No Content
 });
 
 exports.applyCoupon = async (req, res) => {
   try {
     const { name } = req.body;
-    const coupon = await CoupounCode.findOne({ name });
-
+    const coupon = await Coupone.findOne({ name });
+    
     if (!coupon) {
       return res.status(404).json({ message: "Coupon not found" });
     }
-
+    
     if (coupon.expire < Date.now()) {
       return res.status(400).json({ message: "Coupon has expired" });
     }
-
+    
     res.status(200).json({ success: true, coupon });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
+exports.getAllCoupons = asyncHandler(async (req, res) => {
+  const coupons = await Coupone.find(); // or filter by shop/seller if needed
+  res.status(200).json({ success: true, data: coupons });
+});
+
+
+exports.getallcouponesofshop = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const coupons = await Coupone.find({ shopId: id });
+  res.status(200).json({ success: true, data: coupons });
+});

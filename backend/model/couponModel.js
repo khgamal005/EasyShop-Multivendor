@@ -6,37 +6,38 @@ const couponSchema = new mongoose.Schema({
     required: [true, "Please enter your coupon code name!"],
     unique: true,
   },
+
   value: {
     type: Number,
     required: true,
   },
-  isFlat: {
-    type: Boolean,
-    default: false, // sellers default to percentage
-  },
-  minAmount: {
-    type: Number,
-  },
-  maxAmount: {
-    type: Number,
-  },
-  shopId: {
-    type: String,
-    required: false,
-    default: null,
-  },
+
+minAmount: {
+  type: Number,
+},
+maxAmount: {
+  type: Number,
+},
+shopId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Shop',
+  required: false,
+  default: null,
+},
   selectedProduct: {
-    type: String,
+    type: String, // or Array if multiple
   },
-  createdBy: {
-    type: String,
-    enum: ["admin", "seller"],
-    required: true,
+
+  expire: {
+    type: Date,
+    required: [true, "Coupon expiry date is required"],
   },
+
   createdAt: {
     type: Date,
     default: Date.now,
   }
 });
+couponSchema.index({ name: 1, shopId: 1 }, { unique: true });
 
-module.exports = mongoose.model('Coupon', couponSchema);
+module.exports = mongoose.model('Coupons', couponSchema);
