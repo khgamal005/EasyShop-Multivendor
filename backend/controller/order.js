@@ -8,44 +8,51 @@ const Product = require("../model/product");
 // create new order
 
 exports.createOrder = catchAsyncErrors(async (req, res, next) => {
-  const { cart, shippingAddress, user, totalPrice, paymentInfo } = req.body;
+  try {
+    const { cart, shippingAddress, user, totalPrice, paymentInfo } = req.body;
 
-  //   group cart items by shopId
-  const shopItemsMap = new Map();
+    if (!cart || cart.length === 0) throw new Error("Cart is empty");
+    if (!shippingAddress) throw new Error("Shipping address missing");
+    if (!user) throw new Error("User not found");
 
-  for (const item of cart) {
-    const shopId = item.shopId;
-    if (!shopItemsMap.has(shopId)) {
-      shopItemsMap.set(shopId, []);
+    // Group items by shop
+    const shopItemsMap = new Map();
+    for (const item of cart) {
+      const shopId = item.shop?._id;
+      if (!shopId) throw new Error("Missing shopId in cart item");
+
+      if (!shopItemsMap.has(shopId)) {
+        shopItemsMap.set(shopId, []);
+      }
+      shopItemsMap.get(shopId).push(item);
     }
-    shopItemsMap.get(shopId).push(item);
+
+    const orders = [];
+
+    // Calculate total price per shop if needed (optional, but we use the global totalPrice)
+    const shopIds = Array.from(shopItemsMap.keys());
+    const perShopPrice = totalPrice / shopIds.length; // simple even split
+
+    for (const [shopId, items] of shopItemsMap.entries()) {
+      const order = await Order.create({
+        shopId,
+        cart: items,
+        totalPrice: perShopPrice.toFixed(2), // or use a better logic if needed
+        shippingAddress,
+        user,
+        paymentInfo,
+      });
+
+      orders.push(order);
+    }
+
+    res.status(201).json({ success: true, orders });
+  } catch (err) {
+    console.error("Create Order Error:", err);
+    return res.status(500).json({ success: false, message: err.message });
   }
-
-  // create an order for each shop
-  const orders = [];
-
-  for (const [shopId, items] of shopItemsMap) {
-    // Calculate total price for this shop's items
-    const totalPrice = items.reduce((sum, item) => {
-      return sum + item.price * item.qty;
-    }, 0);
-    const order = await Order.create({
-      shopId,
-      cart: items,
-      totalPrice,
-      shippingAddress,
-      user,
-      totalPrice,
-      paymentInfo,
-    });
-    orders.push(order);
-  }
-
-  res.status(201).json({
-    success: true,
-    orders,
-  });
 });
+
 
 exports.getAllOrdersOfUser = catchAsyncErrors(async (req, res, next) => {
   try {

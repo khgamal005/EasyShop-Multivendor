@@ -9,7 +9,7 @@ const {
   getAllCoupons,
   createCoupon,
   deleteCoupon,
-  applyCoupon
+  applyCoupon,getCouponValue
 } = require('../controller/coupounCode');
 
 const { isAuthenticated, isAdminOrSeller } = require("../middleware/auth");
@@ -33,6 +33,7 @@ router
  router.route('/').get(getAllCoupons);
  router.route('/seller/:id').get(getAllCoupons);
  router.post("/apply", applyCoupon);
+ router.get("/get-coupon-value/:name", getCouponValue);
 
 
 module.exports = router;

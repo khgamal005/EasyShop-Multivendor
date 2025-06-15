@@ -105,3 +105,17 @@ exports.getallcouponesofshop = asyncHandler(async (req, res) => {
   const coupons = await Coupone.find({ shopId: id });
   res.status(200).json({ success: true, data: coupons });
 });
+
+
+// get coupon code value by its name
+
+  exports.getCouponValue=asyncHandler(async (req, res, next) => {
+  
+      const couponCode = await Coupone.findOne({ name: req.params.name });
+
+      res.status(200).json({
+        success: true,
+        couponCode,
+      });
+    
+  })

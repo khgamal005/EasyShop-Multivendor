@@ -17,7 +17,7 @@ const { isAdminOrSeller, isAuthenticated } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.route("/create-order").post(isAuthenticated, createOrder);
+router.route("/create-order").post( createOrder);
 
 router
   .route("/get-all-orders/:userId")
