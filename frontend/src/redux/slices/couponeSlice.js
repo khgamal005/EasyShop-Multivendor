@@ -13,6 +13,7 @@ export const createCoupon = createAsyncThunk(
         couponData,
         { withCredentials: true }
       );
+      console.log(data.data);
 
       return data.data;
     } catch (error) {
@@ -71,6 +72,27 @@ export const deleteCoupon = createAsyncThunk(
   }
 );
 
+export const getAllCouponessShop = createAsyncThunk(
+  "coupon/getAllcouponShop",
+  async (id, { rejectWithValue }) => {
+    console.log(id)
+    try {
+      const { data } = await axios.get(`${server}/coupon/seller/${id}`);
+      return data.data;
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        // Get the first validation error message
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+
+      // Handle other server errors
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
+);
+
 const couponSlice = createSlice({
   name: "coupon",
   initialState: {
@@ -82,7 +104,7 @@ const couponSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createCoupon.pending, (state) => {
-        state.loading = true;
+        (state.error = null), (state.loading = true);
       })
       .addCase(createCoupon.fulfilled, (state, action) => {
         state.loading = false;
@@ -100,27 +122,41 @@ const couponSlice = createSlice({
       })
       .addCase(getAllCoupons.fulfilled, (state, action) => {
         state.loading = false;
-        state.coupons=action.payload
+        state.coupons = action.payload;
       })
       .addCase(getAllCoupons.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
       ////////////////////////////////////////////////////////
-            // Delete Event
-            .addCase(deleteCoupon.pending, (state) => {
-              state.loading = true;
-            })
-            .addCase(deleteCoupon.fulfilled, (state, action) => {
-              state.loading = false;
-              state.events = state.coupons.filter(
-                (coupon) => coupon._id !== action.payload
-              );
-            })
-            .addCase(deleteCoupon.rejected, (state, action) => {
-              state.loading = false;
-              state.error = action.payload;
-            });
+      // Delete Event
+      .addCase(deleteCoupon.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteCoupon.fulfilled, (state, action) => {
+        state.loading = false;
+        state.coupons = state.coupons.filter(
+          (coupon) => coupon._id !== action.payload
+        );
+      })
+      .addCase(deleteCoupon.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Get All coupones of a Shop
+      .addCase(getAllCouponessShop.pending, (state) => {
+        state.loading = true;
+             state.error = false;
+      })
+      .addCase(getAllCouponessShop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.coupons = action.payload;
+      })
+      .addCase(getAllCouponessShop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 

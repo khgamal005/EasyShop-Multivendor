@@ -61,46 +61,64 @@ const Checkout = () => {
 
   // this is shipping cost variable
   const shipping = 20;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const name = couponCode;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const name = couponCode;
+  try {
+    const { data } = await axios.get(`${server}/coupon/get-coupon-value/${name}`);
+    const coupon = data.couponCode;
 
-    await axios.get(`${server}/coupon/get-coupon-value/${name}`).then((res) => {
-      const shopId = res.data.couponCode?.shopId;
-      const couponCodeValue = res.data.couponCode?.value;
-      if (res.data.couponCode !== null) {
-        const isCouponValid =
-          cart && cart.filter((item) => item.shopId === shopId);
+    if (!coupon) {
+      toast.error("Coupon code doesn't exist!");
+      return setCouponCode("");
+    }
 
-        if (isCouponValid.length === 0) {
-          toast.error("Coupon code is not valid for this shop");
-          setCouponCode("");
-        } else {
-          const eligiblePrice = isCouponValid.reduce(
-            (acc, item) => acc + item.qty * item.discountPrice,
-            0
-          );
-          const discountPrice = (eligiblePrice * couponCodeValue) / 100;
-          setDiscountPrice(discountPrice);
-          setCouponCodeData(res.data.couponCode);
-          setCouponCode("");
-        }
-      }
-      if (res.data.couponCode === null) {
-        toast.error("Coupon code doesn't exists!");
-        setCouponCode("");
-      }
-    });
-  };
+    const isGlobalCoupon = !coupon.shopId;
 
-  const discountPercentenge = couponCodeData ? discountPrice : "";
+    const eligibleItems = isGlobalCoupon
+      ? cart
+      : cart.filter((item) => item.shopId === coupon.shopId);
 
-  const totalPrice = couponCodeData
-    ? (subTotalPrice + shipping - discountPercentenge).toFixed(2)
-    : (subTotalPrice + shipping).toFixed(2);
+    if (eligibleItems.length === 0) {
+      toast.error("Coupon code is not valid for this shop");
+      return setCouponCode("");
+    }
 
-  console.log(discountPercentenge);
+    const eligibleTotal = eligibleItems.reduce(
+      (acc, item) => acc + item.qty * item.discountPrice,
+      0
+    );
+
+    // Validate min and max range
+    if (eligibleTotal < coupon.minAmount) {
+      toast.error(`Minimum amount required is $${coupon.minAmount}`);
+      return setCouponCode("");
+    }
+
+    if (eligibleTotal > coupon.maxAmount) {
+      toast.error(`Maximum amount allowed is $${coupon.maxAmount}`);
+      return setCouponCode("");
+    }
+
+    // 🟡 Use flat value, not percentage
+    const discount = coupon.value;
+
+    // Optional: Don't allow discount more than total eligible price
+    const finalDiscount = discount > eligibleTotal ? eligibleTotal : discount;
+
+    setDiscountPrice(finalDiscount);
+    setCouponCodeData(coupon);
+    setCouponCode("");
+  } catch (error) {
+    toast.error("Something went wrong while applying the coupon");
+    setCouponCode("");
+  }
+};
+
+const totalPrice = couponCodeData
+  ? (subTotalPrice + shipping - discountPrice).toFixed(2)
+  : (subTotalPrice + shipping).toFixed(2);
 
   return (
     <div className="w-full flex flex-col items-center py-8">
@@ -130,7 +148,7 @@ const Checkout = () => {
             subTotalPrice={subTotalPrice}
             couponCode={couponCode}
             setCouponCode={setCouponCode}
-            discountPercentenge={discountPercentenge}
+            discountPercentenge={discountPrice}
           />
         </div>
       </div>

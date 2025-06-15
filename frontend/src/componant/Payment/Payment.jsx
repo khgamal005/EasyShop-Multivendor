@@ -1,7 +1,6 @@
-import  { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/styles";
-import { useEffect } from "react";
 import {
   CardNumberElement,
   CardCvcElement,
@@ -10,27 +9,37 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 import { RxCross1 } from "react-icons/rx";
+import { clearCart } from "../../redux/slices/cartslice";
 
 const Payment = () => {
-  const [orderData, setOrderData] = useState([]);
-  const [open, setOpen] = useState(false);
+  const [orderData, setOrderData] = useState(null);
+  const [paypalOpen, setPaypalOpen] = useState(false);
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const stripe = useStripe();
   const elements = useElements();
+  const dispatch =useDispatch()
 
   useEffect(() => {
-    const orderData = JSON.parse(localStorage.getItem("latestOrder"));
-    setOrderData(orderData);
+    const storedOrder = localStorage.getItem("latestOrder");
+    if (storedOrder) setOrderData(JSON.parse(storedOrder));
   }, []);
 
-  const createOrder = (data, actions) => {
-    return actions.order
+  const order = {
+    cart: orderData?.cart,
+    shippingAddress: orderData?.shippingAddress,
+    user,
+    totalPrice: orderData?.totalPrice,
+  };
+console.log(orderData)
+  // PayPal: Create order on PayPal side
+  const createOrder = (data, actions) =>
+    actions.order
       .create({
         purchase_units: [
           {
@@ -41,83 +50,59 @@ const Payment = () => {
             },
           },
         ],
-        // not needed if a shipping address is actually needed
         application_context: {
           shipping_preference: "NO_SHIPPING",
         },
       })
-      .then((orderID) => {
-        return orderID;
-      });
-  };
+      .then((orderID) => orderID);
 
-  const order = {
-    cart: orderData?.cart,
-    shippingAddress: orderData?.shippingAddress,
-    user: user && user,
-    totalPrice: orderData?.totalPrice,
-  };
-
-  const onApprove = async (data, actions) => {
-    return actions.order.capture().then(function (details) {
-      const { payer } = details;
-
-      let paymentInfo = payer;
-
-      if (paymentInfo !== undefined) {
-        paypalPaymentHandler(paymentInfo);
+  // PayPal: When approved
+  const onApprove = (data, actions) =>
+    actions.order.capture().then(({ payer }) => {
+      if (payer) {
+        paypalPaymentHandler(payer);
       }
     });
-  };
 
   const paypalPaymentHandler = async (paymentInfo) => {
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    order.paymentInfo = {
-      id: paymentInfo.payer_id,
-      status: "succeeded",
-      type: "Paypal",
-    };
-
-    await axios
-      .post(`${server}/order/create-order`, order, config)
-      .then((res) => {
-        setOpen(false);
-        navigate("/order/success");
-        toast.success("Order successful!");
-        localStorage.setItem("cartItems", JSON.stringify([]));
-        localStorage.setItem("latestOrder", JSON.stringify([]));
-        window.location.reload();
-      });
+    try {
+      const config = { headers: { "Content-Type": "application/json" } };
+      order.paymentInfo = {
+        id: paymentInfo.payer_id,
+        status: "succeeded",
+        type: "Paypal",
+      };
+      await axios.post(`${server}/order/create-order`, order, config);
+      setPaypalOpen(false);
+      navigate("/order/success");
+      toast.success("Order successful!");
+      localStorage.setItem("cartItems", JSON.stringify([]));
+      localStorage.setItem("latestOrder", JSON.stringify([]));
+      window.location.reload();
+    } catch (error) {
+      toast.error("Paypal payment failed");
+    }
   };
 
+  // Stripe payment data
   const paymentData = {
     amount: Math.round(orderData?.totalPrice * 100),
   };
 
+  // Stripe: Handle card payment
   const paymentHandler = async (e) => {
     e.preventDefault();
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
+    if (!stripe || !elements) return;
 
+    try {
+      const config = { headers: { "Content-Type": "application/json" } };
       const { data } = await axios.post(
         `${server}/payment/process`,
         paymentData,
         config
       );
 
-      const client_secret = data.client_secret;
-
-      if (!stripe || !elements) return;
-      const result = await stripe.confirmCardPayment(client_secret, {
+      const result = await stripe.confirmCardPayment(data.client_secret, {
         payment_method: {
           card: elements.getElement(CardNumberElement),
         },
@@ -125,55 +110,62 @@ const Payment = () => {
 
       if (result.error) {
         toast.error(result.error.message);
-      } else {
-        if (result.paymentIntent.status === "succeeded") {
-          order.paymnentInfo = {
-            id: result.paymentIntent.id,
-            status: result.paymentIntent.status,
-            type: "Credit Card",
-          };
-
-          await axios
-            .post(`${server}/order/create-order`, order, config)
-            .then((res) => {
-              setOpen(false);
-              navigate("/order/success");
-              toast.success("Order successful!");
-              localStorage.setItem("cartItems", JSON.stringify([]));
-              localStorage.setItem("latestOrder", JSON.stringify([]));
-              window.location.reload();
-            });
-        }
+      } else if (result.paymentIntent.status === "succeeded") {
+        order.paymentInfo = {
+          id: result.paymentIntent.id,
+          status: result.paymentIntent.status,
+          type: "Credit Card",
+        };
+        await axios.post(`${server}/order/create-order`, order, config);
+        navigate("/order/success");
+        toast.success("Order successful!");
+        localStorage.setItem("cartItems", JSON.stringify([]));
+        localStorage.setItem("latestOrder", JSON.stringify([]));
+        window.location.reload();
       }
     } catch (error) {
-      toast.error(error);
+      toast.error("Payment failed, please try again.");
     }
   };
 
-  const cashOnDeliveryHandler = async (e) => {
-    e.preventDefault();
+  // Cash on Delivery
+ const cashOnDeliveryHandler = async (e) => {
+  e.preventDefault();
 
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
+  if (!orderData) {
+    toast.error("Order data not loaded.");
+    return;
+  }
+
+  try {
+    const config = { headers: { "Content-Type": "application/json" } };
+
+    const order = {
+      cart: orderData.cart,
+      shippingAddress: orderData.shippingAddress,
+      user,
+      totalPrice: orderData.totalPrice,
+      subTotalPrice: orderData.subTotalPrice,
+      shipping: orderData.shipping,
+      discountPrice: orderData.discountPrice,
+      paymentInfo: { type: "Cash On Delivery" },
     };
 
-    order.paymentInfo = {
-      type: "Cash On Delivery",
-    };
+    await axios.post(`${server}/order/create-order`, order, config);
 
-    await axios
-    .post(`${server}/order/create-order`, order, config)
-    .then((res) => {
-      setOpen(false);
-      navigate("/order/success");
-      toast.success("Order successful!");
-      localStorage.setItem("cartItems", JSON.stringify([]));
-      localStorage.setItem("latestOrder", JSON.stringify([]));
-      window.location.reload();
-    });
-  };
+    toast.success("Order successful!");
+    navigate("/order/success");
+    localStorage.setItem("cartItems", JSON.stringify([]));
+    localStorage.setItem("latestOrder", JSON.stringify([]));
+    dispatch(clearCart())
+  } catch (error) {
+    console.error("Order error:", error?.response?.data || error.message);
+    toast.error("Failed to place order.");
+  }
+};
+
+
+  if (!orderData) return <div>Loading order data...</div>;
 
   return (
     <div className="w-full flex flex-col items-center py-8">
@@ -181,8 +173,8 @@ const Payment = () => {
         <div className="w-full 800px:w-[65%]">
           <PaymentInfo
             user={user}
-            open={open}
-            setOpen={setOpen}
+            paypalOpen={paypalOpen}
+            setPaypalOpen={setPaypalOpen}
             onApprove={onApprove}
             createOrder={createOrder}
             paymentHandler={paymentHandler}
@@ -199,238 +191,180 @@ const Payment = () => {
 
 const PaymentInfo = ({
   user,
-  open,
-  setOpen,
+  paypalOpen,
+  setPaypalOpen,
   onApprove,
   createOrder,
   paymentHandler,
   cashOnDeliveryHandler,
 }) => {
-  const [select, setSelect] = useState(1);
+  const [selectedMethod, setSelectedMethod] = useState(1);
+
+  const inputStyle = {
+    base: {
+      fontSize: "19px",
+      lineHeight: 1.5,
+      color: "#444",
+    },
+    empty: {
+      color: "#3a120a",
+      backgroundColor: "transparent",
+      "::placeholder": { color: "#444" },
+    },
+  };
 
   return (
-    <div className="w-full 800px:w-[95%] bg-[#fff] rounded-md p-5 pb-8">
-      {/* select buttons */}
+    <div className="w-full 800px:w-[95%] bg-white rounded-md p-5 pb-8">
+      {/* Payment Method Selection */}
       <div>
         <div className="flex w-full pb-5 border-b mb-2">
-          <div
-            className="w-[25px] h-[25px] rounded-full bg-transparent border-[3px] border-[#1d1a1ab4] relative flex items-center justify-center"
-            onClick={() => setSelect(1)}
-          >
-            {select === 1 ? (
-              <div className="w-[13px] h-[13px] bg-[#1d1a1acb] rounded-full" />
-            ) : null}
-          </div>
-          <h4 className="text-[18px] pl-2 font-[600] text-[#000000b1]">
-            Pay with Debit/credit card
-          </h4>
+          <MethodRadio
+            selected={selectedMethod === 1}
+            onClick={() => setSelectedMethod(1)}
+            label="Pay with Debit/credit card"
+          />
         </div>
 
-        {/* pay with card */}
-        {select === 1 ? (
-          <div className="w-full flex border-b">
-            <form className="w-full" onSubmit={paymentHandler}>
-              <div className="w-full flex pb-3">
-                <div className="w-[50%]">
-                  <label className="block pb-2">Name On Card</label>
-                  <input
-                    required
-                    placeholder={user && user.name}
-                    className={`${styles.input} !w-[95%] text-[#444]`}
-                    value={user && user.name}
-                  />
-                </div>
-                <div className="w-[50%]">
-                  <label className="block pb-2">Exp Date</label>
-                  <CardExpiryElement
-                    className={`${styles.input}`}
-                    options={{
-                      style: {
-                        base: {
-                          fontSize: "19px",
-                          lineHeight: 1.5,
-                          color: "#444",
-                        },
-                        empty: {
-                          color: "#3a120a",
-                          backgroundColor: "transparent",
-                          "::placeholder": {
-                            color: "#444",
-                          },
-                        },
-                      },
-                    }}
-                  />
-                </div>
+        {selectedMethod === 1 && (
+          <form className="w-full flex border-b" onSubmit={paymentHandler}>
+            <div className="w-full pb-3 flex">
+              <div className="w-1/2">
+                <label className="block pb-2">Name On Card</label>
+                <input
+                  required
+                  placeholder={user?.name || "Name"}
+                  className={`${styles.input} !w-[95%] text-[#444]`}
+                  value={user?.name || ""}
+                  readOnly
+                />
               </div>
+              <div className="w-1/2">
+                <label className="block pb-2">Exp Date</label>
+                <CardExpiryElement className={styles.input} options={{ style: inputStyle }} />
+              </div>
+            </div>
 
-              <div className="w-full flex pb-3">
-                <div className="w-[50%]">
-                  <label className="block pb-2">Card Number</label>
-                  <CardNumberElement
-                    className={`${styles.input} !h-[35px] !w-[95%]`}
-                    options={{
-                      style: {
-                        base: {
-                          fontSize: "19px",
-                          lineHeight: 1.5,
-                          color: "#444",
-                        },
-                        empty: {
-                          color: "#3a120a",
-                          backgroundColor: "transparent",
-                          "::placeholder": {
-                            color: "#444",
-                          },
-                        },
-                      },
-                    }}
-                  />
-                </div>
-                <div className="w-[50%]">
-                  <label className="block pb-2">CVV</label>
-                  <CardCvcElement
-                    className={`${styles.input} !h-[35px]`}
-                    options={{
-                      style: {
-                        base: {
-                          fontSize: "19px",
-                          lineHeight: 1.5,
-                          color: "#444",
-                        },
-                        empty: {
-                          color: "#3a120a",
-                          backgroundColor: "transparent",
-                          "::placeholder": {
-                            color: "#444",
-                          },
-                        },
-                      },
-                    }}
-                  />
-                </div>
+            <div className="w-full pb-3 flex">
+              <div className="w-1/2">
+                <label className="block pb-2">Card Number</label>
+                <CardNumberElement className={`${styles.input} !h-[35px] !w-[95%]`} options={{ style: inputStyle }} />
               </div>
-              <input
-                type="submit"
-                value="Submit"
-                className={`${styles.button} !bg-[#f63b60] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
-              />
-            </form>
-          </div>
-        ) : null}
+              <div className="w-1/2">
+                <label className="block pb-2">CVV</label>
+                <CardCvcElement className={`${styles.input} !h-[35px]`} options={{ style: inputStyle }} />
+              </div>
+            </div>
+
+            <input
+              type="submit"
+              value="Submit"
+              className={`${styles.button} !bg-[#f63b60] text-white h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
+            />
+          </form>
+        )}
       </div>
 
       <br />
-      {/* paypal payment */}
+
       <div>
         <div className="flex w-full pb-5 border-b mb-2">
-          <div
-            className="w-[25px] h-[25px] rounded-full bg-transparent border-[3px] border-[#1d1a1ab4] relative flex items-center justify-center"
-            onClick={() => setSelect(2)}
-          >
-            {select === 2 ? (
-              <div className="w-[13px] h-[13px] bg-[#1d1a1acb] rounded-full" />
-            ) : null}
-          </div>
-          <h4 className="text-[18px] pl-2 font-[600] text-[#000000b1]">
-            Pay with Paypal
-          </h4>
+          <MethodRadio
+            selected={selectedMethod === 2}
+            onClick={() => setSelectedMethod(2)}
+            label="Pay with Paypal"
+          />
         </div>
 
-        {/* pay with payement */}
-        {select === 2 ? (
-          <div className="w-full flex border-b">
+        {selectedMethod === 2 && (
+          <>
             <div
               className={`${styles.button} !bg-[#f63b60] text-white h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
-              onClick={() => setOpen(true)}
+              onClick={() => setPaypalOpen(true)}
             >
               Pay Now
             </div>
-            {open && (
-              <div className="w-full fixed top-0 left-0 bg-[#00000039] h-screen flex items-center justify-center z-[99999]">
-                <div className="w-full 800px:w-[40%] h-screen 800px:h-[80vh] bg-white rounded-[5px] shadow flex flex-col justify-center p-8 relative overflow-y-scroll">
-                  <div className="w-full flex justify-end p-3">
-                    <RxCross1
-                      size={30}
-                      className="cursor-pointer absolute top-3 right-3"
-                      onClick={() => setOpen(false)}
-                    />
-                  </div>
-                    <PayPalScriptProvider
-                      options={{
-                        "client-id":
-                          "Aczac4Ry9_QA1t4c7TKH9UusH3RTe6onyICPoCToHG10kjlNdI-qwobbW9JAHzaRQwFMn2-k660853jn",
-                      }}
-                    >
-                      <PayPalButtons
-                        style={{ layout: "vertical" }}
-                        onApprove={onApprove}
-                        createOrder={createOrder}
-                      />
-                    </PayPalScriptProvider>
-                </div>
-              </div>
+            {paypalOpen && (
+              <PaypalModal setPaypalOpen={setPaypalOpen} onApprove={onApprove} createOrder={createOrder} />
             )}
-          </div>
-        ) : null}
+          </>
+        )}
       </div>
 
       <br />
-      {/* cash on delivery */}
+
       <div>
         <div className="flex w-full pb-5 border-b mb-2">
-          <div
-            className="w-[25px] h-[25px] rounded-full bg-transparent border-[3px] border-[#1d1a1ab4] relative flex items-center justify-center"
-            onClick={() => setSelect(3)}
-          >
-            {select === 3 ? (
-              <div className="w-[13px] h-[13px] bg-[#1d1a1acb] rounded-full" />
-            ) : null}
-          </div>
-          <h4 className="text-[18px] pl-2 font-[600] text-[#000000b1]">
-            Cash on Delivery
-          </h4>
+          <MethodRadio
+            selected={selectedMethod === 3}
+            onClick={() => setSelectedMethod(3)}
+            label="Cash on Delivery"
+          />
         </div>
 
-        {/* cash on delivery */}
-        {select === 3 ? (
-          <div className="w-full flex">
-            <form className="w-full" onSubmit={cashOnDeliveryHandler}>
-              <input
-                type="submit"
-                value="Confirm"
-                className={`${styles.button} !bg-[#f63b60] text-[#fff] h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
-              />
-            </form>
-          </div>
-        ) : null}
+        {selectedMethod === 3 && (
+          <form className="w-full flex" onSubmit={cashOnDeliveryHandler}>
+            <input
+              type="submit"
+              value="Place Order"
+              className={`${styles.button} !bg-[#f63b60] text-white h-[45px] rounded-[5px] cursor-pointer text-[18px] font-[600]`}
+            />
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const MethodRadio = ({ selected, onClick, label }) => (
+  <div className="flex items-center mr-4 cursor-pointer" onClick={onClick}>
+    <div className={`w-5 h-5 border border-[#f63b60] rounded-[50%] flex justify-center items-center mr-1`}>
+      {selected && <div className="w-3 h-3 rounded-[50%] bg-[#f63b60]" />}
+    </div>
+    <p className="text-[#444] font-semibold">{label}</p>
+  </div>
+);
+
+const PaypalModal = ({ setPaypalOpen, onApprove, createOrder }) => {
+  return (
+    <div
+      onClick={() => setPaypalOpen(false)}
+      className="fixed inset-0 z-30 flex justify-center items-center bg-[#000000a7]"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white p-5 rounded-md relative w-[450px]"
+      >
+        <RxCross1
+          size={25}
+          className="absolute top-2 right-2 cursor-pointer"
+          onClick={() => setPaypalOpen(false)}
+        />
+        <PayPalScriptProvider options={{ "client-id": "test" }}>
+          <PayPalButtons
+            style={{ layout: "vertical" }}
+            createOrder={createOrder}
+            onApprove={onApprove}
+          />
+        </PayPalScriptProvider>
       </div>
     </div>
   );
 };
 
 const CartData = ({ orderData }) => {
-  const shipping = orderData?.shipping?.toFixed(2);
   return (
-    <div className="w-full bg-[#fff] rounded-md p-5 pb-8">
-      <div className="flex justify-between">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">subtotal:</h3>
-        <h5 className="text-[18px] font-[600]">${orderData?.subTotalPrice}</h5>
-      </div>
+    <div className="w-full bg-white rounded-md p-5">
+      <h1 className="text-[22px] font-[600] pb-2 border-b">Order Summary</h1>
       <br />
       <div className="flex justify-between">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">shipping:</h3>
-        <h5 className="text-[18px] font-[600]">${shipping}</h5>
+        <p>Sub Total</p>
+        <p>$ {orderData?.totalPrice}</p>
       </div>
-      <br />
-      <div className="flex justify-between border-b pb-3">
-        <h3 className="text-[16px] font-[400] text-[#000000a4]">Discount:</h3>
-        <h5 className="text-[18px] font-[600]">{orderData?.discountPrice? "$" + orderData.discountPrice : "-"}</h5>
+
+      <div className="flex justify-between border-t mt-2 pt-2">
+        <h1 className="text-[20px] font-[700]">Total</h1>
+        <h1 className="text-[20px] font-[700]">$ {orderData?.totalPrice}</h1>
       </div>
-      <h5 className="text-[18px] font-[600] text-end pt-3">
-        ${orderData?.totalPrice}
-      </h5>
-      <br />
     </div>
   );
 };

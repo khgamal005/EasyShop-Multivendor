@@ -1,7 +1,5 @@
 import { ToastContainer } from "react-toastify";
 
-import DashboardHeader from "../../componant/Shop/Layout/DashboardHeader";
-import DashboardSideBar from "../../componant/Shop/Layout/DashboardSideBar";
 import { Outlet } from "react-router-dom";
 import AdminDashboardHeader from "../../componant/Admin/AdminDashboardHeader";
 import AdminDashboardSidebar from "../../componant/Admin/AdminDashboardSidebar";

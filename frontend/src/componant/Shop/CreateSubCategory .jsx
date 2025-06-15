@@ -58,8 +58,8 @@ const CreateSubCategory = () => {
             <option value="">Select Category</option>
             {Array.isArray(categories) &&
               categories.map((cat) => (
-                  <option key={cat._id} value={cat.category._id}>
-                  {cat.category.name}
+                  <option key={cat._id} value={cat._id}>
+                  {cat.name}
           
                 </option>
               ))}

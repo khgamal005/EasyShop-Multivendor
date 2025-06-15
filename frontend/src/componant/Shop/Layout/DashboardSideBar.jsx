@@ -64,6 +64,18 @@ const sidebarItems = [
     id: "create-event",
   },
   {
+    label: "All-seller-coupons ",
+    icon: VscNewFile,
+    path: "all-seller-coupons",
+    id: "all-seller-coupons",
+  },
+  {
+    label: "create-seller-coupone",
+    icon: VscNewFile,
+    path: "create-seller-coupone",
+    id: "create-seller-coupone",
+  },
+  {
     label: "Withdraw Money",
     icon: CiMoneyBill,
     path: "withdraw",

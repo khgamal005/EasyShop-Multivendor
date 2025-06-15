@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getAllCoupons,
+  getAllCouponessShop,
   deleteCoupon,
 } from "../../redux/slices/couponeSlice";
 import { Button } from "@mui/material";
@@ -10,12 +10,13 @@ import { DataGrid } from "@mui/x-data-grid";
 import Loader from "../../componant/Layout/Loader";
 import { toast } from "react-toastify";
 
-const AllCoupons = () => {
+const AllShopCoupone = () => {
   const dispatch = useDispatch();
   const { coupons, loading } = useSelector((state) => state.coupon);
+    const { seller } = useSelector((state) => state.seller);
 
   useEffect(() => {
-    dispatch(getAllCoupons());
+    dispatch(getAllCouponessShop(seller._id));
   }, [dispatch]);
 
   const handleDelete = async (id) => {
@@ -52,13 +53,15 @@ const AllCoupons = () => {
     },
   ];
 
-  const rows = coupons?.map((coupon) => ({
+const rows = coupons
+  ?.filter((coupon) => coupon.shopId) // only coupons tied to a shop
+  .map((coupon) => ({
     id: coupon._id,
     name: coupon.name,
     value: coupon.value,
     minAmount: coupon.minAmount ?? 0,
     maxAmount: coupon.maxAmount ?? 0,
-    expire: coupon.expire ?? 0
+    expire: coupon.expire ?? 0,
   })) || [];
 
   return (
@@ -83,4 +86,4 @@ const AllCoupons = () => {
   );
 };
 
-export default AllCoupons;
+export default AllShopCoupone;

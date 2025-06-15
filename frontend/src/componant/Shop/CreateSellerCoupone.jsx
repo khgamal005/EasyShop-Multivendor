@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+
+
+
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createCoupon } from '../../redux/slices/couponeSlice';
 import { toast } from 'react-toastify';
 
-const CreateCoupon = () => {
+const CreateSellerCoupone = () => {
   const [form, setForm] = useState({
     name: '',
     value: '',
@@ -14,6 +17,7 @@ const CreateCoupon = () => {
 
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.coupon);
+    const { seller } = useSelector((state) => state.seller);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,12 +31,15 @@ const CreateCoupon = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(createCoupon(form))
+      const payload = {
+    ...form,
+    shopId: seller?._id || null, // attach seller._id if available
+  };
+    dispatch(createCoupon(payload))
       .unwrap()
       .then(() => {
         toast.success('Coupon created successfully');
         setForm({
-          // code: '',
           name: '',
           value: '',
           minAmount: '',
@@ -114,4 +121,4 @@ const CreateCoupon = () => {
   );
 };
 
-export default CreateCoupon;
+export default CreateSellerCoupone;

@@ -38,6 +38,8 @@ import OrderDetailsPage from "../pages/OrderDetailsPage";
 import OrderSuccessPage from "../pages/OrderSuccessPage";
 import PaymentPage from "../pages/PaymentPage";
 import StripeWrapper from "./StripeWrapper";
+import AllShopCoupone from "../pages/shop/AllShopCoupone";
+import CreateSellerCoupone from "../componant/Shop/CreateSellerCoupone";
 
 
 
@@ -170,6 +172,8 @@ const router = createBrowserRouter([
       { path: "create-subcategory", element: <CreateSubCategory /> },
       { path: "events", element: <AllEvents /> },
       { path: "create-event", element: <CreateEvent /> },
+      { path: "all-seller-coupons", element: <AllShopCoupone /> },
+      { path: "create-seller-coupone", element: <CreateSellerCoupone /> },
       { path: "withdraw", element: <div>Withdraw Money</div> },
       { path: "messages", element: <div>Shop Inbox</div> },
       { path: "coupons", element: <div>Discount Codes</div> },
