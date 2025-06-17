@@ -1,4 +1,4 @@
-const express = require("express");
+
 const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const Order = require("../model/order");
@@ -29,15 +29,32 @@ exports.createOrder = catchAsyncErrors(async (req, res, next) => {
 
     const orders = [];
 
-    // Calculate total price per shop if needed (optional, but we use the global totalPrice)
-    const shopIds = Array.from(shopItemsMap.keys());
-    const perShopPrice = totalPrice / shopIds.length; // simple even split
+    // Step 1: Calculate total subtotal (before applying flat discount)
+    const totalRawSubtotal = cart.reduce((sum, item) => {
+      return sum + item.discountPrice * item.qty;
+    }, 0);
 
+    // Step 2: Calculate subtotal per shop
+    const shopSubtotals = new Map();
+    for (const item of cart) {
+      const shopId = item.shop._id;
+      const itemTotal = item.discountPrice * item.qty;
+
+      if (!shopSubtotals.has(shopId)) {
+        shopSubtotals.set(shopId, 0);
+      }
+      shopSubtotals.set(shopId, shopSubtotals.get(shopId) + itemTotal);
+    }
+
+    // Step 3: Create orders and assign proportional total price
     for (const [shopId, items] of shopItemsMap.entries()) {
+      const shopSubtotal = shopSubtotals.get(shopId);
+      const proportionalTotal = (shopSubtotal / totalRawSubtotal) * totalPrice;
+
       const order = await Order.create({
         shopId,
         cart: items,
-        totalPrice: perShopPrice.toFixed(2), // or use a better logic if needed
+        totalPrice: parseFloat(proportionalTotal.toFixed(2)),
         shippingAddress,
         user,
         paymentInfo,
@@ -46,12 +63,15 @@ exports.createOrder = catchAsyncErrors(async (req, res, next) => {
       orders.push(order);
     }
 
+    // ✅ Now send the response AFTER all orders are created
     res.status(201).json({ success: true, orders });
+
   } catch (err) {
     console.error("Create Order Error:", err);
-    return res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
+
 
 
 exports.getAllOrdersOfUser = catchAsyncErrors(async (req, res, next) => {
