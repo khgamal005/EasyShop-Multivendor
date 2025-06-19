@@ -1,21 +1,21 @@
-
-import{ useEffect } from "react";
+import { Button } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Loader from "../Layout/Loader";
-// import { getAllOrdersOfShop } from "../../redux/actions/order";
-import { AiOutlineArrowRight } from "react-icons/ai";
-import { Button } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
 
-const AllOrders = () => {
-  const { sellers, isLoading } = useSelector((state) => state.seller);
+import { AiOutlineArrowRight } from "react-icons/ai";
+import { getAllOrdersOfSeller } from "../../redux/slices/orderSlice";
+
+const ShopAllOrders = () => {
+  const { orders, isLoading } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // dispatch(getAllsellersOfShop(seller._id));
+    dispatch(getAllOrdersOfSeller(seller._id));
   }, [dispatch]);
 
   const columns = [
@@ -26,11 +26,19 @@ const AllOrders = () => {
       headerName: "Status",
       minWidth: 130,
       flex: 0.7,
-      cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
-          ? "greenColor"
-          : "redColor";
-      },
+      renderCell: (params) => (
+        <span
+          className={
+            params.value === "Delivered"
+              ? "text-green-600 font-semibold"
+              : params.value === "Processing"
+              ? "text-blue-600 font-semibold"
+              : "text-red-600 font-semibold"
+          }
+        >
+          {params.value}
+        </span>
+      ),
     },
     {
       field: "itemsQty",
@@ -58,7 +66,7 @@ const AllOrders = () => {
       renderCell: (params) => {
         return (
           <>
-            <Link to={`/order/${params.id}`}>
+            <Link to={`/dashboard/order/${params.id}`}>
               <Button>
                 <AiOutlineArrowRight size={20} />
               </Button>
@@ -71,12 +79,12 @@ const AllOrders = () => {
 
   const row = [];
 
-  sellers &&
-    sellers.forEach((item) => {
+  orders &&
+    orders.forEach((item) => {
       row.push({
         id: item._id,
         itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
+        total: "EGP  " + item.totalPrice,
         status: item.status,
       });
     });
@@ -100,4 +108,4 @@ const AllOrders = () => {
   );
 };
 
-export default AllOrders;
+export default ShopAllOrders;

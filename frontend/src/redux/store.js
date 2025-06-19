@@ -14,6 +14,8 @@ import couponReducer from './slices/couponeSlice';
 import wishlistReducer from './slices/wishlistSlice';
 import cartReducer from './slices/cartslice';
 import reviewReducer from './slices/reviewSlice';
+import orderReducer from './slices/orderSlice';
+
 
 // Combine reducers
 const rootReducer = combineReducers({
@@ -27,7 +29,8 @@ const rootReducer = combineReducers({
   coupon: couponReducer,
   wishlist: wishlistReducer,
   cart: cartReducer,
-  review:reviewReducer
+  review:reviewReducer,
+  order:orderReducer,
 });
 
 // Persist configuration
@@ -45,7 +48,8 @@ const persistConfig = {
     'coupon',
     'wishlist',
     'cart',
-    'review'
+    'review',
+    "order"
   ],
 };
 

@@ -77,9 +77,11 @@ const Payment = () => {
     if (!stripe || !elements) return;
 
     try {
-      const { data } = await axios.post(`${server}/payment/process`, {
-        amount: Math.round(orderData?.totalPrice * 100),
-      });
+      const { data } = await axios.post(
+        `${server}/payment/process`,
+        { amount: Math.round(orderData?.totalPrice * 100) },
+        { withCredentials: true }
+      );
 
       const result = await stripe.confirmCardPayment(data.client_secret, {
         payment_method: {

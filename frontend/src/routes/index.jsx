@@ -19,7 +19,6 @@ import ShopHomePage from "../pages/shop/ShopHomePage";
 import SellerProtectedRoute from "./SellerProtectedRoute";
 import ShopDashboardPage from "../pages/shop/ShopDashboardPage";
 import DashboardHero from "../componant/Shop/DashboardHero";
-import AllOrders from "../componant/Shop/AllOrders";
 import CreateProduct from "../componant/Shop/CreateProduct";
 import CreateBrand from "../componant/Shop/createBrand";
 import ShopLoginPage from "../pages/shop/ShopLoginPage";
@@ -40,10 +39,9 @@ import PaymentPage from "../pages/PaymentPage";
 import StripeWrapper from "./StripeWrapper";
 import AllShopCoupone from "../pages/shop/AllShopCoupone";
 import CreateSellerCoupone from "../componant/Shop/CreateSellerCoupone";
-
-
-
-
+import AdminOrders from "../pages/Admin/AdminOrders";
+import ShopAllOrders from "../componant/Shop/ShopAllOrders";
+import OrderDetails from "../componant/Shop/OrderDetails";
 
 const router = createBrowserRouter([
   {
@@ -119,16 +117,16 @@ const router = createBrowserRouter([
           </SellerProtectedRoute>
         ),
       },
-          {
-            path: "payment",
-            element: (
-              <StripeWrapper>
-                <ProtectedRoute>
-                  <PaymentPage />
-                </ProtectedRoute>
-              </StripeWrapper>
-            ),
-          },
+      {
+        path: "payment",
+        element: (
+          <StripeWrapper>
+            <ProtectedRoute>
+              <PaymentPage />
+            </ProtectedRoute>
+          </StripeWrapper>
+        ),
+      },
 
       {
         path: "shop/:id/setting",
@@ -163,7 +161,11 @@ const router = createBrowserRouter([
       },
       {
         path: "dashboard-orders",
-        element: <AllOrders />,
+        element: <ShopAllOrders />,
+      },
+      {
+        path: "order/:id",
+        element: <OrderDetails />,
       },
       { path: "products", element: <AllProducts /> },
       { path: "create-product", element: <CreateProduct /> },
@@ -192,6 +194,7 @@ const router = createBrowserRouter([
     children: [
       { path: "All-Coupons", element: <AllCoupons /> },
       { path: "create-coupone", element: <CreateCoupon /> },
+      { path: "dashboard-orders", element: <AdminOrders /> },
       { path: "coupons", element: <div>Discount Codes</div> },
       { path: "refunds", element: <div>Refunds</div> },
       { path: "settings", element: <div>Settings</div> },

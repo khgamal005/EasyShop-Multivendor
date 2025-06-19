@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { server } from "../../server";
 
-// API Base
-const API = "https://your-backend-domain.com/api/v1/order";
+
 
 // --- Async Thunks ---
 
@@ -10,7 +10,7 @@ export const createOrder = createAsyncThunk(
   "order/createOrder",
   async (orderData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`${API}/create-order`, orderData, { withCredentials: true });
+      const { data } = await axios.post(`${server}/order/create-order`, orderData, { withCredentials: true });
       return data.orders;
     } catch (err) {
       return rejectWithValue(err.response.data.message);
@@ -22,7 +22,7 @@ export const getAllOrdersOfUser = createAsyncThunk(
   "order/getAllOrdersOfUser",
   async (userId, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API}/get-all-orders/${userId}`, { withCredentials: true });
+      const { data } = await axios.get(`${server}/order/get-all-orders/${userId}`, { withCredentials: true });
       return data.orders;
     } catch (err) {
       return rejectWithValue(err.response.data.message);
@@ -34,7 +34,7 @@ export const getAllOrdersOfSeller = createAsyncThunk(
   "order/getAllOrdersOfSeller",
   async (shopId, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API}/get-seller-all-orders/${shopId}`, { withCredentials: true });
+      const { data } = await axios.get(`${server}/order/get-seller-all-orders/${shopId}`, { withCredentials: true });
       return data.orders;
     } catch (err) {
       return rejectWithValue(err.response.data.message);
@@ -43,14 +43,15 @@ export const getAllOrdersOfSeller = createAsyncThunk(
 );
 
 export const updateOrderStatus = createAsyncThunk(
-  "order/updateOrderStatus",
-  async ({ orderId, status }, { rejectWithValue }) => {
+  "order/updateStatus",
+  async ({ id, status }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API}/update-order-status/${orderId}`, {
-        params: { status },
-        withCredentials: true,
-      });
-      return data.order;
+      const { data } = await axios.put(
+        `${server}/order/update-order-status/${id}`,
+        { status },  // <- this must match backend expectations
+        { withCredentials: true }
+      );
+      return data;
     } catch (err) {
       return rejectWithValue(err.response.data.message);
     }
@@ -59,9 +60,9 @@ export const updateOrderStatus = createAsyncThunk(
 
 export const requestRefund = createAsyncThunk(
   "order/requestRefund",
-  async ({ orderId, status }, { rejectWithValue }) => {
+  async ({ id, status }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API}/order-refund/${orderId}`, {
+      const { data } = await axios.put(`${server}/order/order-refund/${id}`, {
         params: { status },
         withCredentials: true,
       });
@@ -74,24 +75,26 @@ export const requestRefund = createAsyncThunk(
 
 export const confirmRefund = createAsyncThunk(
   "order/confirmRefund",
-  async ({ orderId, status }, { rejectWithValue }) => {
+  async ({ id, status }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API}/order-refund-success/${orderId}`, {
-        params: { status },
-        withCredentials: true,
-      });
+      const { data } = await axios.put(
+        `${server}/order/order-refund-success/${id}`,
+        { status }, // sent in request body
+        { withCredentials: true }
+      );
       return data;
     } catch (err) {
-      return rejectWithValue(err.response.data.message);
+      return rejectWithValue(err.response?.data?.message || "Refund confirmation failed");
     }
   }
 );
+
 
 export const getAllOrdersForAdmin = createAsyncThunk(
   "order/getAllOrdersForAdmin",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API}/admin-all-orders`, { withCredentials: true });
+      const { data } = await axios.get(`${server}/order/admin-all-orders`, { withCredentials: true });
       return data.orders;
     } catch (err) {
       return rejectWithValue(err.response.data.message);
