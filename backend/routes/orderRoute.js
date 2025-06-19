@@ -28,14 +28,14 @@ router
   .get(isAuthenticated, getAllordersOfSeller);
 router
   .route("/update-order-status/:id")
-  .get(isAuthenticated, isAdminOrSeller, updateOrderStatusOfSeller);
+  .put(isAuthenticated, isAdminOrSeller, updateOrderStatusOfSeller);
 router
   .route("/order-refund-success/:id")
-  .get(isAuthenticated, isAdminOrSeller, orderRefundSuccess);
+  .put(isAuthenticated, isAdminOrSeller, orderRefundSuccess);
 router
   .route("/admin-all-orders")
   .get(isAuthenticated, isAdminOrSeller, allOrdersForAdmin);
-router.route("/order-refund/:id").get(isAuthenticated, orderRefund);
+router.route("/order-refund/:id").put(isAuthenticated, orderRefund);
 
 
 module.exports = router;

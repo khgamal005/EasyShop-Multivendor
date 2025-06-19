@@ -13,7 +13,7 @@ const router = express.Router();
 router
   .route("/process")
   .post(
-    // isAuthenticated,
+    isAuthenticated,
     createPayment
   );
  router.route('/stripeapikey').get(stripeapikey);

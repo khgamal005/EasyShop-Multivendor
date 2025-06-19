@@ -1,4 +1,3 @@
-
 const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const Order = require("../model/order");
@@ -65,14 +64,11 @@ exports.createOrder = catchAsyncErrors(async (req, res, next) => {
 
     // ✅ Now send the response AFTER all orders are created
     res.status(201).json({ success: true, orders });
-
   } catch (err) {
     console.error("Create Order Error:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
-
-
 
 exports.getAllOrdersOfUser = catchAsyncErrors(async (req, res, next) => {
   try {
@@ -93,7 +89,7 @@ exports.getAllOrdersOfUser = catchAsyncErrors(async (req, res, next) => {
 
 exports.getAllordersOfSeller = catchAsyncErrors(async (req, res, next) => {
   const orders = await Order.find({
-    "cart.shopId": req.params.shopId,
+    "cart.shop._id": req.params.shopId,
   }).sort({
     createdAt: -1,
   });
@@ -112,10 +108,11 @@ exports.updateOrderStatusOfSeller = catchAsyncErrors(async (req, res, next) => {
   if (!order) {
     return next(new ErrorHandler("Order not found with this id", 400));
   }
+
   if (req.body.status === "Transferred to delivery partner") {
-    order.cart.forEach(async (o) => {
+    for (const o of order.cart) {
       await updateOrder(o._id, o.qty);
-    });
+    }
   }
 
   order.status = req.body.status;
@@ -136,18 +133,14 @@ exports.updateOrderStatusOfSeller = catchAsyncErrors(async (req, res, next) => {
 
   async function updateOrder(id, qty) {
     const product = await Product.findById(id);
-
     product.stock -= qty;
     product.sold_out += qty;
-
     await product.save({ validateBeforeSave: false });
   }
 
   async function updateSellerInfo(amount) {
     const seller = await Shop.findById(req.seller.id);
-
-    seller.availableBalance = amount;
-
+    seller.availableBalance += amount; // <- use += instead of =
     await seller.save();
   }
 });
@@ -172,6 +165,15 @@ exports.orderRefund = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+async function updateOrder(id, qty) {
+  const product = await Product.findById(id);
+  if (!product) return;
+
+  product.stock += qty; // Refund means returning stock
+  product.sold_out -= qty;
+
+  await product.save({ validateBeforeSave: false });
+}
 // accept the refund ---- seller
 
 exports.orderRefundSuccess = catchAsyncErrors(async (req, res, next) => {
@@ -183,27 +185,18 @@ exports.orderRefundSuccess = catchAsyncErrors(async (req, res, next) => {
 
   order.status = req.body.status;
 
+  if (req.body.status === "Refund Success") {
+    for (const o of order.cart) {
+      await updateOrder(o._id, o.qty);
+    }
+  }
+
   await order.save();
 
   res.status(200).json({
     success: true,
-    message: "Order Refund successfull!",
+    message: "Order refund successful!",
   });
-
-  if (req.body.status === "Refund Success") {
-    order.cart.forEach(async (o) => {
-      await updateOrder(o._id, o.qty);
-    });
-  }
-
-  async function updateOrder(id, qty) {
-    const product = await Product.findById(id);
-
-    product.stock += qty;
-    product.sold_out -= qty;
-
-    await product.save({ validateBeforeSave: false });
-  }
 });
 
 // all orders --- for admin
@@ -213,7 +206,7 @@ exports.allOrdersForAdmin = catchAsyncErrors(async (req, res, next) => {
     deliveredAt: -1,
     createdAt: -1,
   });
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     orders,
   });
