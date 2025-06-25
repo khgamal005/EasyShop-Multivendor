@@ -40,7 +40,7 @@ export const updateShopInfo = createAsyncThunk(
       const { data } = await axios.put(`${server}/shop/update-seller`, formData, {
         withCredentials: true,
       });
-      console.log(data.data)
+     
       return data.data;
     } catch (error) {
    
@@ -66,6 +66,62 @@ export const getSellerById = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to fetch seller"
+      );
+    }
+  }
+);
+// Update seller's payment (withdraw) method
+export const updateWithdrawMethod = createAsyncThunk(
+  "shop/updateWithdrawMethod",
+  async (withdrawMethod, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.put(
+        `${server}/shop/update-payment-methods`,
+        { withdrawMethod },
+        { withCredentials: true }
+      );
+      return data.seller;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
+
+// Delete seller's withdraw method
+export const deleteWithdrawMethod = createAsyncThunk(
+  "shop/deleteWithdrawMethod",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.delete(
+        `${server}/shop/delete-withdraw-method`,
+        { withCredentials: true }
+      );
+      return data.seller;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
+
+
+export const updateSellerAvatar = createAsyncThunk(
+  'shop/updateSellerAvatar',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${server}/shop/update-avatar`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            withCredentials: true,
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to update avatar'
       );
     }
   }
@@ -132,6 +188,46 @@ const sellerSlice = createSlice({
         state.seller = action.payload;
       })
       .addCase(updateShopInfo.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Handle updateWithdrawMethod
+      .addCase(updateWithdrawMethod.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateWithdrawMethod.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.seller = action.payload;
+        state.success = true;
+      })
+      .addCase(updateWithdrawMethod.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+         .addCase(deleteWithdrawMethod.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteWithdrawMethod.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.seller = action.payload;
+        state.success = true;
+      })
+      .addCase(deleteWithdrawMethod.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
+
+       .addCase(updateSellerAvatar.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateSellerAvatar.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.seller = action.payload;
+      })
+      .addCase(updateSellerAvatar.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

@@ -25,14 +25,12 @@ const Login = () => {
       password,
     }, { withCredentials: true })
     .then((res)=>{
-      console.log(res)
       toast.success(res.data.message);
       dispatch(loadUser());
       navigate("/");
     
 
     }).catch((error)=>{
-      console.log(error)
       if (error.response &&  error.response.data.message) {
         toast.error(error.response.data.message);
        
@@ -123,12 +121,9 @@ const Login = () => {
                 </label>
               </div>
               <div className="text-sm">
-                <a
-                  href=".forgot-password"
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                >
-                  Forgot your password?
-                </a>
+                  <Link to="/ForgetPassword" className="text-blue-600 pl-2">
+                Forgot your password?
+              </Link>
               </div>
             </div>
             <div>

@@ -17,30 +17,36 @@ const EditShopPage = () => {
     address: "",
     phoneNumber: "",
     zipCode: "",
+    avatar:""
   });
 
 
-  const [avatarFile, setAvatarFile] = useState(null);
 const [previewImage, setPreviewImage] = useState(null);
       const [existingImages, setExistingImages] = useState([]);
   
 
-  useEffect(() => {
+useEffect(() => {
+  if (!seller) {
     dispatch(loadSeller());
-  }, [dispatch]);
+  }
+}, [dispatch, seller]);
+useEffect(() => {
+  if (seller) {
+    setFormData((prev) => ({
+      ...prev,
+      name: seller.name,
+      email: seller.email,
+      address: seller.address,
+      phoneNumber: seller.phoneNumber,
+      zipCode: seller.zipCode || "",
+    }));
 
-  useEffect(() => {
-    if (seller) {
-      setFormData({
-        name: seller.name,
-        email: seller.email,
-        address: seller.address,
-        phoneNumber: seller.phoneNumber,
-        zipCode: seller.zipCode || "",
-      });
-    const validExistingImages = seller.avatar.url;
-    setExistingImages(validExistingImages);    }
-  }, [seller]);
+    if (seller.avatar?.url) {
+      setExistingImages(seller.avatar.url); // Single string, not array
+    }
+  }
+}, [seller]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;

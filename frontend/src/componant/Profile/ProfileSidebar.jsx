@@ -1,4 +1,4 @@
-import React from "react";
+
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   AiOutlineLogin,
@@ -7,10 +7,7 @@ import {
 import {
   RiLockPasswordLine
 } from "react-icons/ri";
-import {
-  HiOutlineReceiptRefund,
-  HiOutlineShoppingBag,
-} from "react-icons/hi";
+
 import {
   MdOutlineAdminPanelSettings,
   MdOutlineTrackChanges,
@@ -48,16 +45,6 @@ const ProfileSidebar = () => {
       path: "/profile",
     },
     {
-      label: "Orders",
-      icon: HiOutlineShoppingBag,
-      path: "/profile-orders",
-    },
-    {
-      label: "Refunds",
-      icon: HiOutlineReceiptRefund,
-      path: "/profile-refunds",
-    },
-    {
       label: "Inbox",
       icon: AiOutlineMessage,
       path: "/inbox",
@@ -72,11 +59,7 @@ const ProfileSidebar = () => {
       icon: RiLockPasswordLine,
       path: "/profile-change-password",
     },
-    {
-      label: "Address",
-      icon: TbAddressBook,
-      path: "/profile-address",
-    },
+
   ];
 
   if (user?.role === "admin") {

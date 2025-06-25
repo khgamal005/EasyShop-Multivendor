@@ -3,10 +3,14 @@ import Loader from "../componant/Layout/Loader";
 import ProfileSideBar from "../componant/Profile/ProfileSidebar";
 import ProfileContent from "../componant/Profile/ProfileContent";
 import { useSelector } from "react-redux";
+import { loadUser } from "../redux/slices/userSlice";
 
 const ProfilePage = () => {
   const { loading } = useSelector((state) => state.user);
   const [active, setActive] = useState(1);
+
+
+
 
   return (
   <div>
@@ -21,7 +25,7 @@ const ProfilePage = () => {
             </div>
 
             {/* Content: 2/3 width on desktop */}
-            <div className="w-[85%]">
+            <div className="w-[85%] bg">
               <ProfileContent active={active} />
             </div>
           </div>

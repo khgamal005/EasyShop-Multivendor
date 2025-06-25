@@ -81,18 +81,8 @@ const sidebarItems = [
     path: "withdraw",
     id: "withdraw",
   },
-  {
-    label: "Shop Inbox",
-    icon: BiMessageSquareDetail,
-    path: "messages",
-    id: "messages",
-  },
-  {
-    label: "Discount Codes",
-    icon: AiOutlineGift,
-    path: "coupons",
-    id: "coupons",
-  },
+
+
   {
     label: "Refunds",
     icon: HiOutlineReceiptRefund,

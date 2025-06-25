@@ -42,6 +42,14 @@ import CreateSellerCoupone from "../componant/Shop/CreateSellerCoupone";
 import AdminOrders from "../pages/Admin/AdminOrders";
 import ShopAllOrders from "../componant/Shop/ShopAllOrders";
 import OrderDetails from "../componant/Shop/OrderDetails";
+import WithdrawMoney from "../componant/Shop/WithdrawMoney";
+import AllRefundOrders from "../componant/Shop/AllRefundOrders";
+import ShopSettings from "../pages/shop/ShopSettings";
+import TrackOrder from "../componant/Profile/TrackOrder";
+import ChangePassword from "../componant/Profile/ChangePassword";
+import ForgetPassword from "../componant/Profile/ForgetPassword ";
+import VerifyResetCode from "../componant/Profile/VerifyResetCode ";
+import ResetPassword from "../componant/Profile/ResetPassword ";
 
 const router = createBrowserRouter([
   {
@@ -100,6 +108,26 @@ const router = createBrowserRouter([
             <ProfilePage />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: "track-order",
+        element: <TrackOrder />,
+      },
+      {
+        path: "profile-change-password",
+        element: <ChangePassword />,
+      },
+      {
+        path: "ForgetPassword",
+        element: <ForgetPassword />,
+      },
+      {
+        path: "VerifyResetCode",
+        element: <VerifyResetCode />,
+      },
+      {
+        path: "ResetPassword",
+        element: <ResetPassword />,
       },
       {
         path: "shop-create",
@@ -176,11 +204,9 @@ const router = createBrowserRouter([
       { path: "create-event", element: <CreateEvent /> },
       { path: "all-seller-coupons", element: <AllShopCoupone /> },
       { path: "create-seller-coupone", element: <CreateSellerCoupone /> },
-      { path: "withdraw", element: <div>Withdraw Money</div> },
-      { path: "messages", element: <div>Shop Inbox</div> },
-      { path: "coupons", element: <div>Discount Codes</div> },
-      { path: "refunds", element: <div>Refunds</div> },
-      { path: "settings", element: <div>Settings</div> },
+      { path: "withdraw",  element: <WithdrawMoney />},
+      { path: "refunds", element: <AllRefundOrders/> },
+      { path: "settings", element: <EditShopPage/> },
     ],
   },
   {

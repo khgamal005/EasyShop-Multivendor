@@ -13,6 +13,7 @@ import { categoriesData } from "../../static/data";
 // import Cart from "../cart/Cart";
 import Wishlist from "../Wishlist/Wishlist";
 import Cart from "../cart/Cart";
+import { getUserImageUrl } from "../../utils/imageHelpers";
 
 const Header = ({
   searchTerm,
@@ -130,7 +131,7 @@ const Header = ({
           {isAuthenticated ? (
             <Link to="/profile">
               <img
-                src={user?.avatar?.url}
+                      src={getUserImageUrl(user?.avatar?.url)}
                 alt="profile"
                 className="w-[35px] h-[35px] rounded-full border"
               />
@@ -238,7 +239,7 @@ const Header = ({
                 <div className="relative group inline-block">
                   <Link to="/profile">
                     <img
-                      src={`${user.avatar?.url}`}
+                      src={getUserImageUrl(user.avatar?.url)}
                       alt=""
                       className="w-[60px] h-[60px]  rounded-full border-[3px] border-[#0eae88]   "
                     />

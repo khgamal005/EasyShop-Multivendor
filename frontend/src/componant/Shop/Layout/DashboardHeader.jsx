@@ -17,30 +17,8 @@ const DashboardHeader = () => {
       </div>
       <div className="flex  items-center">
         <div className="flex items-center mr-4">
-          <Link to="/dashboard/cupouns" className="hidden sm:block ">
-            <AiOutlineGift
-              color="#555"
-              size={30}
-              className="mx-5 cursor-pointer"
-            />
-          </Link>
-          <Link to="/dashboard-events" className="hidden sm:block ">
-            <smOutlineLocalOffer
-              color="#555"
-              size={30}
-              className="mx-5 cursor-pointer"
-            />
-          </Link>
-          <Link to="/dashboard-products" className="hidden sm:block ">
-            <FiShoppingBag
-              color="#555"
-              size={30}
-              className="mx-5 cursor-pointer"
-            />
-          </Link>
-          <Link to="/dashboard-orders" className="hidden sm:block ">
-            <FiPackage color="#555" size={30} className="mx-5 cursor-pointer" />
-          </Link>
+    
+    
           <Link to="/dashboard-messages" className="hidden sm:block ">
             <BiMessageSquareDetail
               color="#555"
