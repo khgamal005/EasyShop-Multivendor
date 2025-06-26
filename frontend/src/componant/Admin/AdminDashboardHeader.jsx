@@ -1,10 +1,8 @@
-import { AiOutlineGift } from "react-icons/ai";
-import { FiPackage, FiShoppingBag } from "react-icons/fi";
+
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { BiMessageSquareDetail } from "react-icons/bi";
 import EasyShopLogo from "../Layout/EasyShopLogo";
-import { MdOutlineLocalOffer } from "react-icons/md";
+import { getUserImageUrl } from "../../utils/imageHelpers";
 
 // ...
 
@@ -20,40 +18,11 @@ const AdminDashboardHeader = () => {
       </div>
       <div className="flex  items-center">
         <div className="flex items-center mr-4">
-          <Link to="/dashboard/cupouns" className="hidden sm:block ">
-            <AiOutlineGift
-              color="#555"
-              size={30}
-              className="mx-5 cursor-pointer"
-            />
-          </Link>
-          <Link to="/dashboard-events" className="hidden sm:block ">
-            <MdOutlineLocalOffer
-              color="#555"
-              size={30}
-              className="mx-5 cursor-pointer"
-            />
-          </Link>
-          <Link to="/dashboard-products" className="hidden sm:block ">
-            <FiShoppingBag
-              color="#555"
-              size={30}
-              className="mx-5 cursor-pointer"
-            />
-          </Link>
-          <Link to="/dashboard-orders" className="hidden sm:block ">
-            <FiPackage color="#555" size={30} className="mx-5 cursor-pointer" />
-          </Link>
-          <Link to="/dashboard-messages" className="hidden sm:block ">
-            <BiMessageSquareDetail
-              color="#555"
-              size={30}
-              className="mx-5 cursor-pointer"
-            />
-          </Link>
+    
+      
           <Link to={`/profile`} className="relative group inline-block">
             <img
-              src={user.avatar?.url}
+              src={getUserImageUrl(user.avatar?.url)}
               alt="Seller"
               className="w-[50px] h-[50px] rounded-full object-cover transition-transform duration-200 group-hover:scale-105"
             />

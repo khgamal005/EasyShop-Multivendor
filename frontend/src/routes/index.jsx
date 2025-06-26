@@ -20,10 +20,10 @@ import SellerProtectedRoute from "./SellerProtectedRoute";
 import ShopDashboardPage from "../pages/shop/ShopDashboardPage";
 import DashboardHero from "../componant/Shop/DashboardHero";
 import CreateProduct from "../componant/Shop/CreateProduct";
-import CreateBrand from "../componant/Shop/createBrand";
+import CreateBrand from "../componant/Admin/createBrand";
 import ShopLoginPage from "../pages/shop/ShopLoginPage";
 import CreateCategory from "../componant/Shop/CreateCategory";
-import CreateSubCategory from "../componant/Shop/CreateSubCategory ";
+import CreateSubCategory from "../componant/Admin/CreateSubCategory ";
 import AllProducts from "../componant/Shop/AllProducts";
 import EditShopPage from "../pages/shop/EditShopPage";
 import CreateEvent from "../componant/Shop/CreateEvent";
@@ -44,12 +44,13 @@ import ShopAllOrders from "../componant/Shop/ShopAllOrders";
 import OrderDetails from "../componant/Shop/OrderDetails";
 import WithdrawMoney from "../componant/Shop/WithdrawMoney";
 import AllRefundOrders from "../componant/Shop/AllRefundOrders";
-import ShopSettings from "../pages/shop/ShopSettings";
 import TrackOrder from "../componant/Profile/TrackOrder";
 import ChangePassword from "../componant/Profile/ChangePassword";
 import ForgetPassword from "../componant/Profile/ForgetPassword ";
 import VerifyResetCode from "../componant/Profile/VerifyResetCode ";
 import ResetPassword from "../componant/Profile/ResetPassword ";
+import AllWithdraw from "../componant/Admin/AllWithdraw";
+import UserOrders from "../componant/order/UserOrders";
 
 const router = createBrowserRouter([
   {
@@ -172,6 +173,10 @@ const router = createBrowserRouter([
         path: "user/order/:id",
         element: <OrderDetailsPage />,
       },
+      {
+        path: "AllOrders",
+        element: <UserOrders />,
+      },
     ],
   },
   {
@@ -184,9 +189,9 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "",
-        element: <DashboardHero />,
-      },
+      index: true, 
+      element: <ShopAllOrders />
+    },
       {
         path: "dashboard-orders",
         element: <ShopAllOrders />,
@@ -204,9 +209,9 @@ const router = createBrowserRouter([
       { path: "create-event", element: <CreateEvent /> },
       { path: "all-seller-coupons", element: <AllShopCoupone /> },
       { path: "create-seller-coupone", element: <CreateSellerCoupone /> },
-      { path: "withdraw",  element: <WithdrawMoney />},
-      { path: "refunds", element: <AllRefundOrders/> },
-      { path: "settings", element: <EditShopPage/> },
+      { path: "withdraw", element: <WithdrawMoney /> },
+      { path: "refunds", element: <AllRefundOrders /> },
+      { path: "settings", element: <EditShopPage /> },
     ],
   },
   {
@@ -221,9 +226,13 @@ const router = createBrowserRouter([
       { path: "All-Coupons", element: <AllCoupons /> },
       { path: "create-coupone", element: <CreateCoupon /> },
       { path: "dashboard-orders", element: <AdminOrders /> },
-      { path: "coupons", element: <div>Discount Codes</div> },
+      { path: "create-brand", element: <CreateBrand /> },
+      { path: "create-category", element: <CreateCategory /> },
+      { path: "create-subcategory", element: <CreateSubCategory /> },
+      { path: "events", element: <AllEvents /> },
+      { path: "withdraw", element: <AllWithdraw /> },
+
       { path: "refunds", element: <div>Refunds</div> },
-      { path: "settings", element: <div>Settings</div> },
     ],
   },
 ]);

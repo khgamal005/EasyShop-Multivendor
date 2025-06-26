@@ -3,64 +3,36 @@ import { BsFillBagFill } from "react-icons/bs";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/styles";
-import { getAllOrdersOfUser } from "../../redux/slices/orderSlice";
-import { server } from "../../server";
+import { requestRefund } from "../../redux/slices/orderSlice";
 import { RxCross1 } from "react-icons/rx";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-import axios from "axios";
 import { toast } from "react-toastify";
+import { getProductImageUrl } from "../../utils/imageHelpers";
 
 const UserOrderDetails = () => {
   const { orders } = useSelector((state) => state.order);
-  const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [comment, setComment] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [rating, setRating] = useState(1);
-
   const { id } = useParams();
-
-  useEffect(() => {
-    dispatch(getAllOrdersOfUser(user._id));
-  }, [dispatch,user._id]);
 
   const data = orders && orders.find((item) => item._id === id);
 
-  const reviewHandler = async (e) => {
-    await axios
-      .put(
-        `${server}/product/create-new-review`,
-        {
-          user,
-          rating,
-          comment,
-          productId: selectedItem?._id,
-          orderId: id,
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        toast.success(res.data.message);
-        dispatch(getAllOrdersOfUser(user._id));
-        setComment("");
-        setRating(null);
-        setOpen(false);
-      })
-      .catch((error) => {
-        toast.error(error);
-      });
-  };
-  
   const refundHandler = async () => {
-    await axios.put(`${server}/order/order-refund/${id}`,{
-      status: "Processing refund"
-    }).then((res) => {
-       toast.success(res.data.message);
-    dispatch(getAllOrdersOfUser(user._id));
-    }).catch((error) => {
-      toast.error(error.response.data.message);
-    })
+    try {
+      const resultAction = await dispatch(
+        requestRefund({ id: id, status: "Processing refund" })
+      );
+      if (requestRefund.fulfilled.match(resultAction)) {
+        toast.success("Refund request sent successfully!");
+      } else {
+        toast.error(resultAction.payload || "Refund request failed.");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred.");
+    }
   };
 
   return (
@@ -86,30 +58,22 @@ const UserOrderDetails = () => {
       <br />
       {data &&
         data?.cart.map((item, index) => {
-          return(
-          <div className="w-full flex items-start mb-5">
-            <img
-              src={`${item.images[0]?.url}`}
-              alt=""
-              className="w-[80x] h-[80px]"
-            />
-            <div className="w-full">
-              <h5 className="pl-3 text-[20px]">{item.name}</h5>
-              <h5 className="pl-3 text-[20px] text-[#00000091]">
-                US${item.discountPrice} x {item.qty}
-              </h5>
+          return (
+            <div key={index} className="w-full flex items-start mb-5">
+              <img
+                src={getProductImageUrl(item.images[0])}
+                alt=""
+                className="w-[80x] h-[80px]"
+              />
+              <div className="w-full">
+                <h5 className="pl-3 text-[20px]">{item.name}</h5>
+                <h5 className="pl-3 text-[20px] text-[#00000091]">
+                  EGP{item.discountPrice} x {item.qty}
+                </h5>
+              </div>
             </div>
-            {!item.isReviewed && data?.status === "Delivered" ?  <div
-                className={`${styles.button} text-[#fff]`}
-                onClick={() => setOpen(true) || setSelectedItem(item)}
-              >
-                Write a review
-              </div> : (
-             null
-            )}
-          </div>
-          )
-         })}
+          );
+        })}
 
       {/* review popup */}
       {open && (
@@ -141,52 +105,7 @@ const UserOrderDetails = () => {
             </div>
 
             <br />
-            <br />
 
-            {/* ratings */}
-            <h5 className="pl-3 text-[20px] font-[500]">
-              Give a Rating <span className="text-red-500">*</span>
-            </h5>
-            <div className="flex w-full ml-2 pt-1">
-              {[1, 2, 3, 4, 5].map((i) =>
-                rating >= i ? (
-                  <AiFillStar
-                    key={i}
-                    className="mr-1 cursor-pointer"
-                    color="rgb(246,186,0)"
-                    size={25}
-                    onClick={() => setRating(i)}
-                  />
-                ) : (
-                  <AiOutlineStar
-                    key={i}
-                    className="mr-1 cursor-pointer"
-                    color="rgb(246,186,0)"
-                    size={25}
-                    onClick={() => setRating(i)}
-                  />
-                )
-              )}
-            </div>
-            <br />
-            <div className="w-full ml-3">
-              <label className="block text-[20px] font-[500]">
-                Write a comment
-                <span className="ml-1 font-[400] text-[16px] text-[#00000052]">
-                  (optional)
-                </span>
-              </label>
-              <textarea
-                name="comment"
-                id=""
-                cols="20"
-                rows="5"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="How was your product? write your expresion about it!"
-                className="mt-2 w-[95%] border p-2 outline-none"
-              ></textarea>
-            </div>
             <div
               className={`${styles.button} text-white text-[20px] ml-3`}
               onClick={rating > 1 ? reviewHandler : null}
@@ -199,7 +118,7 @@ const UserOrderDetails = () => {
 
       <div className="border-t w-full text-right">
         <h5 className="pt-3 text-[18px]">
-          Total Price: <strong>US${data?.totalPrice}</strong>
+          Total Price: <strong>EGP{data?.totalPrice}</strong>
         </h5>
       </div>
       <br />
@@ -223,13 +142,23 @@ const UserOrderDetails = () => {
             {data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"}
           </h4>
           <br />
-           {
-            data?.status === "Delivered" && (
-              <div className={`${styles.button} text-white`}
-              onClick={refundHandler}
-              >Give a Refund</div>
-            )
-           }
+{data?.status === "Processing refund" ? (
+  <p className="text-yellow-600 font-medium">Refund is processing...</p>
+) : data?.status === "Refund Success" ? (
+  <button
+    disabled
+    className="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed opacity-70"
+  >
+    Refund Completed
+  </button>
+) : (
+  <div
+    className={`${styles.button} bg-red-600 hover:bg-red-700 text-white transition-colors duration-200 cursor-pointer`}
+    onClick={refundHandler}
+  >
+    Request Refund & Return Order
+  </div>
+)}
         </div>
       </div>
       <br />

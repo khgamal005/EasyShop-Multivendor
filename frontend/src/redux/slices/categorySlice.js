@@ -60,9 +60,8 @@ export const createCategory = createAsyncThunk(
           withCredentials: true,
         }
       );
-      return {
-        category: data.data,
-      };
+      return data.data
+    
     } catch (error) {
       if (error.response && error.response.data.errors) {
         // Get the first validation error message

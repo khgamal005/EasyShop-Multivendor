@@ -10,8 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { getCategories } from '../redux/slices/categorySlice';
 import { getSubCategories } from '../redux/slices/subcategorySlice';
-import { loadSeller } from '../redux/slices/sellerslice';
-import { loadUser } from '../redux/slices/userSlice';
+
 
 const HomePage = () => {
     const dispatch = useDispatch();
@@ -25,7 +24,7 @@ const HomePage = () => {
    dispatch(getAllProducts());
    dispatch(getCategories());
    dispatch(getSubCategories());
-   dispatch(loadUser());
+
 
   
   },[])

@@ -3,7 +3,6 @@ import Loader from "../componant/Layout/Loader";
 import ProfileSideBar from "../componant/Profile/ProfileSidebar";
 import ProfileContent from "../componant/Profile/ProfileContent";
 import { useSelector } from "react-redux";
-import { loadUser } from "../redux/slices/userSlice";
 
 const ProfilePage = () => {
   const { loading } = useSelector((state) => state.user);

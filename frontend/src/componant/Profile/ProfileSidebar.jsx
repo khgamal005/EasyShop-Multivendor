@@ -50,11 +50,6 @@ const ProfileSidebar = () => {
       path: "/inbox",
     },
     {
-      label: "Track Order",
-      icon: MdOutlineTrackChanges,
-      path: "/track-order",
-    },
-    {
       label: "Change Password",
       icon: RiLockPasswordLine,
       path: "/profile-change-password",
@@ -67,6 +62,21 @@ const ProfileSidebar = () => {
       label: "Admin Dashboard",
       icon: MdOutlineAdminPanelSettings,
       path: "/admin-dashboard",
+    });
+  }
+
+  if (user?.role === "user") {
+    sidebarItems.push({
+      label: "All Orders",
+      icon: RiLockPasswordLine,
+      path: "/AllOrders",
+    });
+  }
+  if (user?.role === "user") {
+    sidebarItems.push({
+      label: "Track Order",
+      icon: MdOutlineTrackChanges,
+      path: "/track-order",
     });
   }
 

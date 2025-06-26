@@ -15,12 +15,6 @@ import { HiOutlineReceiptRefund } from "react-icons/hi";
 
 const sidebarItems = [
   {
-    label: "Dashboard",
-    icon: RxDashboard,
-    path: "",
-    id: "dashboard",
-  },
-  {
     label: "All Orders",
     icon: FiShoppingBag,
     path: "dashboard-orders",
@@ -63,12 +57,6 @@ const sidebarItems = [
     id: "events",
   },
   {
-    label: "Create Event",
-    icon: VscNewFile,
-    path: "create-event",
-    id: "create-event",
-  },
-  {
     label: "Withdraw Money",
     icon: CiMoneyBill,
     path: "withdraw",
@@ -80,24 +68,7 @@ const sidebarItems = [
     path: "messages",
     id: "messages",
   },
-  {
-    label: "Discount Codes",
-    icon: AiOutlineGift,
-    path: "coupons",
-    id: "coupons",
-  },
-  {
-    label: "Refunds",
-    icon: HiOutlineReceiptRefund,
-    path: "refunds",
-    id: "refunds",
-  },
-  {
-    label: "Settings",
-    icon: CiSettings,
-    path: "settings",
-    id: "settings",
-  },
+
 ];
 const AdminDashboardSidebar = () => {
   return (

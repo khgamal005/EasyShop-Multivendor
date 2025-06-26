@@ -128,19 +128,16 @@ const Header = ({
           {/* cart popup */}
           {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
 
-          {isAuthenticated ? (
-            <Link to="/profile">
+          {!isSeller ? 
+             (
+            <Link to="/profile" className="bg">
               <img
-                      src={getUserImageUrl(user?.avatar?.url)}
+               src={getUserImageUrl(user?.avatar?.url)}
                 alt="profile"
                 className="w-[35px] h-[35px] rounded-full border"
               />
             </Link>
-          ) : (
-            <Link to="/login">
-              <CgProfile size={28} />
-            </Link>
-          )}
+          ):null}
 
           <div className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm">
             <Link
