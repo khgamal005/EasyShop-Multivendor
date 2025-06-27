@@ -187,11 +187,11 @@ exports.getSeller = asyncHandler(async (req, res, next) => {
 
 exports.editSellerInfo = asyncHandler(async (req, res, next) => {
   const seller = await Shop.findById(req.seller.id);
-
   if (!seller) {
     return next(new ErrorHandler("User doesn't exist", 400));
   }
 
+if (req.file) {
   // Delete old avatar if new one is sent
 if (req.file && seller?.avatar?.url) {
   const oldFilename = path.basename(seller.avatar.url);
@@ -206,7 +206,7 @@ if (req.file && seller?.avatar?.url) {
     console.warn("Old image file not found:", oldImagePath);
   }
 }
-
+}
 
   const updates = {
     ...req.body,
@@ -248,6 +248,55 @@ if (req.file && seller?.avatar?.url) {
   res.status(200).json({ data: updatedSeller });
 });
 
+exports.updateAvatar = asyncHandler(async (req, res, next) => {
+  const seller = await Shop.findById(req.user.id);
+  if (!seller) {
+    return next(new ApiError(`No document for this user ${req.seller.id}`, 404));
+  }
+
+  // If there is a new file uploaded
+  if (req.file) {
+    // Delete the old image from disk
+    if (seller.avatar && seller.avatar.url) {
+      const oldFilename = seller.avatar.url.split("/sellers/")[1];
+      const oldImagePath = path.join(__dirname, "../uploads/sellers", oldFilename);
+
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.error("Error deleting old image:", err.message);
+        } else {
+          console.log("Old image deleted:", oldFilename);
+        }
+      });
+    }
+
+    // Process new avatar
+    const avatarBuffer = req.file.buffer;
+    const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
+
+    await sharp(avatarBuffer)
+      .resize(600, 600)
+      .toFormat("jpeg")
+      .jpeg({ quality: 95 })
+      .toFile(`uploads/sellers/${filename}`);
+
+    const avatar = {
+      public_id: filename,
+      url: `${process.env.BACKEND_URL}/sellers/${filename}`,
+    };
+
+    // Update the user avatar field
+    seller.avatar = avatar;
+  }
+
+  // Apply other updates if any
+  Object.assign(seller, req.body);
+
+  // Save updated user
+  const updatedshop = await Shop.save();
+
+  res.status(200).json({ data: updatedshop });
+});
 
 exports.getSpecificSeller = asyncHandler(async (req, res, next) => {
   const { id } = req.body;
@@ -262,3 +311,44 @@ exports.getSpecificSeller = asyncHandler(async (req, res, next) => {
     seller,
   });
 });
+
+// update-avatar
+
+
+// update seller withdraw methods --- sellers
+exports.updatePaymentMethods =asyncHandler(async (req, res, next) => {
+
+      const { withdrawMethod } = req.body;
+
+      const seller = await Shop.findByIdAndUpdate(req.seller._id, {
+        withdrawMethod,
+      });
+
+      res.status(201).json({
+        success: true,
+        seller,
+      });
+    } )
+
+
+// // delete seller withdraw merthods --- only seller
+
+
+  exports.deleteWithdrawMethod=asyncHandler(async (req, res, next) => {
+
+      const seller = await Shop.findById(req.seller._id);
+
+      if (!seller) {
+        return next(new ErrorHandler("Seller not found with this id", 400));
+      }
+
+      seller.withdrawMethod = null;
+
+      await seller.save();
+
+      res.status(201).json({
+        success: true,
+        seller,
+      });
+    
+  })

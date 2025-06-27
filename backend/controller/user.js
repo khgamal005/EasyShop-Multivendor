@@ -20,14 +20,18 @@ const {
 exports.uploadUserImage = uploadSingleImage("avatar");
 
 exports.createUser = asyncHandler(async (req, res, next) => {
-  const { name, email, password, avatar } = req.body;
+  const { name, email, password ,address,phoneNumber,zipCode} = req.body;
+  console.log(req.body)
   const avatarBuffer = req.file?.buffer;
   const tempAvatarId = avatarBuffer ? saveTempAvatar(avatarBuffer) : null;
   const user = {
-    name: name,
-    email: email,
-    password: password,
+    name,
+    email,
+    password,
     tempAvatarId,
+    address,
+    phoneNumber,
+    zipCode,
   };
 
   // create activation token
@@ -66,7 +70,7 @@ exports.activeUser = asyncHandler(async (req, res, next) => {
     if (!newUser) {
       return next(new ("Invalid token", 400));
     }
-    const { name, email, password, tempAvatarId } = newUser;
+    const { name, email, password, tempAvatarId,address,phoneNumber,zipCode } = newUser;
 
     let user = await userModel.findOne({ email });
 
@@ -88,7 +92,7 @@ exports.activeUser = asyncHandler(async (req, res, next) => {
 
         avatar = {
           public_id: filename,
-          url: `${process.env.BACKEND_URL}/users/${filename}`,
+          url: filename,
         };
 
         deleteTempAvatar(tempAvatarId);
@@ -100,6 +104,8 @@ exports.activeUser = asyncHandler(async (req, res, next) => {
       email,
       avatar,
       password,
+      zipCode,
+      address,phoneNumber
     });
 
     sendToken(user, 201, res);
@@ -125,20 +131,16 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 // load user
 exports.getuser = asyncHandler(async (req, res, next) => {
-  try {
-    const user = await userModel.findById(req.user.id);
+  const user = req.user;
 
-    if (!user) {
-      return next(new ("User doesn't exists", 400));
-    }
-
-    res.status(200).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    return next(new (error.message, 500));
+  if (!user) {
+    return next(new ErrorHandler("User doesn't exist", 400));
   }
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
 });
 
 // log out user
@@ -155,86 +157,76 @@ exports.logout = asyncHandler(async (req, res, next) => {
   });
 });
 
-// update user info
 
-exports.updateuserinfo = asyncHandler(async (req, res, next) => {
-  const { email, password, phoneNumber, name } = req.body;
 
-  const user = await userModel.findOne({ email }).select("+password");
+// Define which fields are allowed to be updated
+const ALLOWED_FIELDS = ["name", "email", "phoneNumber", "address"];
 
+// Delete a file if it exists
+const deleteFileIfExists = (filePath) => {
+  if (fs.existsSync(filePath)) {
+    fs.unlink(filePath, (err) => {
+      if (err) console.error("Error deleting old image:", err.message);
+      else console.log("Old image deleted:", path.basename(filePath));
+    });
+  } else {
+    console.warn("Old image not found:", filePath);
+  }
+};
+
+exports.updateUserInfo = asyncHandler(async (req, res, next) => {
+  const user = req.user
   if (!user) {
-    return next(new ("User not found", 400));
+    return next(new ErrorHandler("User doesn't exist", 400));
   }
 
-  const isPasswordValid = await user.comparePassword(password);
-
-  if (!isPasswordValid) {
-    return next(
-      new ("Please provide the correct information", 400)
-    );
-  }
-
-  user.name = name;
-  user.email = email;
-  user.phoneNumber = phoneNumber;
-
-  await user.save();
-
-  res.status(201).json({
-    success: true,
-    user,
-  });
-});
-// update-avatar
-exports.updateAvatar = asyncHandler(async (req, res, next) => {
-  const user = await userModel.findById(req.user.id);
-  if (!user) {
-    return next(new ApiError(`No document for this user ${req.user.id}`, 404));
-  }
-
-  // If there is a new file uploaded
+  // Handle avatar update
   if (req.file) {
-    // Delete the old image from disk
-    if (user.avatar && user.avatar.url) {
-      const oldFilename = user.avatar.url.split("/users/")[1];
+    // Delete old avatar if it exists
+    if (user.avatar?.url) {
+      const oldFilename = path.basename(user.avatar.url);
       const oldImagePath = path.join(__dirname, "../uploads/users", oldFilename);
-
-      fs.unlink(oldImagePath, (err) => {
-        if (err) {
-          console.error("Error deleting old image:", err.message);
-        } else {
-          console.log("Old image deleted:", oldFilename);
-        }
-      });
+      deleteFileIfExists(oldImagePath);
     }
 
-    // Process new avatar
-    const avatarBuffer = req.file.buffer;
+    // Process and save new avatar
     const filename = `user-${uuidv4()}-${Date.now()}.jpeg`;
+    const outputPath = path.join(__dirname, "../uploads/users", filename);
 
-    await sharp(avatarBuffer)
-      .resize(600, 600)
+    await sharp(req.file.buffer)
+      .resize(600, 600, {
+        fit: "contain",
+        background: { r: 255, g: 255, b: 255 }, // Optional white background
+      })
       .toFormat("jpeg")
       .jpeg({ quality: 95 })
-      .toFile(`uploads/users/${filename}`);
+      .toFile(outputPath);
 
-    const avatar = {
+    user.avatar = {
       public_id: filename,
-      url: `${process.env.BACKEND_URL}/users/${filename}`,
+      url: filename, // Change to full URL if needed: `${process.env.BACKEND_URL}/users/${filename}`
     };
-
-    // Update the user avatar field
-    user.avatar = avatar;
   }
 
-  // Apply other updates if any
-  Object.assign(user, req.body);
+  // Update allowed fields from req.body
+  ALLOWED_FIELDS.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      user[field] = req.body[field];
+    }
+  });
 
-  // Save updated user
+  // Save changes
   const updatedUser = await user.save();
 
   res.status(200).json({ data: updatedUser });
 });
+
+// update user info
+
+
+
+// update-avatar
+
 
 ////add address
 
@@ -329,7 +321,7 @@ exports.deleteAddress = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/v1/user/deleteMe
 // @access  Private/Protect
 exports.deleteLoggedUserData = asyncHandler(async (req, res, next) => {
-  await User.findByIdAndUpdate(req.user._id, { active: false });
+  await userModel.findByIdAndUpdate(req.user._id, { active: false });
 
   res.status(204).json({ status: 'Success' });
 });

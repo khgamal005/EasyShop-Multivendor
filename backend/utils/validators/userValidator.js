@@ -154,7 +154,7 @@ exports.changePasswordValidator = [
   check("oldPassword")
     .notEmpty()
     .withMessage("Old password is required")
-    .isLength({ min: 4 })
+    .isLength({ min: 3 })
     .withMessage("Old password must be at least 4 characters"),
 
   check("newPassword")

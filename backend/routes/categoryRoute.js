@@ -1,11 +1,11 @@
-const express = require('express');
+const express = require("express");
 
 const {
   getCategoryValidator,
   createCategoryValidator,
   updateCategoryValidator,
   deleteCategoryValidator,
-} = require('../utils/validators/categoryValidator');
+} = require("../utils/validators/categoryValidator");
 
 const {
   getCategories,
@@ -14,26 +14,21 @@ const {
   updateCategory,
   deleteCategory,
   uploadCategoryImage,
-  resizeImage
-} = require('../controller/category')
+  resizeImage,
+} = require("../controller/category");
 
-const subcategoriesRoute = require('./subCategoryRoute');
+const subcategoriesRoute = require("./subCategoryRoute");
 
-const{
-  isAdminOrSeller,isAuthenticated
-  }=require("../middleware/auth")
+const { isAdminOrSeller, isAuthenticated } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.use('/:categoryId/subcategories', subcategoriesRoute);
+router.use("/:categoryId/subcategories", subcategoriesRoute);
 
+router.route("/").get(getCategories);
 
-router.route("/").get(
-  getCategories
-)
-
-
-router.route("/create-category")
+router
+  .route("/create-category")
   .post(
     isAuthenticated,
     isAdminOrSeller,
@@ -43,7 +38,7 @@ router.route("/create-category")
     createCategory
   );
 router
-  .route('/:id')
+  .route("/:id")
   .get(getCategoryValidator, getCategory)
   .put(
     isAuthenticated,

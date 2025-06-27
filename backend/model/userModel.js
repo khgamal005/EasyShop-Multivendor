@@ -20,18 +20,14 @@ const userSchema = new mongoose.Schema({
   phoneNumber:{
     type: Number,
   },
-  addresses: [
-    {
-      id: { type: mongoose.Schema.Types.ObjectId,auto: true },
-      country: String,
-      city : String,
-      address1: String,
-      address2: String,
-      phone: String,
-      city: String,
-      postalCode: String,
-    },
-  ],
+  address: {
+    type: String,
+    required: true,
+  },
+  zipCode: {
+    type: Number,
+    required: true,
+  },
 
   role: {
     type: String,

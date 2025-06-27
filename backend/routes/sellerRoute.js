@@ -20,7 +20,10 @@ const {
     logoutSeller,
     getSeller,
     editSellerInfo,
-    getSpecificSeller
+    getSpecificSeller,
+    updatePaymentMethods,
+    deleteWithdrawMethod,
+    updateAvatar
 
 
 }= require("../controller/shop")
@@ -38,7 +41,11 @@ router.get('/getSeller',isSeller, getSeller);
 router.get('/logoutSeller', logoutSeller);
 router.put('/update-seller', isAuthenticated,isAdminOrSeller,uploadUserImage,
  editSellerInfo);
+router.put('/update-avatar', isAuthenticated,isAdminOrSeller,uploadUserImage,
+ updateAvatar);
 router.get("/get-Specific-seller", getSpecificSeller);
+router.put("/update-payment-methods",isAuthenticated,isAdminOrSeller, updatePaymentMethods);
+router.put("/delete-withdraw-method",isAuthenticated,isAdminOrSeller, deleteWithdrawMethod);
 
 
 // Admin
