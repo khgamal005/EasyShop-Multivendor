@@ -51,6 +51,7 @@ import VerifyResetCode from "../componant/Profile/VerifyResetCode ";
 import ResetPassword from "../componant/Profile/ResetPassword ";
 import AllWithdraw from "../componant/Admin/AllWithdraw";
 import UserOrders from "../componant/order/UserOrders";
+import UserInbox from "../pages/UserInbox";
 
 const router = createBrowserRouter([
   {
@@ -176,6 +177,10 @@ const router = createBrowserRouter([
       {
         path: "AllOrders",
         element: <UserOrders />,
+      },
+      {
+        path: "inbox",
+        element: <UserInbox />,
       },
     ],
   },

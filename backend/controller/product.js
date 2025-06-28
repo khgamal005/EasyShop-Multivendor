@@ -1,6 +1,6 @@
 const asyncHandler = require("../middleware/catchAsyncErrors");
 const Product = require("../model/product");
-// const Order = require("../model/order");
+
 const Shop = require("../model/shop");
 const ErrorHandler = require("../utils/ErrorHandler");
 const { uploadMixOfImages } = require("../middleware/uploadImageMiddleware");

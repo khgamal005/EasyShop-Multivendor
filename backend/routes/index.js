@@ -12,6 +12,8 @@ const couponRoute = require('./couponRoute');
 const orderRoute = require('./orderRoute');
 const paymentRoute = require('./paymentRoute');
 const withdrawtRoute = require('./withdrawRoute');
+const conversationRoute = require('./conversationRoute');
+const messagetRoute = require('./messageRoute');
 
 
 const mountRoutes = (app) => {
@@ -29,6 +31,8 @@ const mountRoutes = (app) => {
   app.use('/api/v1/order', orderRoute);
   app.use('/api/v1/payment', paymentRoute);
   app.use('/api/v1/withdraw', withdrawtRoute);
+  app.use('/api/v1/conversation', conversationRoute);
+  app.use('/api/v1/message', messagetRoute);
 
 };
 

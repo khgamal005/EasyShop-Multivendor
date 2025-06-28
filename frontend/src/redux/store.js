@@ -16,6 +16,8 @@ import cartReducer from './slices/cartslice';
 import reviewReducer from './slices/reviewSlice';
 import orderReducer from './slices/orderSlice';
 import withdrawReducer from './slices/wishlistSlice';
+import messageReducer from './slices/messageSlice';
+import conversationReducer from './slices/conversationSlice';
 
 
 // Combine reducers
@@ -33,6 +35,8 @@ const rootReducer = combineReducers({
   review:reviewReducer,
   order:orderReducer,
    withdraw: withdrawReducer,
+   message: messageReducer,
+     conversation: conversationReducer,
 });
 
 // Persist configuration
@@ -52,7 +56,9 @@ const persistConfig = {
     'cart',
     'review',
     "order",
-    "withdraw"
+    "withdraw",
+    "message",
+    "conversation"
   ],
 };
 

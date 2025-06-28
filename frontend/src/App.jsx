@@ -4,39 +4,50 @@ import Header from "./componant/Layout/Header";
 import Footer from "./componant/Layout/Footer";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { io } from "socket.io-client";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
-
+import socket from "./socket";
 
 function App() {
-  const socket = useRef(null);
-    const { user } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
   const { seller } = useSelector((state) => state.seller);
-    const currentUserId = user?._id || seller?._id; // Store the socket instance
+  const currentUserId = user?._id || seller?._id;
+  const role = user ? "user" : seller ? "seller" : null;
 
   useEffect(() => {
-    if (!currentUserId) return;
+    if (currentUserId && role) {
+      if (!socket.connected) {
+        socket.connect(); // only connect once
+      }
 
-    socket.current = io("http://localhost:8000");
+      socket.emit("addUser", {
+        userId: currentUserId,
+        role: role,
+      });
 
-    socket.current.on("connect", () => {
-      console.log("Socket.IO connected:", socket.current.id);
-      socket.current.emit("addUser", currentUserId);
-    });
+      socket.on("getUsers", (users) => {
+        console.log("Active users:", users);
+      });
 
-    socket.current.on("getUsers", (users) => {
-      console.log("Active users:", users);
-    });
+      socket.on("getLastMessage", ({ lastMessage, lastMessagesId }) => {
+        console.log("🔄 New last message received:", lastMessage);
+      });
+
+      socket.on("messageSent", (data) => {
+        console.log("✅ Message delivered:", data);
+      });
+    }
 
     return () => {
-      socket.current.disconnect();
+      socket.off("getUsers");
+      socket.off("getLastMessage");
+      socket.off("messageSent");
     };
-  }, [currentUserId]); // depends on user/seller
+  }, [currentUserId, role]); // rerun only if user changes
 
   return (
     <>
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -49,7 +60,7 @@ function App() {
       />
       <Header activeHeading={1} />
       <main className="min-h-[calc(100vh-120px)] pt-16">
-        <Outlet />
+        <Outlet context={{ socket }} />
       </main>
       <Footer />
     </>

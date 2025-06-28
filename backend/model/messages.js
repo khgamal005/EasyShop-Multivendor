@@ -7,21 +7,28 @@ const messagesSchema = new mongoose.Schema(
       ref: "Conversation",
       required: true,
     },
-    text: {
-      type: String,
-    },
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    images: {
-      public_id: String,
-      url: String,
+    text: {
+      type: String,
+      trim: true,
+    },
+    images: [
+      {
+        type: String,
+      },
+    ],
+    seen: {
+      type: Boolean,
+      default: false, // Unseen by default
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Adds createdAt and updatedAt
+  }
 );
 
 module.exports = mongoose.model("Messages", messagesSchema);
-

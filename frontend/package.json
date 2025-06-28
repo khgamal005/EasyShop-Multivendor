@@ -32,7 +32,8 @@
     "react-toastify": "^11.0.5",
     "redux-persist": "^6.0.0",
     "socket.io-client": "^4.8.1",
-    "tailwindcss": "^4.0.9"
+    "tailwindcss": "^4.0.9",
+    "timeago.js": "^4.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

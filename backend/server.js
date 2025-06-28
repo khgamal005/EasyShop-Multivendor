@@ -3,6 +3,7 @@ const http = require("http");
 const app = require("./app");
 const { Server } = require("socket.io");
 const dotenv = require("dotenv");
+const { randomUUID } = require("crypto");
 
 dotenv.config({ path: "./config/.env" });
 
@@ -16,12 +17,15 @@ const io = new Server(server, {
 });
 
 let users = [];
-
 const addUser = ({ userId, role }, socketId) => {
-  if (!users.some((user) => user.userId === userId)) {
+  const existingUser = users.find((user) => user.userId === userId);
+  if (existingUser) {
+    existingUser.socketId = socketId; // update socket ID
+  } else {
     users.push({ userId, role, socketId });
   }
 };
+
 
 const removeUser = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
@@ -32,13 +36,13 @@ const getUser = (userId) => {
 };
 
 const createMessage = ({ senderId, receiverId, text, images }) => ({
+  id: randomUUID(), // ✅ unique message ID
   senderId,
   receiverId,
   text,
   images,
   seen: false,
 });
-
 const messages = {}; // Store messages by receiverId
 
 io.on("connection", (socket) => {

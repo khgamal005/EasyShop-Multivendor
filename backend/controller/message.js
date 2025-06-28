@@ -1,67 +1,68 @@
 const Messages = require("../model/messages");
-const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const express = require("express");
-const cloudinary = require("cloudinary");
-const router = express.Router();
+const { uploadMixOfImages } = require("../middleware/uploadImageMiddleware");
+
+exports.uploadMessageImages = uploadMixOfImages([
+  {
+    name: "images",
+    maxCount: 7,
+  },
+]);
+
+exports.resizeMessageImages = catchAsyncErrors(async (req, res, next) => {
+  if (req.files.images) {
+    req.body.images = [];
+    await Promise.all(
+      req.files.images.map(async (img, index) => {
+        const imageName = `message-${uuidv4()}-${Date.now()}-${index + 1}.jpeg`;
+
+        await sharp(img.buffer)
+          .resize(600, 600, {
+            fit: "contain",
+            background: { r: 255, g: 255, b: 255 }, // optional white background padding
+          })
+          .toFormat("jpeg")
+          .jpeg({ quality: 95 })
+          .toFile(`uploads/messages/${imageName}`);
+
+        // Save image into our db
+        req.body.images.push(imageName);
+      })
+    );
+  }
+  next();
+});
 
 // create new message
-router.post(
-  "/create-new-message",
-  catchAsyncErrors(async (req, res, next) => {
-    try {
-      const messageData = req.body;
+exports.createNewMessage = catchAsyncErrors(async (req, res, next) => {
+  const { conversationId, sender, text, images } = req.body;
 
-      if (req.body.images) {
-        const myCloud = await cloudinary.v2.uploader.upload(req.body.images, {
-          folder: "messages",
-        });
-        messageData.images = {
-          public_id: myCloud.public_id,
-          url: myCloud.url,
-        };
-      }
+  const message = new Messages({
+    conversationId,
+    text,
+    sender,
+    images,
+  });
 
-      messageData.conversationId = req.body.conversationId;
-      messageData.sender = req.body.sender;
-      messageData.text = req.body.text;
+  await message.save();
 
-      const message = new Messages({
-        conversationId: messageData.conversationId,
-        text: messageData.text,
-        sender: messageData.sender,
-        images: messageData.images ? messageData.images : undefined,
-      });
-
-      await message.save();
-
-      res.status(201).json({
-        success: true,
-        message,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error.message), 500);
-    }
-  })
-);
+  res.status(201).json({
+    success: true,
+    message,
+  });
+});
 
 // get all messages with conversation id
-router.get(
-  "/get-all-messages/:id",
-  catchAsyncErrors(async (req, res, next) => {
-    try {
-      const messages = await Messages.find({
-        conversationId: req.params.id,
-      });
 
-      res.status(201).json({
-        success: true,
-        messages,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error.message), 500);
-    }
-  })
+exports.getAllMessagesWithConversationId = catchAsyncErrors(
+  async (req, res, next) => {
+    const messages = await Messages.find({
+      conversationId: req.params.id,
+    });
+
+    res.status(201).json({
+      success: true,
+      messages,
+    });
+  }
 );
-
-module.exports = router;
