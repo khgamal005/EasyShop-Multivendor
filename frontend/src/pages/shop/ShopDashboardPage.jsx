@@ -4,8 +4,16 @@ import { ToastContainer } from "react-toastify";
 import DashboardHeader from "../../componant/Shop/Layout/DashboardHeader";
 import DashboardSideBar from "../../componant/Shop/Layout/DashboardSideBar";
 import { Outlet } from "react-router-dom";
+import { useSocketSetup } from "../../hook/useSocketSetup";
 
 const ShopDashboardPage = () => {
+
+  const { seller } = useSelector((state) => state.seller);
+  const currentUserId = user?._id || seller?._id;
+  const role = seller ? "seller" : null;
+
+useSocketSetup(currentUserId, role);
+
   return (
     <div>
         <ToastContainer 
@@ -28,7 +36,7 @@ const ShopDashboardPage = () => {
   
       {/* Main content takes 3/4 */}
       <div className=" w-[85%]">
-        <Outlet />
+        <Outlet context={{ socket }} />
       </div>
     </div>
   </div>

@@ -95,6 +95,12 @@ const sidebarItems = [
     path: "settings",
     id: "settings",
   },
+  {
+    label: "inbox",
+    icon: CiSettings,
+    path: "inbox",
+    id: "inbox",
+  },
 ];
 
 const DashboardSideBar = () => {

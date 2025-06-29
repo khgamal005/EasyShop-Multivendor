@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { server } from "../../server";
 
 // CREATE a new message
 export const createMessage = createAsyncThunk(
@@ -7,7 +8,7 @@ export const createMessage = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(
-        "/api/message/create-new-message",
+        `${server}/message/create-new-message`,
         formData,
         {
           headers: {
@@ -29,7 +30,7 @@ export const getMessages = createAsyncThunk(
   async (conversationId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `/api/message/get-all-messages/${conversationId}`,
+        `${server}/message/get-all-messages/${conversationId}`,
         { withCredentials: true }
       );
       return data.messages;
@@ -59,6 +60,7 @@ const messageSlice = createSlice({
     builder
       .addCase(createMessage.pending, (state) => {
         state.loading = true;
+        state.error=null
       })
       .addCase(createMessage.fulfilled, (state, action) => {
         state.loading = false;

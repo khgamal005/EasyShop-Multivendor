@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { server } from "../../server";
+
 
 // Create new conversation
 export const createConversation = createAsyncThunk(
@@ -7,7 +9,7 @@ export const createConversation = createAsyncThunk(
   async ({ groupTitle, userId, sellerId }, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(
-        `/api/conversation/create-new-conversation`,
+        `${server}/conversation/create-new-conversation`,
         { groupTitle, userId, sellerId },
         { withCredentials: true }
       );
@@ -25,8 +27,8 @@ export const getConversations = createAsyncThunk(
     try {
       const endpoint =
         role === "seller"
-          ? `/api/conversation/get-all-conversation-seller/${id}`
-          : `/api/conversation/get-all-conversation-user/${id}`;
+          ? `${server}/conversation/get-all-conversation-seller/${id}`
+          : `${server}/conversation/get-all-conversation-user/${id}`;
 
       const { data } = await axios.get(endpoint, {
         withCredentials: true,
@@ -44,7 +46,7 @@ export const updateLastMessage = createAsyncThunk(
   async ({ id, lastMessage, lastMessageId }, { rejectWithValue }) => {
     try {
       const { data } = await axios.put(
-        `/api/conversation/update-last-message/${id}`,
+        `${server}/conversation/update-last-message/${id}`,
         { lastMessage, lastMessageId },
         { withCredentials: true }
       );
