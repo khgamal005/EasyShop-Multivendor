@@ -15,8 +15,8 @@ router
   .route("/create-new-message")
   .post(
     isAuthenticated,
-    uploadMessageImages,
-    resizeMessageImages,
+    // uploadMessageImages,
+    // resizeMessageImages,
     createNewMessage
   );
 router
