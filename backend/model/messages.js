@@ -16,11 +16,11 @@ const messagesSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    images: [
-      {
-        type: String,
-      },
-    ],
+    // images: [
+    //   {
+    //     type: String,
+    //   },
+    // ],
     seen: {
       type: Boolean,
       default: false, // Unseen by default

@@ -299,7 +299,7 @@ exports.updateAvatar = asyncHandler(async (req, res, next) => {
 });
 
 exports.getSpecificSeller = asyncHandler(async (req, res, next) => {
-  const { id } = req.body;
+  const { id } = req.params;
   const seller = await Shop.findById(id);
 
   if (!seller) {

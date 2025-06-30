@@ -1,7 +1,7 @@
 const express = require("express");
 
 const {
-  createNewMessage,
+  createMessage,
   uploadMessageImages,
   resizeMessageImages,
   getAllMessagesWithConversationId,
@@ -15,9 +15,9 @@ router
   .route("/create-new-message")
   .post(
     isAuthenticated,
-    uploadMessageImages,
-    resizeMessageImages,
-    createNewMessage
+    // uploadMessageImages,
+    // resizeMessageImages,
+    createMessage
   );
 router
   .route("/get-all-messages/:id")

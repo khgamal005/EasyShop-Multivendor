@@ -34,21 +34,18 @@ exports.resizeMessageImages = catchAsyncErrors(async (req, res, next) => {
 });
 
 // create new message
-exports.createNewMessage = catchAsyncErrors(async (req, res, next) => {
-  const { conversationId, sender, text, images } = req.body;
+exports.createMessage = catchAsyncErrors(async (req, res, next) => {
+  const { sender, text, conversationId } = req.body;
 
-  const message = new Messages({
-    conversationId,
-    text,
+  const message = await Messages.create({
     sender,
-    images,
+    text,
+    conversationId,
   });
-
-  await message.save();
 
   res.status(201).json({
     success: true,
-    message,
+    message, // ✅ Return the whole saved message including _id
   });
 });
 

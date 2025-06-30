@@ -43,7 +43,7 @@ router.put('/update-seller', isAuthenticated,isAdminOrSeller,uploadUserImage,
  editSellerInfo);
 router.put('/update-avatar', isAuthenticated,isAdminOrSeller,uploadUserImage,
  updateAvatar);
-router.get("/get-Specific-seller", getSpecificSeller);
+router.get("/get-Specific-seller/:id", getSpecificSeller);
 router.put("/update-payment-methods",isAuthenticated,isAdminOrSeller, updatePaymentMethods);
 router.put("/delete-withdraw-method",isAuthenticated,isAdminOrSeller, deleteWithdrawMethod);
 

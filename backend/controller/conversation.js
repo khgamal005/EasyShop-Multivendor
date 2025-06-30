@@ -50,26 +50,30 @@ exports.getAllUserConversation = catchAsyncErrors(async (req, res, next) => {
       $in: [req.params.id],
     },
   }).sort({ updatedAt: -1, createdAt: -1 });
+      // console.log(conversations)
 
   res.status(201).json({
     success: true,
     conversations,
+
   });
 });
 
 // update the last message
-
 exports.updateLastMessage = catchAsyncErrors(async (req, res, next) => {
   const { lastMessage, lastMessageId } = req.body;
 
-  const conversation = await Conversation.findByIdAndUpdate(req.params.id, {
-    lastMessage,
-    lastMessageId,
-  });
+  const conversation = await Conversation.findByIdAndUpdate(
+    req.params.id,
+    {
+      lastMessage,
+      lastMessageId,
+    },
+    { new: true }
+  );
 
   res.status(201).json({
     success: true,
     conversation,
   });
 });
-
