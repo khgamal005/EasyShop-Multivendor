@@ -6,7 +6,7 @@ import {
   AiOutlineShoppingCart,
 } from "react-icons/ai";
 import { RxCross1 } from "react-icons/rx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "../../styles/styles";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -17,15 +17,17 @@ import {
   removeFromWishlist,
 } from "../../redux/slices/wishlistSlice";
 import { getProductImageUrl,getSellerImageUrl } from "../../utils/imageHelpers";
+import { createConversation } from "../../redux/slices/conversationSlice";
 
 const ProductDetailsCard = ({ setOpen, data }) => {
   const wishlist = useSelector((state) => state.wishlist); // wishlist array
   const cart = useSelector((state) => state.cart); // cart array
 
   const dispatch = useDispatch();
-
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
+  const navigate = useNavigate();
+const user = useSelector((state) => state.user.user)
 
   useEffect(() => {
     setClick(wishlist?.some((item) => item._id === data._id));
@@ -63,11 +65,26 @@ const ProductDetailsCard = ({ setOpen, data }) => {
     toast.success("Added to wishlist");
   };
 
-  const handleMessageSubmit = () => {
-    // Implement your message logic here
-  };
+const handleMessageSubmit = async () => {
+  try {
+    const conversation = {
+      groupTitle: "", // Optional, for 1-1 chat
+      userId: user._id,
+      sellerId: data.shop._id,
+    };
+
+    const res = await dispatch(createConversation(conversation)).unwrap();
+
+    setOpen(false); // close the modal
+    navigate(`/inbox?conversationId=${res._id}`);
+  } catch (err) {
+    toast.error("Failed to create or fetch conversation.");
+    console.log(err);
+  }
+};
 
   if (!data) return null;
+
 
   return (
     <div className="bg-[#fff]">
@@ -89,7 +106,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                 >
                   <img
                     src={
-                      getSellerImageUrl(data.shop.avatar?.url) ||
+                      getSellerImageUrl(data?.shop?.avatar?.url) ||
                       "/images/shop-default.png"
                     }
                     className="w-[50px] h-[50px] rounded-full mr-2 object-cover"

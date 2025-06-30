@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { server } from "../../server";
 
 // Create new conversation
 export const createConversation = createAsyncThunk(
@@ -7,7 +8,7 @@ export const createConversation = createAsyncThunk(
   async ({ groupTitle, userId, sellerId }, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(
-        `/api/conversation/create-new-conversation`,
+        `${server}/conversation/create-new-conversation`,
         { groupTitle, userId, sellerId },
         { withCredentials: true }
       );
@@ -25,8 +26,8 @@ export const getConversations = createAsyncThunk(
     try {
       const endpoint =
         role === "seller"
-          ? `/api/conversation/get-all-conversation-seller/${id}`
-          : `/api/conversation/get-all-conversation-user/${id}`;
+          ? `${server}/conversation/get-all-conversation-seller/${id}`
+          : `${server}/conversation/get-all-conversation-user/${id}`;
 
       const { data } = await axios.get(endpoint, {
         withCredentials: true,
@@ -44,7 +45,7 @@ export const updateLastMessage = createAsyncThunk(
   async ({ id, lastMessage, lastMessageId }, { rejectWithValue }) => {
     try {
       const { data } = await axios.put(
-        `/api/conversation/update-last-message/${id}`,
+        `${server}/conversation/update-last-message/${id}`,
         { lastMessage, lastMessageId },
         { withCredentials: true }
       );
@@ -58,7 +59,7 @@ export const updateLastMessage = createAsyncThunk(
 const conversationSlice = createSlice({
   name: "conversation",
   initialState: {
-    conversations: [],
+    conversations: [], // ✅ must be an array
     loading: false,
     error: null,
   },
@@ -71,7 +72,8 @@ const conversationSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createConversation.pending, (state) => {
-        state.loading = true;
+        state.loading = false;
+        state.error = null;
       })
       .addCase(createConversation.fulfilled, (state, action) => {
         state.loading = false;
@@ -83,7 +85,7 @@ const conversationSlice = createSlice({
         }
       })
       .addCase(createConversation.rejected, (state, action) => {
-        state.loading = false;
+        state.loading = true;
         state.error = action.payload;
       })
       .addCase(getConversations.pending, (state) => {
@@ -97,12 +99,21 @@ const conversationSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(updateLastMessage.pending, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+
       .addCase(updateLastMessage.fulfilled, (state, action) => {
         const updated = action.payload;
-        const index = state.conversations.findIndex((c) => c._id === updated._id);
-        if (index !== -1) {
-          state.conversations[index] = updated;
-        }
+        state.conversations = state.conversations.map((c) =>
+          c._id === updated._id ? updated : c
+        );
+      })
+
+      .addCase(updateLastMessage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

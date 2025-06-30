@@ -1,24 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { server } from "../../server";
 
 // CREATE a new message
 export const createMessage = createAsyncThunk(
   "message/create",
-  async (formData, { rejectWithValue }) => {
+  async (messageData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(
-        "/api/message/create-new-message",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
-      return data.message;
-    } catch (err) {
-      return rejectWithValue(err.response.data.message);
+      const { data } = await axios.post(`${server}/message/create-new-message`, messageData, {
+      
+        withCredentials: true,
+      });
+    
+      return data.message; // ✅ Return saved message with _id
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
     }
   }
 );
@@ -29,7 +25,7 @@ export const getMessages = createAsyncThunk(
   async (conversationId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(
-        `/api/message/get-all-messages/${conversationId}`,
+        `${server}/message/get-all-messages/${conversationId}`,
         { withCredentials: true }
       );
       return data.messages;
@@ -59,6 +55,7 @@ const messageSlice = createSlice({
     builder
       .addCase(createMessage.pending, (state) => {
         state.loading = true;
+        state.error=null
       })
       .addCase(createMessage.fulfilled, (state, action) => {
         state.loading = false;

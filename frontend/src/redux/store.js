@@ -36,7 +36,7 @@ const rootReducer = combineReducers({
   order:orderReducer,
    withdraw: withdrawReducer,
    message: messageReducer,
-     conversation: conversationReducer,
+  conversation: conversationReducer,
 });
 
 // Persist configuration
@@ -58,7 +58,8 @@ const persistConfig = {
     "order",
     "withdraw",
     "message",
-    "conversation"
+    // "conversation"
+
   ],
 };
 

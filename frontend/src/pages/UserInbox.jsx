@@ -1,168 +1,175 @@
-// UserInbox.js
-import  { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "timeago.js";
 import { server } from "../server";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
 import { TfiGallery } from "react-icons/tfi";
 import styles from "../styles/styles";
-import { getConversations } from "../redux/slices/conversationSlice";
-import { io } from "socket.io-client";
-import { useOutletContext } from "react-router-dom";
-
-const ENDPOINT = API_BASE_URL;
-const socket = io(ENDPOINT, { transports: ["websocket"] });
+import {
+  getConversations,
+  updateLastMessage,
+} from "../redux/slices/conversationSlice";
+import { createMessage, getMessages } from "../redux/slices/messageSlice";
+import { getSellerImageUrl, getUserImageUrl } from "../utils/imageHelpers";
 
 const UserInbox = () => {
   const { user, loading } = useSelector((state) => state.user);
   const [conversations, setConversations] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [currentChat, setCurrentChat] = useState();
+  const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [userData, setUserData] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [images, setImages] = useState();
   const [activeStatus, setActiveStatus] = useState(false);
   const [open, setOpen] = useState(false);
+
   const scrollRef = useRef(null);
   const dispatch = useDispatch();
   const { socket } = useOutletContext();
+  const location = useLocation();
 
-  useEffect(() => {
-    socket.emit("someEvent");
-
-    return () => {
-      socket.off("someEvent");
-    };
-  }, [socket]);
+  const conversationIdFromURL = new URLSearchParams(location.search).get(
+    "conversationId"
+  );
 
   useEffect(() => {
     socket.on("getMessage", (data) => {
       setArrivalMessage({
         sender: data.senderId,
         text: data.text,
-        images: data.images,
+        images: data.images || [],
         createdAt: Date.now(),
       });
     });
-  }, []);
+    return () => socket.off("getMessage");
+  }, [socket]);
 
   useEffect(() => {
-    arrivalMessage &&
-      currentChat?.members.includes(arrivalMessage.sender) &&
+    if (
+      arrivalMessage &&
+      currentChat?.members.includes(arrivalMessage.sender)
+    ) {
       setMessages((prev) => [...prev, arrivalMessage]);
+    }
   }, [arrivalMessage, currentChat]);
 
   useEffect(() => {
     if (!user?._id) return;
-    dispatch(getConversations({ id: user._id, role: "user" }));
-  }, [dispatch, user?._id, messages]);
 
-  useEffect(() => {
-    if (user?._id) {
-      socket.emit("addUser", user._id);
-      socket.on("getUsers", (data) => setOnlineUsers(data));
-    }
-  }, [user]);
+    dispatch(getConversations({ id: user._id, role: "user" })).then((res) => {
+      const convoList = res.payload;
+      setConversations(convoList);
 
-  const onlineCheck = (chat) => {
-    const chatMembers = chat.members.find((member) => member !== user?._id);
-    return onlineUsers.some((u) => u.userId === chatMembers);
-  };
+      if (conversationIdFromURL) {
+        const matched = convoList.find((c) => c._id === conversationIdFromURL);
+        if (matched) {
+          setCurrentChat(matched);
+          setOpen(true);
+          const otherUserId = matched.members.find((id) => id !== user._id);
+          axios
+            .get(`${server}/shop/get-Specific-seller/${otherUserId}`)
 
-  useEffect(() => {
-    const getMessage = async () => {
-      if (!currentChat?._id) return;
-      try {
-        const response = await axios.get(
-          `${server}/message/get-all-messages/${currentChat._id}`
-        );
-        setMessages(response.data.messages);
-      } catch (error) {
-        console.log(error);
+            .then((res) => setUserData(res.data.seller))
+            .catch(console.error);
+        }
       }
-    };
-    getMessage();
-  }, [currentChat]);
-
-  const sendMessageHandler = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
-    const message = {
-      sender: user._id,
-      text: newMessage,
-      conversationId: currentChat._id,
-    };
-    const receiverId = currentChat.members.find((m) => m !== user._id);
-
-    socket.emit("sendMessage", {
-      senderId: user._id,
-      receiverId,
-      text: newMessage,
     });
+  }, [user?._id, dispatch]);
 
-    try {
-      const res = await axios.post(
-        `${server}/message/create-new-message`,
-        message
-      );
-      setMessages([...messages, res.data.message]);
-      setNewMessage("");
-      await axios.put(
-        `${server}/conversation/update-last-message/${currentChat._id}`,
-        {
-          lastMessage: newMessage,
-          lastMessageId: user._id,
-        }
-      );
-    } catch (err) {
-      console.log(err);
+  useEffect(() => {
+    if (currentChat?._id) {
+      dispatch(getMessages(currentChat._id)).then((res) => {
+        if (res.payload) setMessages(res.payload);
+      });
     }
-  };
-
-  const handleImageUpload = async (e) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      if (reader.readyState === 2) {
-        const imageData = reader.result;
-        const receiverId = currentChat.members.find((m) => m !== user._id);
-        socket.emit("sendMessage", {
-          senderId: user._id,
-          receiverId,
-          images: imageData,
-        });
-
-        try {
-          const res = await axios.post(`${server}/message/create-new-message`, {
-            images: imageData,
-            sender: user._id,
-            text: "",
-            conversationId: currentChat._id,
-          });
-          setMessages([...messages, res.data.message]);
-          await axios.put(
-            `${server}/conversation/update-last-message/${currentChat._id}`,
-            {
-              lastMessage: "Photo",
-              lastMessageId: user._id,
-            }
-          );
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    };
-    reader.readAsDataURL(e.target.files[0]);
-  };
+  }, [currentChat?._id, dispatch]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const onlineCheck = (chat) => {
+    const chatMember = chat.members.find((m) => m !== user?._id);
+    return onlineUsers.some((u) => u.userId === chatMember);
+  };
+
+const sendMessageHandler = async (e) => {
+  e.preventDefault();
+  if (!newMessage.trim()) return;
+
+  const messageData = {
+    sender: user._id,
+    text: newMessage,
+    conversationId: currentChat._id,
+  };
+
+  try {
+    const resultAction = await dispatch(createMessage(messageData));
+    const savedMessage = resultAction.payload;
+
+    if (savedMessage) {
+      setMessages((prev) => [...prev, savedMessage]);
+      setNewMessage("");
+      console.log(savedMessage._id); // ✅ Proper logging
+
+      // const receiverId = currentChat.members.find((m) => m !== user._id);
+      // socket.emit("sendMessage", { ...savedMessage, receiverId });
+
+      await dispatch(
+        updateLastMessage({
+          id: currentChat._id,
+          lastMessage: savedMessage.text,
+          lastMessageId: savedMessage._id,
+        })
+      );
+    }
+  } catch (err) {
+    console.error("❌ Message send error:", err);
+  }
+};
+
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !currentChat || !user?._id) return;
+
+    const receiverId = currentChat.members.find((m) => m !== user._id);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        socket.emit("sendMessage", {
+          senderId: user._id,
+          receiverId,
+          images: reader.result,
+          text: "",
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+
+    const formData = new FormData();
+    formData.append("images", file);
+    formData.append("sender", user._id);
+    formData.append("text", "");
+    formData.append("conversationId", currentChat._id);
+
+    try {
+      const res = await dispatch(createMessage(formData)).unwrap();
+      setMessages((prev) => [...prev, res]);
+      await dispatch(
+        updateLastMessage({
+          id: currentChat._id,
+          lastMessage: "Photo",
+          lastMessageId: user._id,
+        })
+      );
+    } catch (err) {
+      console.error("Upload failed:", err);
+    }
+  };
 
   return (
     <div className="w-full">
@@ -171,22 +178,20 @@ const UserInbox = () => {
           <h1 className="text-center text-[30px] py-3 font-Poppins">
             All Messages
           </h1>
-          {conversations &&
-            conversations.map((item, index) => (
-              <MessageList
-                key={index}
-                data={item}
-                index={index}
-                setOpen={setOpen}
-                setCurrentChat={setCurrentChat}
-                me={user?._id}
-                setUserData={setUserData}
-                userData={userData}
-                online={onlineCheck(item)}
-                setActiveStatus={setActiveStatus}
-                loading={loading}
-              />
-            ))}
+          {conversations.map((item, index) => (
+            <MessageList
+              key={index}
+              data={item}
+              me={user?._id}
+              setOpen={setOpen}
+              setCurrentChat={setCurrentChat}
+              setUserData={setUserData}
+              userData={userData}
+              online={onlineCheck(item)}
+              setActiveStatus={setActiveStatus}
+              loading={loading}
+            />
+          ))}
         </>
       ) : (
         <SellerInbox
@@ -208,10 +213,9 @@ const UserInbox = () => {
 
 const MessageList = ({
   data,
-  index,
+  me,
   setOpen,
   setCurrentChat,
-  me,
   setUserData,
   userData,
   online,
@@ -224,31 +228,26 @@ const MessageList = ({
   useEffect(() => {
     setActiveStatus(online);
     const userId = data.members.find((u) => u !== me);
-    const getUser = async () => {
-      try {
-        const res = await axios.get(`${server}/shop/get-shop-info/${userId}`);
-        setUser(res.data.shop);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getUser();
+    axios
+      .get(`${server}/shop/get-Specific-seller/${userId}`)
+      .then((res) => setUser(res.data.seller))
+      .catch(console.error);
   }, [me, data]);
 
   return (
     <div
-      className="w-full flex p-3 px-3 cursor-pointer hover:bg-[#00000010]"
+      className="w-full flex p-3 px-3 cursor-pointer hover:bg-[#00000010] bg-amber-300"
       onClick={() => {
         setOpen(true);
         setCurrentChat(data);
         setUserData(user);
         setActiveStatus(online);
-        navigate(`/inbox?${data._id}`);
+        navigate(`/inbox?conversationId=${data._id}`);
       }}
     >
       <div className="relative">
         <img
-          src={user?.avatar?.url}
+          src={getSellerImageUrl(user.avatar?.url)}
           alt="avatar"
           className="w-[50px] h-[50px] rounded-full"
         />
@@ -263,7 +262,7 @@ const MessageList = ({
         <p className="text-[16px] text-[#000c]">
           {!loading && data?.lastMessageId !== userData?._id
             ? "You:"
-            : userData?.name?.split(" ")[0] + ":"}{" "}
+            : `${userData?.name?.split(" ")[0]}:`}{" "}
           {data?.lastMessage}
         </p>
       </div>
@@ -288,7 +287,7 @@ const SellerInbox = ({
       <div className="w-full flex p-3 items-center justify-between bg-slate-200">
         <div className="flex">
           <img
-            src={userData?.avatar?.url}
+            src={getSellerImageUrl(userData?.avatar?.url)}
             alt=""
             className="w-[60px] h-[60px] rounded-full"
           />
@@ -305,45 +304,30 @@ const SellerInbox = ({
       </div>
 
       <div className="px-3 h-[75vh] py-3 overflow-y-scroll">
-        {messages &&
-          messages.map((item, index) => (
-            <div
-              key={index}
-              className={`flex w-full my-2 ${
-                item.sender === sellerId ? "justify-end" : "justify-start"
-              }`}
-              ref={scrollRef}
-            >
-              {item.sender !== sellerId && (
-                <img
-                  src={userData?.avatar?.url}
-                  className="w-[40px] h-[40px] rounded-full mr-3"
-                  alt=""
-                />
-              )}
-              {item.images && (
-                <img
-                  src={item.images?.url || item.images}
-                  className="w-[300px] h-[300px] object-cover rounded-[10px] ml-2 mb-2"
-                  alt=""
-                />
-              )}
-              {item.text !== "" && (
-                <div>
-                  <div
-                    className={`w-max p-2 rounded ${
-                      item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
-                    } text-white h-min`}
-                  >
-                    <p>{item.text}</p>
-                  </div>
-                  <p className="text-[12px] text-[#000000d3] pt-1">
-                    {format(item.createdAt)}
-                  </p>
+        {messages.map((item, index) => (
+          <div
+            key={index}
+            className={`flex w-full my-2 ${
+              item.sender === sellerId ? "justify-end" : "justify-start"
+            }`}
+            ref={scrollRef}
+          >
+            {item.text !== "" && (
+              <div>
+                <div
+                  className={`w-max p-2 rounded ${
+                    item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
+                  } text-white h-min`}
+                >
+                  <p>{item.text}</p>
                 </div>
-              )}
-            </div>
-          ))}
+                <p className="text-[12px] text-[#000000d3] pt-1">
+                  {format(item.createdAt)}
+                </p>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       <form
