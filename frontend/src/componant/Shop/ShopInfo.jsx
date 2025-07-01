@@ -6,9 +6,8 @@ import styles from "../../styles/styles";
 import Loader from "../Layout/Loader";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { persistor } from '../../redux/store'; // import your Redux store's persistor if available
 import { logoutSeller } from '../../redux/slices/sellerslice'; // adjust the import path
-// import { getAllProductsShop } from "../../redux/actions/product";
+import { getSellerImageUrl } from "../../utils/imageHelpers";
 
 const ShopInfo = ({ isOwner }) => {
 
@@ -58,7 +57,7 @@ const ShopInfo = ({ isOwner }) => {
       <div className="w-full py-5">
         <div className="w-full flex item-center justify-center">
           <img
-            src={`${seller.avatar?.url}`}
+    src={getSellerImageUrl(seller.avatar?.url)}
             alt=""
             className="w-[150px] h-[150px] object-cover rounded-full"
           />

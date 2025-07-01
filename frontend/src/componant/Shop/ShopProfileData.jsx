@@ -13,7 +13,7 @@ const ShopProfileData = ({ isOwner }) => {
       {/* Tabs */}
       <div className="flex w-full items-center justify-between bg-amber-400 p-2 rounded-md">
         <div className="flex bg-blue-400 rounded-md px-4 py-2 space-x-6">
-          {["Shop Products", "Running Events", "Shop Reviews"].map((label, i) => (
+          {["Shop Products"].map((label, i) => (
             <h5
               key={i}
               onClick={() => setActive(i + 1)}
@@ -38,8 +38,7 @@ const ShopProfileData = ({ isOwner }) => {
 
       {/* Render based on active tab */}
       {active === 1 && <ShopProducts />}
-      {active === 2 && <ShopEvents />}
-      {active === 3 && <ShopReviews />}
+    
     </div>
   );
 };

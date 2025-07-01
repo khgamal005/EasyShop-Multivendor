@@ -52,6 +52,7 @@ import ResetPassword from "../componant/Profile/ResetPassword ";
 import AllWithdraw from "../componant/Admin/AllWithdraw";
 import UserOrders from "../componant/order/UserOrders";
 import UserInbox from "../pages/UserInbox";
+import ShopInboxPage from "../pages/shop/ShopInboxPage";
 
 const router = createBrowserRouter([
   {
@@ -217,6 +218,7 @@ const router = createBrowserRouter([
       { path: "withdraw", element: <WithdrawMoney /> },
       { path: "refunds", element: <AllRefundOrders /> },
       { path: "settings", element: <EditShopPage /> },
+      { path: "inbox", element: <ShopInboxPage /> },
     ],
   },
   {

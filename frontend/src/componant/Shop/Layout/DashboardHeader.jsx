@@ -19,7 +19,7 @@ const DashboardHeader = () => {
         <div className="flex items-center mr-4">
     
     
-          <Link to="/dashboard-messages" className="hidden sm:block ">
+          <Link to="/dashboard/inbox" className="hidden sm:block ">
             <BiMessageSquareDetail
               color="#555"
               size={30}

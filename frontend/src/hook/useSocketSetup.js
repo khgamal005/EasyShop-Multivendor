@@ -5,17 +5,13 @@ export const useSocketSetup = (userId, role) => {
   useEffect(() => {
     if (!userId || !role) return;
 
-    // Always disconnect before reconnecting
-    if (socket.connected) {
-      socket.disconnect();
+    if (!socket.connected) {
+      socket.connect();
     }
 
-    socket.connect();
-
-    // Emit user join
     socket.emit("addUser", { userId, role });
 
-    // Setup listeners
+    // Listeners
     const handleGetUsers = (users) => console.log("🧑‍🤝‍🧑 Users:", users);
     const handleLastMessage = (payload) => console.log("📩 Last msg:", payload);
     const handleMessageSent = (msg) => console.log("✅ Sent:", msg);
@@ -25,12 +21,11 @@ export const useSocketSetup = (userId, role) => {
     socket.on("messageSent", handleMessageSent);
 
     return () => {
-      // Important: cleanup handlers and disconnect
       socket.off("getUsers", handleGetUsers);
       socket.off("getLastMessage", handleLastMessage);
       socket.off("messageSent", handleMessageSent);
 
-      socket.disconnect(); // Clean up when component unmounts or deps change
+      socket.disconnect();
     };
   }, [userId, role]);
 };
