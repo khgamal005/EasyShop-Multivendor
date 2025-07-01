@@ -47,7 +47,7 @@ router.post("/signup",uploadUserImage, createUser);
 // router.post("/signup", createUser);
 router.get("/activation/:token", activeUser); 
 router.post('/login', loginValidator, login);
-router.get('/getuser',isAuthenticated, getuser);
+router.get('/getuser/:id', getuser);
 router.get('/logout', logout);
 router.put("/update-user-info",isAuthenticated,uploadUserImage, updateUserInfo);
 router.post("/update-user-address", isAuthenticated,addAddressValidator, addAddress);

@@ -131,7 +131,9 @@ exports.login = asyncHandler(async (req, res, next) => {
 
 // load user
 exports.getuser = asyncHandler(async (req, res, next) => {
-  const user = req.user;
+  const { id } = req.params;
+    const user = await userModel.findById(id);
+  
 
   if (!user) {
     return next(new ErrorHandler("User doesn't exist", 400));

@@ -47,40 +47,39 @@ const isValidMessage = (msg) =>
   typeof msg.text === "string" &&
   typeof msg.id === "string"; // or whatever structure you expect
 
-// socket.on("sendMessage", ({ receiverId, ...message }) => {
-//   if (!isValidMessage(message)) {
-//     console.error("❌ Invalid message format:", message);
-//     return;
-//   }
+socket.on("sendMessage", ({ receiverId, ...message }) => {
+  if (!isValidMessage(message)) {
+    return;
+  }
 
-//   const receiver = getUser(receiverId);
+  const receiver = getUser(receiverId);
 
-//   if (receiver) {
-//     io.to(receiver.socketId).emit("getMessage", message);
-//   }
+  if (receiver) {
+    io.to(receiver.socketId).emit("getMessage", message);
+  }
 
-//   socket.emit("messageSent", {
-//     ...message,
-//     status: "delivered",
-//   });
-// });
-  const messages = {}; // Object to track messages sent to each user
-
-  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
-    const message = createMessage({ senderId, receiverId, text });
-
-    const user = getUser(receiverId);
-
-    // Store the messages in the `messages` object
-    if (!messages[receiverId]) {
-      messages[receiverId] = [message];
-    } else {
-      messages[receiverId].push(message);
-    }
-
-    // send the message to the recevier
-    io.to(user?.socketId).emit("getMessage", message);
+  socket.emit("messageSent", {
+    ...message,
+    status: "delivered",
   });
+});
+  // const messages = {}; // Object to track messages sent to each user
+
+  // socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+  //   const message = createMessage({ senderId, receiverId, text });
+
+  //   const user = getUser(receiverId);
+
+  //   // Store the messages in the `messages` object
+  //   if (!messages[receiverId]) {
+  //     messages[receiverId] = [message];
+  //   } else {
+  //     messages[receiverId].push(message);
+  //   }
+
+  //   // send the message to the recevier
+  //   io.to(user?.socketId).emit("getMessage", message);
+  // });
 
 
   // Message seen handler
