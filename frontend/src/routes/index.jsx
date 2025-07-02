@@ -18,7 +18,6 @@ import ActivationShop from "../pages/shop/Activationshop";
 import ShopHomePage from "../pages/shop/ShopHomePage";
 import SellerProtectedRoute from "./SellerProtectedRoute";
 import ShopDashboardPage from "../pages/shop/ShopDashboardPage";
-import DashboardHero from "../componant/Shop/DashboardHero";
 import CreateProduct from "../componant/Shop/CreateProduct";
 import CreateBrand from "../componant/Admin/createBrand";
 import ShopLoginPage from "../pages/shop/ShopLoginPage";
@@ -195,9 +194,9 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-      index: true, 
-      element: <ShopAllOrders />
-    },
+        index: true,
+        element: <ShopAllOrders />,
+      },
       {
         path: "dashboard-orders",
         element: <ShopAllOrders />,

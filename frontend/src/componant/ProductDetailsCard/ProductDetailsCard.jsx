@@ -30,6 +30,12 @@ const ProductDetailsCard = ({ setOpen, data }) => {
 const user = useSelector((state) => state.user.user)
 
   useEffect(() => {
+    if (user?._id) {
+      localStorage.setItem(`cart_${user._id}`, JSON.stringify(cart));
+    }
+  }, [cart, user?._id]); // cart is also an array
+
+  useEffect(() => {
     setClick(wishlist?.some((item) => item._id === data._id));
   }, [wishlist, data._id]);
 
@@ -48,6 +54,10 @@ const user = useSelector((state) => state.user.user)
     } else {
       dispatch(addToCart({ ...data, qty: count }));
       toast.success("Item added to cart successfully!");
+            if (user?._id) {
+        const updatedCart = [...cart, { ...data, qty: count }];
+        localStorage.setItem(`cart_${user._id}`, JSON.stringify(updatedCart));
+      }
     }
 
 

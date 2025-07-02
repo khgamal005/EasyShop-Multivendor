@@ -1,5 +1,5 @@
 // Cart.js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus } from "react-icons/hi";
@@ -12,8 +12,19 @@ import { getProductImageUrl } from "../../utils/imageHelpers";
 
 const Cart = ({ setOpenCart }) => {
   const cart = useSelector((state) => state.cart);
+    const user = useSelector((state) => state.user?.user);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+
+    useEffect(() => {
+    if (user?._id) {
+      localStorage.setItem(`cart_${user._id}`, JSON.stringify(cart));
+    }
+  }, [cart, user?._id]);
+
+
 
 
   const removeFromCartHandler = (item) => {

@@ -4,9 +4,11 @@ import Header from "./componant/Layout/Header";
 import Footer from "./componant/Layout/Footer";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSocketSetup } from "./hook/useSocketSetup"; 
 import socket from "./socket"; 
+import { useEffect } from "react";
+import { clearCart, loadCart } from "./redux/slices/cartslice";
 
 
 function App() {
@@ -16,6 +18,20 @@ function App() {
   const role = user ? "user" : null;
 
   useSocketSetup(currentUserId, role); 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (user?._id) {
+      const savedCart = localStorage.getItem(`cart_${user._id}`);
+      if (savedCart) {
+        dispatch(loadCart(JSON.parse(savedCart)));
+      } else {
+        dispatch(clearCart());
+      }
+    } else {
+      dispatch(clearCart());
+    }
+  }, [user?._id, dispatch]);
 
 
   return (

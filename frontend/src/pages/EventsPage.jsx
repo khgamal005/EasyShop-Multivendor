@@ -1,20 +1,16 @@
-import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import EventCard from "../componant/Events/EventCard";
-import Header from "../componant/Layout/Header";
 import Loader from "../componant/Layout/Loader";
 
 const EventsPage = () => {
-  // const { allEvents, isLoading } = useSelector((state) => state.events);
-    const [allProducts, isLoading] = useState([]);
+  const { events,loading } = useSelector((state) => state.events);
   return (
     <>
-      {isLoading ? (
+      {loading ? (
         <Loader />
       ) : (
         <div>
-          <Header activeHeading={4} />
-          <EventCard active={true} data={allEvents && allEvents[0]} />
+          <EventCard active={true} data={events && events[0]} />
         </div>
       )}
     </>

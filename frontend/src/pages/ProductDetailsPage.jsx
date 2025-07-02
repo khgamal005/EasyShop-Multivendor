@@ -22,6 +22,8 @@ useEffect(() => {
   }
 }, [products, events, id, eventData]);
 
+
+
 return (
   <div>
     {data ? (

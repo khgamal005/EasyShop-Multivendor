@@ -13,14 +13,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import Ratings from "../../Products/Ratings";
-import { addToWishlist, removeFromWishlist } from "../../../redux/slices/wishlistSlice";
+import {
+  addToWishlist,
+  removeFromWishlist,
+} from "../../../redux/slices/wishlistSlice";
 import { addToCart } from "../../../redux/slices/cartslice";
 import { getProductImageUrl } from "../../../utils/imageHelpers";
 import ProductDetailsCard from "../../ProductDetailsCard/ProductDetailsCard";
 
-const ProductCard = ({ data,isEvent }) => {
+const ProductCard = ({ data, isEvent }) => {
   const wishlist = useSelector((state) => state.wishlist); // wishlist is an array
-  const cart = useSelector((state) => state.cart);         // cart is also an array
+  const cart = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.user?.user); // Or adjust based on your user slice
+
+  useEffect(() => {
+    if (user?._id) {
+      localStorage.setItem(`cart_${user._id}`, JSON.stringify(cart));
+    }
+  }, [cart, user?._id]); // cart is also an array
 
   const [click, setClick] = useState(false);
   const [open, setOpen] = useState(false);
@@ -31,36 +41,46 @@ const ProductCard = ({ data,isEvent }) => {
   }, [wishlist, data._id]);
 
   const handleWishlist = () => {
-  const isInWishlist = wishlist?.some((item) => item._id === data._id);
+    const isInWishlist = wishlist?.some((item) => item._id === data._id);
 
-  if (isInWishlist) {
-    dispatch(removeFromWishlist(data._id));
-    toast.info("Removed from wishlist");
-  } else {
-    dispatch(addToWishlist(data));
-    toast.success("Added to wishlist");
-  }
-
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(data._id));
+      toast.info("Removed from wishlist");
+    } else {
+      dispatch(addToWishlist(data));
+      toast.success("Added to wishlist");
+    }
   };
-    const handleAddToCart = () => {
-      const exists = cart?.some((item) => item._id === data._id);
-  
-      if (exists) {
-        toast.error("Item already in cart!");
-      } else if (data.stock < 1) {
-        toast.error("Product stock limited!");
-      } else {
-        dispatch(addToCart({ ...data, qty: 1 }));
-        toast.success("Item added to cart!");
-      }
-    };
+  const handleAddToCart = () => {
+    const exists = cart?.some((item) => item._id === data._id);
 
+    if (exists) {
+      toast.error("Item already in cart!");
+    } else if (data.stock < 1) {
+      toast.error("Product stock limited!");
+    } else {
+      dispatch(addToCart({ ...data, qty: 1 }));
+
+      toast.success("Item added to cart!");
+      // Save to user-specific localStorage
+      if (user?._id) {
+        const updatedCart = [...cart, { ...data, qty: count }];
+        localStorage.setItem(`cart_${user._id}`, JSON.stringify(updatedCart));
+      }
+    }
+  };
 
   return (
     <>
       <div className="w-full h-[370px] bg-white rounded-lg shadow-sm p-3 relative cursor-pointer">
         <div className="flex justify-end"></div>
-        <Link to={`${isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
+        <Link
+          to={`${
+            isEvent === true
+              ? `/product/${data._id}?isEvent=true`
+              : `/product/${data._id}`
+          }`}
+        >
           <img
             src={getProductImageUrl(data.images?.[0])}
             alt=""
@@ -70,13 +90,19 @@ const ProductCard = ({ data,isEvent }) => {
         <Link to={`/shop/preview/${data?.shopId}`}>
           <h5 className={`${styles.shop_name}`}>{data.name}</h5>
         </Link>
-        <Link to={`${isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
+        <Link
+          to={`${
+            isEvent === true
+              ? `/product/${data._id}?isEvent=true`
+              : `/product/${data._id}`
+          }`}
+        >
           <h4 className="pb-3 font-[500]">
             {data.name.length > 40 ? data.name.slice(0, 40) + "..." : data.name}
           </h4>
 
           <div className="flex">
-          <Ratings rating={data?.ratings} />
+            <Ratings rating={data?.ratings} />
           </div>
 
           <div className="py-2 flex items-center justify-between">

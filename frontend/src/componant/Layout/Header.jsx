@@ -29,6 +29,7 @@ const Header = ({
   const [openCart, setOpenCart] = useState(false);
   const [openWishlist, setOpenWishlist] = useState(false);
   const cart = useSelector((state) => state.cart);
+  const {categories} = useSelector((state) => state.category);
 
   const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
 
@@ -58,7 +59,7 @@ const Header = ({
             </button>
             {showDropdown && (
               <DropDown
-                categoriesData={categoriesData}
+                categoriesData={categories}
                 setDropDown={setShowDropdown}
               />
             )}

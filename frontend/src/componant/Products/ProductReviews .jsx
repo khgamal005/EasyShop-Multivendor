@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { BsTrash, BsPencil } from "react-icons/bs";
@@ -10,6 +10,7 @@ import {
   fetchReviews,
 } from "../../redux/slices/reviewSlice";
 import Loader from "../Layout/Loader";
+import { getUserImageUrl } from "../../utils/imageHelpers";
 
 const ProductReviews = ({ productId, reviews, loading }) => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const ProductReviews = ({ productId, reviews, loading }) => {
 
         })
         .catch((error) => {
-          toast.error(error.message || "Failed to submit review");
+          toast.error(error.message || "you created  review before you can edit yor review");
         });
     }
   };
@@ -150,7 +151,7 @@ const ProductReviews = ({ productId, reviews, loading }) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img
-                    src={review.user.avatar?.url || "/images/user.png"}
+                    src={getUserImageUrl(review.user?.avatar?.url) || "/images/user.png"}
                     alt="User"
                     className="w-10 h-10 rounded-full"
                   />

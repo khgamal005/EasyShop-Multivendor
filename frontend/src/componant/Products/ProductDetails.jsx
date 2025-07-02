@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   AiOutlineHeart,
@@ -27,7 +27,8 @@ import ProductReviews from "./ProductReviews ";
 
 const ProductDetails = ({ data, eventData }) => {
   const dispatch = useDispatch();
-  const { cart } = useSelector((state) => state.cart);
+  const  cart  = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.user?.user); // Or adjust based on your user slice
   const { wishlist } = useSelector((state) => state.wishlist);
   const { reviews, loading } = useSelector((state) => state.review);
   const [select, setSelect] = useState(0);
@@ -35,11 +36,18 @@ const ProductDetails = ({ data, eventData }) => {
   const [click, setClick] = useState(false);
 
   useEffect(() => {
+  if (user?._id) {
+    localStorage.setItem(`cart_${user._id}`, JSON.stringify(cart));
+  }
+}, [cart, user?._id]);
+
+  useEffect(() => {
      
       dispatch(fetchReviews(data._id));
     
   }, [data?._id, dispatch]);
 
+  
   useEffect(() => {
     setClick(wishlist?.some((item) => item._id === data?._id));
   }, [wishlist, data?._id]);
@@ -66,14 +74,21 @@ const ProductDetails = ({ data, eventData }) => {
   };
 
   const addToCartHandler = () => {
-    const isInCart = cart?.some((item) => item._id === data._id);
-    if (isInCart && data.stock < count) {
-      toast.error("Product stock limited!");
-    } else {
-      dispatch(addToCart({ ...data, qty: count }));
-      toast.success("Added to cart");
+  const isInCart = cart?.some((item) => item._id === data._id);
+
+  if (isInCart && data.stock < count) {
+    toast.error("Product stock limited!");
+  } else {
+    dispatch(addToCart({ ...data, qty: count }));
+    toast.success("Added to cart");
+
+    // Save to user-specific localStorage
+    if (user?._id) {
+      const updatedCart = [...cart, { ...data, qty: count }];
+      localStorage.setItem(`cart_${user._id}`, JSON.stringify(updatedCart));
     }
-  };
+  }
+};
 
   if (!data) return <Loader />;
 
@@ -180,20 +195,11 @@ const ProductDetails = ({ data, eventData }) => {
           <div className="mt-6">
             <Link to={`/shop/preview/${data.shopId}`}>
               <div className="flex items-center gap-3">
-                <img
-                  src={
-                    getSellerImageUrl(data.shop.avatar?.url) ||
-                    "/images/shop-default.png"
-                  }
-                  alt="Shop"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <h3 className="font-semibold">{data.shop.name}</h3>
+                
+                  <h3 className="font-semibold">{data?.shop?.name}</h3>
                   <span className="text-sm text-gray-500">
                     ({data.ratingsQuantity}) Ratings
                   </span>
-                </div>
               </div>
             </Link>
           </div>

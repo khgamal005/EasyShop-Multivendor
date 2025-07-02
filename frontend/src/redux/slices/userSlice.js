@@ -18,7 +18,7 @@ export const loadUser = createAsyncThunk(
   "user/loadUser",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${server}/user/getuser`, {
+      const { data } = await axios.get(`${server}/user/loaduser`, {
         withCredentials: true,
       });
       return data.user;
@@ -239,6 +239,7 @@ const userSlice = createSlice({
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
+        state.error=null
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
