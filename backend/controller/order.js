@@ -65,6 +65,7 @@ exports.createOrder = catchAsyncErrors(async (req, res, next) => {
     // ✅ Now send the response AFTER all orders are created
     res.status(201).json({ success: true, orders });
   } catch (err) {
+    console.log(err)
     console.error("Create Order Error:", err);
     res.status(500).json({ success: false, message: err.message });
   }

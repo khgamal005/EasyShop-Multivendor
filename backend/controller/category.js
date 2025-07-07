@@ -130,11 +130,11 @@ exports.getCategories = asyncHandler(async (req, res) => {
   // Build query
   const documentsCounts = await category.countDocuments();
   const apiFeatures = new ApiFeatures(category.find(), req.query)
-    .paginate(documentsCounts)
-    .filter()
-    .search(category)
-    .limitFields()
-    .sort();
+  .filter()
+  .search()
+  .limitFields()
+  .sort()
+  .paginate(documentsCounts)
 
   // Execute query
   const { mongooseQuery, paginationResult } = apiFeatures;

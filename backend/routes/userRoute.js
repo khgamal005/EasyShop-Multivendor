@@ -22,7 +22,7 @@ const {
     getuser,
     logout,
     updateUserInfo,
-    updateAvatar,
+    loaduser,
     updateAddress,
     addAddress,
     deleteAddress,
@@ -48,6 +48,7 @@ router.post("/signup",uploadUserImage, createUser);
 router.get("/activation/:token", activeUser); 
 router.post('/login', loginValidator, login);
 router.get('/getuser/:id', getuser);
+router.get('/loaduser',isAuthenticated, loaduser);
 router.get('/logout', logout);
 router.put("/update-user-info",isAuthenticated,uploadUserImage, updateUserInfo);
 router.post("/update-user-address", isAuthenticated,addAddressValidator, addAddress);

@@ -70,23 +70,28 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
 });
 
 exports.getproducts = asyncHandler(async (req, res) => {
-  // Build query
+  
   const documentsCounts = await Product.countDocuments();
   const apiFeatures = new ApiFeatures(Product.find(), req.query)
-    .paginate(documentsCounts)
-    .filter()
-    .search(Product)
+  .search()
+  .filter()
+    .sort()
     .limitFields()
-    .sort();
+    .paginate(documentsCounts);
 
-  // Execute query
   const { mongooseQuery, paginationResult } = apiFeatures;
+  
+  // Log the final MongoDB query being executed  
   const documents = await mongooseQuery;
-
-  res
-    .status(200)
-    .json({ results: documents.length, paginationResult, data: documents });
+  console.log("Returned products:", documents.length);
+  
+  res.status(200).json({
+    results: documents.length,
+    paginationResult,
+    data: documents,
+  });
 });
+
 
 exports.updateProduct = asyncHandler(async (req, res, next) => {
   const product = req.product;

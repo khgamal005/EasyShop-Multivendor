@@ -78,6 +78,23 @@ const shopSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordTime: Date,
+  passwordChangedAt: Date,
+  passwordResetCode: String,
+  passwordResetExpires: Date,
+  passwordResetVerified: Boolean,
+
+  passwordResetTries: {
+    type: Number,
+    default: 0,
+  },
+  isBlockedFromReset: {
+    type: Boolean,
+    default: false,
+  },
+  active: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // Hash password

@@ -3,9 +3,9 @@ const { uploadSingleImage } = require("../middleware/uploadImageMiddleware");
 const Shop = require("../model/shop");
 const { v4: uuidv4 } = require("uuid");
 const sharp = require("sharp");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
-const sendToken = require("../utils/jwtToken");
 const ErrorHandler = require("../utils/ErrorHandler");
 const fs = require("fs");
 const path = require("path");
@@ -352,3 +352,126 @@ exports.updatePaymentMethods =asyncHandler(async (req, res, next) => {
       });
     
   })
+
+  exports.forgotPassword = asyncHandler(async (req, res, next) => {
+    // 1) Find the user by email
+    const seller = await Shop.findOne({ email: req.body.email });
+    if (!seller) {
+      return next(new ApiError(`There is no seller with email ${req.body.email}`, 404));
+    }
+  
+    // 2) Reset any previous tries or block status
+    seller.passwordResetTries = 0;
+    seller.isBlockedFromReset = false;
+  
+    // 3) Generate a new OTP
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashedResetCode = crypto.createHash("sha256").update(resetCode).digest("hex");
+  
+  
+    seller.passwordResetCode = hashedResetCode;
+    seller.passwordResetExpires = Date.now() + 10 * 60 * 1000; // expires in 10 mins
+    seller.passwordResetVerified = false;
+  
+    await seller.save();
+  
+    // 4) Send the OTP code via email
+    const message = `Hi ${Shop.name},\nWe received a request to reset the password.\nYour reset code: ${resetCode}\nValid for 10 minutes.`;
+    
+    try {
+      await sendMail({
+        email: seller.email,
+        subject: "Your password reset code",
+        message,
+      });
+  
+      res.status(200).json({ status: "Success", message: "Reset code sent to email" });
+    } catch (err) {
+      // Rollback in case of email failure
+      seller.passwordResetCode = undefined;
+      seller.passwordResetExpires = undefined;
+      seller.passwordResetVerified = undefined;
+      await seller.save();
+      return next(new ErrorHandler("There is an error sending the email", 500));
+    }
+  });
+  
+  
+  // // @desc    Verify password reset code
+  // // @route   POST /api/v1/auth/verifyResetCode
+  // // @access  Public
+  exports.verifyPassResetCode = asyncHandler(async (req, res, next) => {
+    // 1) Get user based on reset code
+    const hashedResetCode = crypto.createHash("sha256").update(req.body.resetCode).digest("hex");
+  
+  
+    const seller = await Shop.findOne({
+      passwordResetCode: hashedResetCode,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+    if (!seller) {
+      return next(new ErrorHandler("Reset code invalid or expired"));
+    }
+      // Bonus: If OTP expired, auto-block
+      if (seller.passwordResetExpires < Date.now()) {
+        seller.isBlockedFromReset = true;
+        await Shop.save();
+        return next(new ErrorHandler("Reset code expired. Please request a new one.", 400));
+      }
+    if (seller.isBlockedFromReset) {
+      return next(new ErrorHandler("You have been blocked from resetting password. Please request a new code.", 400));
+    }
+  
+    if (hashedResetCode !== seller.passwordResetCode) {
+      seller.passwordResetTries += 1;
+  
+      // If tries exceed 5, block the user
+      if (seller.passwordResetTries >= 5) {
+        seller.isBlockedFromReset = true;
+      }
+  
+      await seller.save();
+      return next(new ApiError("Invalid reset code", 400));
+    }
+    // 2) Reset code valid
+    seller.passwordResetVerified = true;
+    seller.passwordResetTries = 0; // reset tries
+    seller.isBlockedFromReset = false;
+    await seller.save();
+  
+    res.status(200).json({
+      status: "Success",
+      message: "Reset code verified successfully",
+    });
+  });
+  
+  // // @desc    Reset password
+  // // @route   POST /api/v1/auth/resetPassword
+  // // @access  Public
+  exports.resetPassword = asyncHandler(async (req, res, next) => {
+    // 1) Get user based on email
+    const seller = await Shop.findOne({ email: req.body.email });
+    if (!seller) {
+      return next(
+        new ErrorHandler(`There is no seller with email ${req.body.email}`, 404)
+      );
+    }
+  
+    // 2) Check if reset code verified
+    if (!seller.passwordResetVerified) {
+      return next(new ErrorHandler("Reset code not verified", 400));
+    }
+  
+    seller.password = req.body.newPassword;
+    seller.passwordResetCode = undefined;
+    seller.passwordResetExpires = undefined;
+    seller.passwordResetVerified = undefined;
+  
+    await seller.save();
+  
+    // 3) if everything is ok, generate token
+    res.status(200).json({
+      status: "Success",
+      message: "password updated successfully",
+    });
+  });

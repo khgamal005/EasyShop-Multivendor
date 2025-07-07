@@ -86,7 +86,7 @@ exports.getSubCategories = asyncHandler(async (req, res) => {
   const apiFeatures = new ApiFeatures(subCategory.find(filter), req.query)
     .paginate(documentsCounts)
     .filter()
-    .search(subCategory)
+    .search()
     .limitFields()
     .sort();
 

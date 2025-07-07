@@ -41,8 +41,9 @@ const eventSchema = new mongoose.Schema({
     },
   images: [String],
     
-  shopId: {
-    type: String,
+  shop: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Shop",
     required: true,
   },
 
@@ -54,6 +55,14 @@ const eventSchema = new mongoose.Schema({
         type: Date,
         default: Date.now(),
     }
+});
+
+eventSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "shop",
+    select: "name email avatar phoneNumber address", // select only what you need
+  });
+  next();
 });
 
 module.exports = mongoose.model("Event", eventSchema);

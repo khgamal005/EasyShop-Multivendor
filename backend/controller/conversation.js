@@ -6,26 +6,28 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 exports.createNewConversation = catchAsyncErrors(async (req, res, next) => {
   const { groupTitle, userId, sellerId } = req.body;
 
-  const isConversationExist = await Conversation.findOne({ groupTitle });
+  const isConversationExist = await Conversation.findOne({
+    members: { $all: [userId, sellerId] },
+  });
 
   if (isConversationExist) {
-    const conversation = isConversationExist;
-    res.status(201).json({
+    return res.status(200).json({
       success: true,
-      conversation,
-    });
-  } else {
-    const conversation = await Conversation.create({
-      members: [userId, sellerId],
-      groupTitle: groupTitle,
-    });
-
-    res.status(201).json({
-      success: true,
-      conversation,
+      conversation: isConversationExist,
     });
   }
+
+  const conversation = await Conversation.create({
+    members: [userId, sellerId],
+    groupTitle,
+  });
+
+  return res.status(201).json({
+    success: true,
+    conversation,
+  });
 });
+
 
 // get seller conversations
 

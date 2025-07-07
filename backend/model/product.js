@@ -9,10 +9,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter your product description!"],
   },
-  category: {
-    type: String,
-    required: [true, "Please enter your product category!"],
-  },
+
   tags: {
     type: String,
   },
@@ -29,41 +26,40 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Category',
-    required: [true, 'Product must be belong to category'],
+    ref: "Category",
+    required: [true, "Product must be belong to category"],
   },
   subcategories: [
     {
       type: mongoose.Schema.ObjectId,
-      ref: 'SubCategory',
+      ref: "SubCategory",
     },
   ],
   brand: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Brand',
+    ref: "Brand",
   },
   images: [String],
   ratingsAverage: {
     type: Number,
-    min: [1, 'Rating must be above or equal 1.0'],
-    max: [5, 'Rating must be below or equal 5.0'],
+    min: [1, "Rating must be above or equal 1.0"],
+    max: [5, "Rating must be below or equal 5.0"],
   },
   ratingsQuantity: {
     type: Number,
     default: 0,
   },
-shop: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: 'Shop',
-  required: true,
-},
+  shop: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Shop",
+    required: true,
+  },
   sold_out: {
     type: Number,
     default: 0,
   },
   color: {
     type: String,
-
   },
   createdAt: {
     type: Date,
@@ -71,23 +67,26 @@ shop: {
   },
 });
 
-
 // Mongoose query middleware
-productSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: 'category',
-    select: 'name -_id',
-  });
-  next();
-});
-
-productSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "shop",
-    select: "name email avatar phoneNumber address", // select only what you need
-  });
-  next();
-});
-
+// productSchema.pre(/^find/, function (next) {
+//   this.populate([
+//     {
+//       path: "category",
+//       select: "name -_id",
+//     },
+//     {
+//       path: "subcategories", // ✅ match the field in schema
+//       select: "name -_id",
+//     },
+//   ]);
+//   next();
+// });
+// productSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: "shop",
+//     select: "name email avatar phoneNumber address", // select only what you need
+//   });
+//   next();
+// });
 
 module.exports = mongoose.model("Product", productSchema);
