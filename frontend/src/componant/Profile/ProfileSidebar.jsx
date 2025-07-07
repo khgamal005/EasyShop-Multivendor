@@ -19,6 +19,7 @@ import { server } from "../../server";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutSuccess } from "../../redux/slices/userSlice";
+import { clearConversations } from "../../redux/slices/conversationSlice";
 
 const ProfileSidebar = () => {
   const navigate = useNavigate();
@@ -31,6 +32,8 @@ const ProfileSidebar = () => {
       .then((res) => {
         toast.success(res.data.message);
         dispatch(logoutSuccess())
+        dispatch(clearConversations());
+
         navigate("/login");
       })
       .catch((error) => {

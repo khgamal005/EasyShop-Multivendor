@@ -67,6 +67,7 @@ const conversationSlice = createSlice({
     clearConversations: (state) => {
       state.conversations = [];
       state.error = null;
+      state.loading = false;
     },
   },
   extraReducers: (builder) => {

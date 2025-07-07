@@ -112,6 +112,7 @@ export const getAllProducts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${server}/product`);
+      console.log(data)
       return data.data;
     } catch (error) {
       if (error.response && error.response.data.errors) {
@@ -126,6 +127,28 @@ export const getAllProducts = createAsyncThunk(
     }
   }
 );
+// Get all products
+
+
+export const getProducts = createAsyncThunk(
+  "product/get",
+  async (query = "", { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`${server}/product?${query}`);
+console.log("Hitting API with query:", query);
+      return data;
+      
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        return rejectWithValue(error.response.data.errors[0].msg);
+      }
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
+);
+
 
 export const getProduct = createAsyncThunk(
   "product/getproduct",
@@ -158,6 +181,7 @@ const initialState = {
   products: [],
   error: null,
   success: false,
+  pro:{}
 };
 
 // Slice
@@ -241,13 +265,24 @@ const productSlice = createSlice({
       // // Get All Products
       .addCase(getAllProducts.pending, (state) => {
         state.isLoading = true;
-        state.error = false;
-      })
+        state.error = null;      })
       .addCase(getAllProducts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.products = action.payload;
       })
       .addCase(getAllProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // // Get All Products
+      .addCase(getProducts.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;      })
+      .addCase(getProducts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.pro = action.payload;
+      })
+      .addCase(getProducts.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

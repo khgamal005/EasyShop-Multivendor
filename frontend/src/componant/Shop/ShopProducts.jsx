@@ -4,11 +4,13 @@ import { toast } from "react-toastify";
 import { getAllProductsShop, deleteProduct, getProduct } from "../../redux/slices/productslice";
 import { getProductImageUrl } from "../../utils/imageHelpers"; // Update the path based on where it's defined
 import EditProduct from "./EditProduct";
+import {  useNavigate } from "react-router-dom";
 
 const ShopProducts = () => {
   const { products, isLoading } = useSelector((state) => state.product);
   const { seller } = useSelector((state) => state.seller);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [edit, setEdit] = useState(false);
 
@@ -29,7 +31,7 @@ const ShopProducts = () => {
   };
 
   const getSpecificProduct = async (id) => {
-    const product = await dispatch(getProduct(id));
+        navigate(`/product/${id}`)
     setEdit(true); // Or open a modal here to edit
   };
 
@@ -56,7 +58,7 @@ const ShopProducts = () => {
             {/* Actions */}
             <div className="flex justify-between mt-3">
               <button
-                onClick={() => setEdit(true)}
+                onClick={() => getSpecificProduct(product._id)}
                 className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
               >
                 Preview

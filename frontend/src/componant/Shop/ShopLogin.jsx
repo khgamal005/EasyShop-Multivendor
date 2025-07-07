@@ -114,13 +114,10 @@ const ShopLogin = () => {
                   Remember me
                 </label>
               </div>
-              <div className="text-sm">
-                <a
-                  href=".forgot-password"
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                >
-                  Forgot your password?
-                </a>
+               <div className="text-sm">
+                  <Link to="/shop/ForgetPassword" className="text-blue-600 pl-2">
+                Forgot your password?
+              </Link>
               </div>
             </div>
             <div>

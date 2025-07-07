@@ -1,25 +1,22 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { RxCross1 } from "react-icons/rx";
-import { BsCartPlus } from "react-icons/bs";
 import styles from "../../styles/styles";
 import { AiOutlineHeart } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-// import { removeFromWishlist } from "../../redux/actions/wishlist";
-// import { addTocart } from "../../redux/actions/cart";
+import { removeFromWishlist } from "../../redux/slices/wishlistSlice";
+import { getProductImageUrl } from "../../utils/imageHelpers";
+import { toast } from "react-toastify";
+
+
 
 const Wishlist = ({ setOpenWishlist }) => {
-  // const { wishlist } = useSelector((state) => state.wishlist);
-    const { wishlist ,setc } = useState([]);
+  const wishlist  = useSelector((state) => state.wishlist);
   const dispatch = useDispatch();
 
-  const removeFromWishlistHandler = (data) => {
-    // dispatch(removeFromWishlist(data));
-  };
 
-  const addToCartHandler = (data) => {
-    const newData = {...data, qty:1};
-    // dispatch(addTocart(newData));
-    // setOpenWishlist(false);
+  const removeFromWishlistHandler = (data) => {
+    dispatch(removeFromWishlist(data._id));
+    toast.info("Removed from wishlist");
   }
 
   return (
@@ -59,7 +56,7 @@ const Wishlist = ({ setOpenWishlist }) => {
               <div className="w-full border-t">
                 {wishlist &&
                   wishlist.map((i, index) => (
-                    <CartSingle key={index} data={i} removeFromWishlistHandler={removeFromWishlistHandler} addToCartHandler={addToCartHandler} />
+                    <CartSingle key={index} data={i} removeFromWishlistHandler={removeFromWishlistHandler}  />
                   ))}
               </div>
             </div>
@@ -81,7 +78,7 @@ const CartSingle = ({ data,removeFromWishlistHandler,addToCartHandler }) => {
         onClick={() => removeFromWishlistHandler(data)}
         />
         <img
-          src={`${data?.images[0]?.url}`}
+          src={getProductImageUrl(data.images?.[0])}
           alt=""
           className="w-[130px] h-min ml-2 mr-2 rounded-[5px]"
         />
@@ -89,14 +86,10 @@ const CartSingle = ({ data,removeFromWishlistHandler,addToCartHandler }) => {
         <div className="pl-[5px]">
           <h1>{data.name}</h1>
           <h4 className="font-[600] pt-3 800px:pt-[3px] text-[17px] text-[#d02222] font-Roboto">
-            US${totalPrice}
+            Egp{totalPrice}
           </h4>
         </div>
-        <div>
-          <BsCartPlus size={20} className="cursor-pointer" tile="Add to cart"
-           onClick={() => addToCartHandler(data)}
-          />
-        </div>
+      
       </div>
     </div>
   );

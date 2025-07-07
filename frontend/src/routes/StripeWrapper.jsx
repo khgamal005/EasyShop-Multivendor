@@ -10,7 +10,6 @@ const StripeWrapper = ({ children }) => {
 
   useEffect(() => {
     axios.get(`${server}/payment/stripeapikey`).then(({ data }) => {
-      console.log(data)
       setStripePromise(loadStripe(data.stripeApikey));
     });
   }, []);

@@ -85,9 +85,6 @@ const ProductCard = ({ data, isEvent }) => {
           <h4 className="pb-3 font-[500]">
             {data.name.length > 40 ? `${data.name.slice(0, 40)}...` : data.name}
           </h4>
-
-          <Ratings rating={data?.ratings} />
-
           <div className="py-2 flex items-center justify-between">
             <div className="flex">
               <h5 className={styles.productDiscountPrice}>

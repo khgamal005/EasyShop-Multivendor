@@ -5,8 +5,8 @@ import {
   AiFillHeart,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
-import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 import {
   addToWishlist,
@@ -21,33 +21,33 @@ import styles from "../../styles/styles";
 import {
   getEventImageUrl,
   getProductImageUrl,
-  getSellerImageUrl,
 } from "../../utils/imageHelpers";
 import ProductReviews from "./ProductReviews ";
+import ShopInfoCard from "./ShopInfoCard ";
 
 const ProductDetails = ({ data, eventData }) => {
   const dispatch = useDispatch();
-  const  cart  = useSelector((state) => state.cart);
-  const user = useSelector((state) => state.user?.user); // Or adjust based on your user slice
+  const cart = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.user?.user);
   const { wishlist } = useSelector((state) => state.wishlist);
   const { reviews, loading } = useSelector((state) => state.review);
+
   const [select, setSelect] = useState(0);
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
 
   useEffect(() => {
-  if (user?._id) {
-    localStorage.setItem(`cart_${user._id}`, JSON.stringify(cart));
-  }
-}, [cart, user?._id]);
+    if (user?._id) {
+      localStorage.setItem(`cart_${user._id}`, JSON.stringify(cart));
+    }
+  }, [cart, user?._id]);
 
   useEffect(() => {
-     
+    if (data?._id) {
       dispatch(fetchReviews(data._id));
-    
+    }
   }, [data?._id, dispatch]);
 
-  
   useEffect(() => {
     setClick(wishlist?.some((item) => item._id === data?._id));
   }, [wishlist, data?._id]);
@@ -60,8 +60,7 @@ const ProductDetails = ({ data, eventData }) => {
 
   const addToWishlistHandler = () => {
     dispatch(addToWishlist(data));
-        setClick(true);
-
+    setClick(true);
     toast.success("Added to wishlist");
   };
 
@@ -74,21 +73,20 @@ const ProductDetails = ({ data, eventData }) => {
   };
 
   const addToCartHandler = () => {
-  const isInCart = cart?.some((item) => item._id === data._id);
+    const isInCart = cart?.some((item) => item._id === data._id);
 
-  if (isInCart && data.stock < count) {
-    toast.error("Product stock limited!");
-  } else {
-    dispatch(addToCart({ ...data, qty: count }));
-    toast.success("Added to cart");
+    if (isInCart && data.stock < count) {
+      toast.error("Product stock limited!");
+    } else {
+      dispatch(addToCart({ ...data, qty: count }));
+      toast.success("Added to cart");
 
-    // Save to user-specific localStorage
-    if (user?._id) {
-      const updatedCart = [...cart, { ...data, qty: count }];
-      localStorage.setItem(`cart_${user._id}`, JSON.stringify(updatedCart));
+      if (user?._id) {
+        const updatedCart = [...cart, { ...data, qty: count }];
+        localStorage.setItem(`cart_${user._id}`, JSON.stringify(updatedCart));
+      }
     }
-  }
-};
+  };
 
   if (!data) return <Loader />;
 
@@ -110,9 +108,7 @@ const ProductDetails = ({ data, eventData }) => {
             {data.images?.map((img, index) => (
               <img
                 key={index}
-                src={
-                  eventData ? getEventImageUrl(img) : getProductImageUrl(img)
-                }
+                src={eventData ? getEventImageUrl(img) : getProductImageUrl(img)}
                 alt={`Preview ${index}`}
                 onClick={() => setSelect(index)}
                 className={`w-20 h-20 object-cover border rounded-md cursor-pointer ${
@@ -126,9 +122,29 @@ const ProductDetails = ({ data, eventData }) => {
         {/* Product Info */}
         <div className="w-full lg:w-1/2">
           <h1 className="text-2xl font-bold mb-2">{data.name}</h1>
-          <Ratings rating={data.ratings} />
+          <Ratings rating={data.ratingsAverage} />
           <p className="text-gray-700 mt-4">{data.description}</p>
 
+          {/* Product Meta Info */}
+          <div className="mt-6 space-y-2 text-sm text-gray-700">
+            <p>
+              <span className="font-medium">Category:</span>{" "}
+              {data.category?.name}
+            </p>
+            <p>
+              <span className="font-medium">Subcategory:</span>{" "}
+              {data.subcategories?.[0]?.name || "N/A"}
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="font-medium">Color:</span>
+              <span
+                className="inline-block w-5 h-5 rounded-full border border-gray-400"
+                style={{ backgroundColor: data.color }}
+              />
+            </p>
+          </div>
+
+          {/* Price Info */}
           <div className="mt-4">
             <span className="text-xl font-semibold text-red-600">
               ${data.discountPrice}
@@ -191,27 +207,13 @@ const ProductDetails = ({ data, eventData }) => {
             </span>
           </button>
 
-          {/* Shop Link */}
-          <div className="mt-6">
-            <Link to={`/shop/preview/${data.shopId}`}>
-              <div className="flex items-center gap-3">
-                
-                  <h3 className="font-semibold">{data?.shop?.name}</h3>
-                  <span className="text-sm text-gray-500">
-                    ({data.ratingsQuantity}) Ratings
-                  </span>
-              </div>
-            </Link>
-          </div>
+          {/* Shop Info Component */}
+          <ShopInfoCard shop={data.shop} ratings={data.ratingsQuantity} />
         </div>
       </div>
 
       {/* Reviews Section */}
-      <ProductReviews 
-        productId={data._id} 
-        reviews={reviews} 
-        loading={loading} 
-      />
+      <ProductReviews productId={data._id} reviews={reviews} loading={loading} />
     </div>
   );
 };

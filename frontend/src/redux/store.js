@@ -58,7 +58,7 @@ const persistConfig = {
     "order",
     "withdraw",
     "message",
-    // "conversation"
+    "conversation"
 
   ],
 };

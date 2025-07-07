@@ -41,7 +41,7 @@ const Payment = () => {
           {
             description: "Sunflower",
             amount: {
-              currency_code: "USD",
+              currency_code: "EGP",
               value: orderData?.totalPrice,
             },
           },
@@ -124,7 +124,6 @@ const Payment = () => {
     localStorage.setItem("cartItems", JSON.stringify([]));
     localStorage.setItem("latestOrder", JSON.stringify([]));
     dispatch(clearCart());
-    window.location.reload();
   };
 
   if (!orderData) return <div>Loading order data...</div>;

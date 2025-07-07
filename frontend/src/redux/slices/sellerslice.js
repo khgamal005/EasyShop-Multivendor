@@ -126,6 +126,55 @@ export const updateSellerAvatar = createAsyncThunk(
     }
   }
 );
+
+export const forgotPassword = createAsyncThunk(
+  "shop/forgotPassword",
+  async (email, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(
+        `${server}/shop/forgotPassword`,
+        { email },
+        { withCredentials: true }
+      );
+      return data.message;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to send reset code");
+    }
+  }
+);
+
+
+export const verifyResetCode = createAsyncThunk(
+  "shop/verifyResetCode",
+  async (resetCode, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(
+        `${server}/shop/verifyResetCode`,
+        { resetCode },
+        { withCredentials: true }
+      );
+      return data.message;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Invalid or expired code");
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "shop/resetPassword",
+  async ({ email, newPassword }, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(
+        `${server}/shop/resetPassword`,
+        { email, newPassword },
+        { withCredentials: true }
+      );
+      return data.message;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Password reset failed");
+    }
+  }
+);
 // --- Slice ---
 const sellerSlice = createSlice({
   name: "seller",
@@ -144,6 +193,9 @@ const sellerSlice = createSlice({
       state.isSeller = false;
       state.seller = null;
     },
+        clearMessages: (state) => {
+      state.error = null;
+      state.successMessage = null;    },
   },
   extraReducers: (builder) => {
     // Load seller
@@ -194,6 +246,8 @@ const sellerSlice = createSlice({
       // Handle updateWithdrawMethod
       .addCase(updateWithdrawMethod.pending, (state) => {
         state.isLoading = true;
+           state.error = null;
+
       })
       .addCase(updateWithdrawMethod.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -207,6 +261,7 @@ const sellerSlice = createSlice({
 
          .addCase(deleteWithdrawMethod.pending, (state) => {
         state.isLoading = true;
+           state.error = null;
       })
       .addCase(deleteWithdrawMethod.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -230,10 +285,51 @@ const sellerSlice = createSlice({
       .addCase(updateSellerAvatar.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
+      })
+         // Forgot Password
+            .addCase(forgotPassword.pending, (state) => {
+              state.isLoading = true;
+              state.error = null;
+            })
+            .addCase(forgotPassword.fulfilled, (state, action) => {
+              state.isLoading = false;
+              state.successMessage = action.payload;
+            })
+            .addCase(forgotPassword.rejected, (state, action) => {
+              state.isLoading = false;
+              state.error = action.payload;
+            })
+      
+            // Verify Code
+            .addCase(verifyResetCode.pending, (state) => {
+              state.isLoading = true;
+              state.error = null;
+            })
+            .addCase(verifyResetCode.fulfilled, (state, action) => {
+              state.isLoading = false;
+              state.successMessage = action.payload;
+            })
+            .addCase(verifyResetCode.rejected, (state, action) => {
+              state.isLoading = false;
+              state.error = action.payload;
+            })
+      
+            // Reset Password
+            .addCase(resetPassword.pending, (state) => {
+              state.isLoading = true;
+              state.error = null;
+            })
+            .addCase(resetPassword.fulfilled, (state, action) => {
+              state.isLoading = false;
+              state.successMessage = action.payload;
+            })
+            .addCase(resetPassword.rejected, (state, action) => {
+              state.isLoading = false;
+              state.error = action.payload;
+            })
   },
 });
 
-export const { clearErrors,logoutSeller } = sellerSlice.actions;
+export const { clearErrors,logoutSeller ,clearMessages} = sellerSlice.actions;
 
 export default sellerSlice.reducer;

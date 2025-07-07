@@ -4,28 +4,25 @@ import { RxCross1 } from "react-icons/rx";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus } from "react-icons/hi";
 import styles from "../../styles/styles";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart } from "../../redux/slices/cartslice";
 import { toast } from "react-toastify";
-import { getProductImageUrl } from "../../utils/imageHelpers";
+import { getEventImageUrl, getProductImageUrl } from "../../utils/imageHelpers";
 
 const Cart = ({ setOpenCart }) => {
   const cart = useSelector((state) => state.cart);
-    const user = useSelector((state) => state.user?.user);
+  const user = useSelector((state) => state.user?.user);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
 
-    useEffect(() => {
+  useEffect(() => {
     if (user?._id) {
       localStorage.setItem(`cart_${user._id}`, JSON.stringify(cart));
     }
   }, [cart, user?._id]);
-
-
-
 
   const removeFromCartHandler = (item) => {
     dispatch(removeFromCart(item._id));
@@ -88,7 +85,7 @@ const Cart = ({ setOpenCart }) => {
               className="h-[45px] flex items-center justify-center bg-[#e44343] rounded-[5px] cursor-pointer"
             >
               <h1 className="text-white text-[18px] font-[600]">
-                Checkout Now (USD${totalPrice.toFixed(2)})
+                Checkout Now (EGP{totalPrice.toFixed(2)})
               </h1>
             </div>
           </>
@@ -101,6 +98,8 @@ const Cart = ({ setOpenCart }) => {
 const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
   const [value, setValue] = useState(data.qty);
   const totalPrice = data.discountPrice * value;
+    const image = data.images?.[0] || "";
+  const isEventImage = image.startsWith("event-");
 
   const increment = () => {
     if (data.stock <= value) {
@@ -136,7 +135,9 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
           </div>
         </div>
         <img
-          src={getProductImageUrl(data.images?.[0])}
+          src={
+            isEventImage ? getEventImageUrl(image) : getProductImageUrl(image)
+          }
           alt={data.name}
           className="w-[130px] ml-2 mr-2 rounded-[5px]"
         />
@@ -146,7 +147,7 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
             ${data.discountPrice} × {value}
           </h4>
           <h4 className="text-lg text-[#d02222] font-semibold">
-            US${totalPrice.toFixed(2)}
+            EGP{totalPrice.toFixed(2)}
           </h4>
         </div>
         <RxCross1

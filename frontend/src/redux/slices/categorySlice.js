@@ -12,6 +12,7 @@ export const getCategories = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${server}/category/`);
+      
       return data.data; // assuming { categories: [...] }
     } catch (error) {
     if (error.response && error.response.data.errors) {

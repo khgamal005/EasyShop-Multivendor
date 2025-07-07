@@ -22,6 +22,17 @@ export const getSubCategories = createAsyncThunk(
     }
   }
 );
+export const getAllSubCategories = createAsyncThunk(
+  "subCategory/getAllSubCategories",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`${server}/subcategory`);
+      return data.data; // assuming backend returns { data: [subcategories] }
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
 
 // Get single subcategory
 export const getSubCategory = createAsyncThunk(
@@ -99,6 +110,7 @@ export const deleteSubCategory = createAsyncThunk(
 const initialState = {
   isLoading: false,
   subCategories: [],
+    allSubCategories: [],
   subCategory: null,
   success: false,
   message: null,
@@ -131,6 +143,18 @@ const subCategorySlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
+        // 🔥 NEW: get all subcategories
+  .addCase(getAllSubCategories.pending, (state) => {
+    state.isLoading = true;
+  })
+  .addCase(getAllSubCategories.fulfilled, (state, action) => {
+    state.isLoading = false;
+    state.allSubCategories = action.payload;
+  })
+  .addCase(getAllSubCategories.rejected, (state, action) => {
+    state.isLoading = false;
+    state.error = action.payload;
+  })
 
       // Get single subcategory
       .addCase(getSubCategory.pending, (state) => {

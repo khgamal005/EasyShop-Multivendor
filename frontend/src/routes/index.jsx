@@ -52,6 +52,11 @@ import AllWithdraw from "../componant/Admin/AllWithdraw";
 import UserOrders from "../componant/order/UserOrders";
 import UserInbox from "../pages/UserInbox";
 import ShopInboxPage from "../pages/shop/ShopInboxPage";
+import PreviewShopPage from "../pages/PreviewShopPage";
+import Categories from "../pages/Categories ";
+import ShopResetPassword from "../componant/Shop/ShopResetPassword";
+import ShopForgetPassword from "../componant/Shop/ShopForgetPassword";
+import ShopVerifyResetCode from "../componant/Shop/ShopVerifyResetCode";
 
 const router = createBrowserRouter([
   {
@@ -84,6 +89,10 @@ const router = createBrowserRouter([
       {
         path: "products",
         element: <ProductsPage />,
+      },
+      {
+        path: "categories",
+        element: <Categories />,
       },
 
       {
@@ -138,6 +147,22 @@ const router = createBrowserRouter([
       {
         path: "shop-login",
         element: <ShopLoginPage />,
+      },
+      {
+        path: "shop/preview/:id",
+        element: <PreviewShopPage />,
+      },
+          {
+        path: "shop/ForgetPassword",
+        element: <ShopForgetPassword />,
+      },
+      {
+        path: "shop/VerifyResetCode",
+        element: <ShopVerifyResetCode />,
+      },
+      {
+        path: "shop/ResetPassword",
+        element: <ShopResetPassword />,
       },
       {
         path: "shop/:id",
