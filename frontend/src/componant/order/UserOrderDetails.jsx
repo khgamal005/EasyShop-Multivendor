@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/styles";
 import { requestRefund } from "../../redux/slices/orderSlice";
 import { RxCross1 } from "react-icons/rx";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { getProductImageUrl } from "../../utils/imageHelpers";
 

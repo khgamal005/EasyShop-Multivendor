@@ -32,7 +32,7 @@ const Header = ({ active, activeHeading }) => {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value); // local state to hold input
-navigate(`/products?keyword=${encodeURIComponent(value)}`);
+    navigate(`/products?keyword=${encodeURIComponent(value)}`);
   };
 
   return (
@@ -178,15 +178,15 @@ navigate(`/products?keyword=${encodeURIComponent(value)}`);
               />
             </div>
 
-  <div className="relative">
-            <input
-              type="text"
-              placeholder="Search Product..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="w-full h-10 px-4 border-2 border-blue-600 rounded-md"
-            />
-          </div>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search Product..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full h-10 px-4 border-2 border-blue-600 rounded-md"
+              />
+            </div>
 
             <Navbar active={activeHeading} />
             <div className={`$ ml-4 !rounded-[4px]`}>
