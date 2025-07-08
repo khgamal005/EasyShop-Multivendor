@@ -140,7 +140,7 @@ exports.getBrands = asyncHandler(async (req, res) => {
     const apiFeatures = new ApiFeatures(brand.find(), req.query)
       .paginate(documentsCounts)
       .filter()
-      .search(brand)
+      .search()
       .limitFields()
       .sort();
 

@@ -24,7 +24,7 @@ exports.getReviews = asyncHandler(async (req, res) => {
   const apiFeatures = new ApiFeatures(Review.find(filter), req.query)
     .paginate(documentsCounts)
     .filter()
-    .search(Review)
+    .search()
     .limitFields()
     .sort();
 

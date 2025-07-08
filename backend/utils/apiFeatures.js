@@ -34,6 +34,14 @@ filter() {
     queryStringObj.subcategories = { $in: [queryStringObj.subcategory] };
     delete queryStringObj.subcategory;
   }
+  
+  if (queryStringObj.color) {
+  const colorArray = Array.isArray(queryStringObj.color)
+    ? queryStringObj.color
+    : [queryStringObj.color];
+
+  queryStringObj.color = { $in: colorArray };
+}
 
   // Handle comparison operators
   let queryStr = JSON.stringify(queryStringObj);
@@ -81,7 +89,6 @@ search() {
         { description: { $regex: keyword, $options: 'i' } }
       ]
     };
-    console.log("Search query:", query);
     this.mongooseQuery = this.mongooseQuery.find(query);
   }
   return this;

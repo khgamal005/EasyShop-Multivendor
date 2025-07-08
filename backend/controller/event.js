@@ -68,7 +68,7 @@ exports.getallEvents = asyncHandler(async (req, res, next) => {
   )
     .paginate(documentsCounts)
     .filter()
-    .search(Event)
+    .search()
     .limitFields()
     .sort();
 
@@ -90,7 +90,7 @@ exports.getallEventsofShop = asyncHandler(async (req, res, next) => {
   )
     .paginate(documentsCounts)
     .filter()
-    .search(Event)
+    .search()
     .limitFields()
     .sort();
 

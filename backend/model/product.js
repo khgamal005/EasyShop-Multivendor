@@ -68,25 +68,25 @@ const productSchema = new mongoose.Schema({
 });
 
 // Mongoose query middleware
-// productSchema.pre(/^find/, function (next) {
-//   this.populate([
-//     {
-//       path: "category",
-//       select: "name -_id",
-//     },
-//     {
-//       path: "subcategories", // ✅ match the field in schema
-//       select: "name -_id",
-//     },
-//   ]);
-//   next();
-// });
-// productSchema.pre(/^find/, function (next) {
-//   this.populate({
-//     path: "shop",
-//     select: "name email avatar phoneNumber address", // select only what you need
-//   });
-//   next();
-// });
+productSchema.pre(/^find/, function (next) {
+  this.populate([
+    {
+      path: "category",
+      select: "name -_id",
+    },
+    {
+      path: "subcategories", // ✅ match the field in schema
+      select: "name -_id",
+    },
+  ]);
+  next();
+});
+productSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "shop",
+    select: "name email avatar phoneNumber address", // select only what you need
+  });
+  next();
+});
 
 module.exports = mongoose.model("Product", productSchema);

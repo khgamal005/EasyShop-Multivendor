@@ -70,20 +70,23 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
 });
 
 exports.getproducts = asyncHandler(async (req, res) => {
+  // First apply search and filters to get the base query
+  const baseQuery = new ApiFeatures(Product.find(), req.query)
+    .search()
+    .filter();
   
-  const documentsCounts = await Product.countDocuments();
-  const apiFeatures = new ApiFeatures(Product.find(), req.query)
-  .search()
-  .filter()
+  // Clone the query for counting (before pagination)
+  const countQuery = baseQuery.mongooseQuery.clone();
+  const documentsCounts = await countQuery.countDocuments();
+  
+  // Now apply sorting, field limiting, and pagination
+  const apiFeatures = baseQuery
     .sort()
     .limitFields()
     .paginate(documentsCounts);
 
   const { mongooseQuery, paginationResult } = apiFeatures;
-  
-  // Log the final MongoDB query being executed  
   const documents = await mongooseQuery;
-  console.log("Returned products:", documents.length);
   
   res.status(200).json({
     results: documents.length,
@@ -213,7 +216,7 @@ exports.getallproductsofshop = asyncHandler(async (req, res, next) => {
   )
     .paginate(documentsCounts)
     .filter()
-    .search(Product)
+    .search()
     .limitFields()
     .sort();
 
