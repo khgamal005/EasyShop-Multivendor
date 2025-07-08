@@ -13,7 +13,6 @@ export const createCoupon = createAsyncThunk(
         couponData,
         { withCredentials: true }
       );
-      console.log(data.data);
 
       return data.data;
     } catch (error) {
@@ -75,7 +74,6 @@ export const deleteCoupon = createAsyncThunk(
 export const getAllCouponessShop = createAsyncThunk(
   "coupon/getAllcouponShop",
   async (id, { rejectWithValue }) => {
-    console.log(id)
     try {
       const { data } = await axios.get(`${server}/coupon/seller/${id}`);
       return data.data;

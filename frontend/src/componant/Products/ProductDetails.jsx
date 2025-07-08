@@ -73,6 +73,10 @@ const ProductDetails = ({ data, eventData }) => {
   };
 
   const addToCartHandler = () => {
+             if (!user|| user.role !== "user") {
+    toast.error("Please create an account or login as a user to add items to cart.");
+    return;
+  }
     const isInCart = cart?.some((item) => item._id === data._id);
 
     if (isInCart && data.stock < count) {

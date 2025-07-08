@@ -16,8 +16,6 @@ const EditProduct = ({ onClose, product }) => {
   const { subCategories } = useSelector((state) => state.subCategory);
 
   const dispatch = useDispatch();
-  const API_BASE_URL = "http://localhost:8000"; // Your backend base URL
-  const PRODUCT_IMAGE_PATH = "/products/"; // The path where product images are served
   const [subCategoryIds, setSubCategoryIds] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -343,14 +341,35 @@ const EditProduct = ({ onClose, product }) => {
           </div>
 
           {/* Color */}
-          <div>
-            <label className="block mb-1 font-medium">Color</label>
-            <HexColorPicker color={color} onChange={setColor} />
-            <div
-              className="mt-2 w-10 h-10 border rounded-full"
-              style={{ backgroundColor: color }}
-            />
-          </div>
+       <div className="mt-6">
+          <label
+            htmlFor="colorInput"
+            className="block text-sm font-semibold text-gray-700 mb-2"
+          >
+            Product Color
+          </label>
+
+          <input
+            type="text"
+            id="colorInput"
+            name="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            placeholder="e.g., blue, red, sky blue"
+            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          {color && (
+            <div className="mt-2 text-sm text-gray-700 flex items-center gap-2">
+              <span>Preview:</span>
+              <span
+                className="w-5 h-5 rounded-full border"
+                style={{ backgroundColor: color }}
+              ></span>
+              <span className="capitalize">{color}</span>
+            </div>
+          )}
+               </div>
 
           {/* Image Upload */}
           <div>

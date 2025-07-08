@@ -178,37 +178,15 @@ navigate(`/products?keyword=${encodeURIComponent(value)}`);
               />
             </div>
 
-            <div className="my-8 w-[92%] m-auto h-[40px relative]">
-              <input
-                type="search"
-                placeholder="Search Product..."
-                className="h-[40px] w-full px-2 border-[#3957db] border-[2px] rounded-md"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              {searchTerm && (
-                <div className="absolute bg-[#fff] z-10 shadow w-full left-0 p-3">
-                  {searchTerm.map((i) => {
-                    const d = i.name;
-
-                    const Product_name = d.replace(/\s+/g, "-");
-                    return (
-                      // eslint-disable-next-line react/jsx-key
-                      <Link to={`/product/${Product_name}`}>
-                        <div className="flex items-center">
-                          <img
-                            src={i.image_Url[0]?.url}
-                            alt=""
-                            className="w-[50px] mr-2"
-                          />
-                          <h5>{i.name}</h5>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+  <div className="relative">
+            <input
+              type="text"
+              placeholder="Search Product..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-full h-10 px-4 border-2 border-blue-600 rounded-md"
+            />
+          </div>
 
             <Navbar active={activeHeading} />
             <div className={`$ ml-4 !rounded-[4px]`}>

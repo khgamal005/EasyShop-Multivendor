@@ -11,7 +11,6 @@ import { toast } from "react-toastify";
 
 import styles from "../../styles/styles";
 import ProductDetailsCard from "../ProductDetailsCard/ProductDetailsCard";
-import Ratings from "../Products/Ratings";
 import { getProductImageUrl } from "../../utils/imageHelpers";
 
 import {
@@ -21,8 +20,9 @@ import {
 import { addToCart } from "../../redux/slices/cartslice";
 
 const ProductCard = ({ data, isEvent }) => {
-  const wishlist = useSelector((state) => state.wishlist); // wishlist is an array
+  const wishlist = useSelector((state) => state.wishlist); 
   const cart = useSelector((state) => state.cart);         // cart is also an array
+  const {user} = useSelector((state) => state.user);         // cart is also an array
 
   const [click, setClick] = useState(false);
   const [open, setOpen] = useState(false);
@@ -46,6 +46,10 @@ const ProductCard = ({ data, isEvent }) => {
   };
 
   const handleAddToCart = () => {
+     if (!user||  user.role !== "user") {
+    toast.error("Please create an account or login as a user to add items to cart.");
+    return;
+  }
     const exists = cart?.some((item) => item._id === data._id);
 
     if (exists) {

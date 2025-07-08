@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,6 @@ import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import { getSubCategories } from "../../redux/slices/subcategorySlice";
 import { createPro } from "../../redux/slices/productslice";
-import { HexColorPicker } from "react-colorful";
 import { MdDelete } from "react-icons/md";
 import DisplayImage from "../../utils/DisplayImage";
 
@@ -35,7 +34,7 @@ const CreateProduct = () => {
   const handleCategoryChange = (e) => {
     const selectedId = e.target.value;
     setCategoryId(selectedId);
-    setSubCategoryIds([])// clear subcategory selection
+    setSubCategoryIds([]); // clear subcategory selection
     if (selectedId) {
       dispatch(getSubCategories(selectedId));
     }
@@ -179,7 +178,9 @@ const CreateProduct = () => {
                 setSubCategoryIds(selectedOptions);
               }}
             >
-              <option value="" disabled>Select Subcategories</option>
+              <option value="" disabled>
+                Select Subcategories
+              </option>
               {subCategories.map((sub) => (
                 <option key={sub._id} value={sub._id}>
                   {sub.name}
@@ -255,14 +256,34 @@ const CreateProduct = () => {
           />
         </div>
         <br />
-        <div className="mt-4">
-          <label className="block text-sm font-medium mb-1">
+        <div className="mt-6">
+          <label
+            htmlFor="colorInput"
+            className="block text-sm font-semibold text-gray-700 mb-2"
+          >
             Product Color
           </label>
-          <HexColorPicker color={color} onChange={setColor} />
-          <p className="mt-2">
-            Selected: <span style={{ color }}>{color}</span>
-          </p>
+
+          <input
+            type="text"
+            id="colorInput"
+            name="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            placeholder="e.g., blue, red, sky blue"
+            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          {color && (
+            <div className="mt-2 text-sm text-gray-700 flex items-center gap-2">
+              <span>Preview:</span>
+              <span
+                className="w-5 h-5 rounded-full border"
+                style={{ backgroundColor: color }}
+              ></span>
+              <span className="capitalize">{color}</span>
+            </div>
+          )}
         </div>
 
         <br />
@@ -318,15 +339,13 @@ const CreateProduct = () => {
         </div>
       </form>
 
-       {/***display image full screen */}
-       {
-       openFullScreenImage && (
+      {/***display image full screen */}
+      {openFullScreenImage && (
         <DisplayImage
-        onClose={() => setOpenFullScreenImage(false)}
+          onClose={() => setOpenFullScreenImage(false)}
           imgUrl={URL.createObjectURL(fullScreenImage)} // ✅ FIXED
         />
-      )
-       }
+      )}
     </div>
   );
 };

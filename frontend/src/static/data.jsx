@@ -78,11 +78,6 @@ export const navItems = [
     {
       name: "Contact Us",
     },
-    {
-      name: "Shipping",
-    },
-    {
-      name: "Live chat",
-    },
+
   ];
   

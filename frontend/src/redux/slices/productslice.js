@@ -112,7 +112,6 @@ export const getAllProducts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${server}/product`);
-      console.log(data)
       return data.data;
     } catch (error) {
       if (error.response && error.response.data.errors) {
@@ -135,7 +134,6 @@ export const getProducts = createAsyncThunk(
   async (query = "", { rejectWithValue }) => {
     try {
       const { data } = await axios.get(`${server}/product?${query}`);
-console.log("Hitting API with query:", query);
       return data;
       
     } catch (error) {
@@ -215,6 +213,7 @@ const productSlice = createSlice({
       // Get All Products of a Shop
       .addCase(getAllProductsShop.pending, (state) => {
         state.isLoading = true;
+                state.isLoading = false;
       })
       .addCase(getAllProductsShop.fulfilled, (state, action) => {
         state.isLoading = false;

@@ -23,6 +23,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
   const wishlist = useSelector((state) => state.wishlist); // wishlist array
   const cart = useSelector((state) => state.cart); // cart array
 
+
   const dispatch = useDispatch();
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
@@ -48,6 +49,10 @@ const user = useSelector((state) => state.user.user)
   };
 
   const addToCartHandler = (id) => {
+         if ( !user|| user.role !== "user") {
+    toast.error("Please create an account or login as a user to add items to cart.");
+    return;
+  }
     const isItemExists = cart?.some((item) => item._id === id);
     if (isItemExists && data?.stock < count) {
       toast.error("Product stock limited!");
