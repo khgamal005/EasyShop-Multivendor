@@ -101,7 +101,7 @@ socket.on("sendMessage", ({ receiverId, ...message }) => {
 
   // Disconnect user
   socket.on("disconnect", () => {
-    console.log("🔴 A user disconnected:", socket.id);
+    console.log(" A user disconnected:", socket.id);
     removeUser(socket.id);
     io.emit("getUsers", users);
   });
@@ -110,11 +110,11 @@ socket.on("sendMessage", ({ receiverId, ...message }) => {
 // === Server Boot ===
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(` Server running at ${process.env.BACKEND_URL}`);
 });
 
 // === Handle Unhandled Promise Errors ===
 process.on("unhandledRejection", (err) => {
-  console.error(`❌ Unhandled Rejection: ${err.message}`);
+  console.error(` Unhandled Rejection: ${err.message}`);
   server.close(() => process.exit(1));
 });

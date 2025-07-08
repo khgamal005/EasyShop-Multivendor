@@ -29,7 +29,7 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Replace with your frontend URL in production
+    origin: process.env.FRONTEND_URL ,
     credentials: true,
   })
 );
