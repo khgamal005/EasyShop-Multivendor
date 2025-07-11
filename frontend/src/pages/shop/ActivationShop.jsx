@@ -2,7 +2,6 @@ import axios from 'axios';
 import { server } from "../../server";
   import { Link, useParams } from 'react-router-dom';
   import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
   
   const ActivationShop = () => {
     const { token } = useParams();

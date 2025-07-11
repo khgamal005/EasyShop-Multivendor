@@ -14,7 +14,6 @@ import ProfilePage from "../pages/ProfilePage";
 import ErrorPage from "../pages/ErrorPage";
 import ProtectedRoute from "./ProtectedRoute";
 import ShopCreatePage from "../pages/shop/ShopCreate";
-import ActivationShop from "../pages/shop/Activationshop";
 import ShopHomePage from "../pages/shop/ShopHomePage";
 import SellerProtectedRoute from "./SellerProtectedRoute";
 import ShopDashboardPage from "../pages/shop/ShopDashboardPage";
@@ -53,11 +52,13 @@ import UserOrders from "../componant/order/UserOrders";
 import UserInbox from "../pages/UserInbox";
 import ShopInboxPage from "../pages/shop/ShopInboxPage";
 import PreviewShopPage from "../pages/PreviewShopPage";
+import ActivationShop from "../pages/shop/ActivationShop";
 import Categories from "../pages/Categories ";
 import ShopResetPassword from "../componant/Shop/ShopResetPassword";
 import ShopForgetPassword from "../componant/Shop/ShopForgetPassword";
 import ShopVerifyResetCode from "../componant/Shop/ShopVerifyResetCode";
 import Coupons from "../pages/Coupons";
+
 
 const router = createBrowserRouter([
   {
