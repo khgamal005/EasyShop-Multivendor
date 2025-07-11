@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { loadUser } from "../../redux/slices/userSlice";
 
+
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");

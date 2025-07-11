@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfUser } from "../../redux/slices/orderSlice";
 import { useNavigate } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa"; // example icon
-import Loader from "../../componant/Layout/Loader";
+import Loader from "../Layout/Loader";
 
 const UserOrders = ( ) => {
   const dispatch = useDispatch();
