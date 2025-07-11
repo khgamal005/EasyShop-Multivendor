@@ -15,11 +15,18 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch()
+      const { seller } = useSelector((state) => state.seller);
+
 
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+        e.preventDefault();
+            if (seller) {
+          toast.error("You are already logged in as a seller. Please logout first.");
+          return;
+        }
 
    await  axios.post(`${server}/user/login`, {
       email,

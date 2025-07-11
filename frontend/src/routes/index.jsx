@@ -7,7 +7,7 @@ import ActivationPage from "../pages/ActivationPage";
 import App from "../App";
 import ProductsPage from "../pages/ProductsPage";
 import ProductDetailsPage from "../pages/ProductDetailsPage";
-import BestSellingPage from "../pages/BestSellingPage";
+import BestSellingPage from "../pages/Coupons";
 import FAQPage from "../pages/FAQPage";
 import EventsPage from "../pages/EventsPage";
 import ProfilePage from "../pages/ProfilePage";
@@ -57,6 +57,7 @@ import Categories from "../pages/Categories ";
 import ShopResetPassword from "../componant/Shop/ShopResetPassword";
 import ShopForgetPassword from "../componant/Shop/ShopForgetPassword";
 import ShopVerifyResetCode from "../componant/Shop/ShopVerifyResetCode";
+import Coupons from "../pages/Coupons";
 
 const router = createBrowserRouter([
   {
@@ -101,8 +102,8 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "best-selling",
-        element: <BestSellingPage />,
+        path: "Coupons",
+        element: <Coupons />,
       },
       {
         path: "events",

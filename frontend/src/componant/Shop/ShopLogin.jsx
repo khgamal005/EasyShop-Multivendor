@@ -6,7 +6,7 @@ import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 import { loadSeller } from "../../redux/slices/sellerslice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const ShopLogin = () => {
   const navigate = useNavigate();
@@ -14,29 +14,34 @@ const ShopLogin = () => {
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch()
+    const { user } = useSelector((state) => state.user);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios
-      .post(
+
+    if (user) {
+      toast.error("You are already logged in as a user. Please logout first.");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
         `${server}/shop/login-shop`,
         {
           email,
           password,
         },
         { withCredentials: true }
-      )
-      .then((res) => {
-              toast.success(res.data.message);
-              dispatch(loadSeller());
-              navigate("/");
-
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message);
-      });
-  };
+      );
+      toast.success(res.data.message);
+      dispatch(loadSeller());
+      navigate("/");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Seller login failed");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

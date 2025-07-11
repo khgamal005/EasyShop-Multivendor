@@ -41,7 +41,7 @@ const Payment = () => {
           {
             description: "Sunflower",
             amount: {
-              currency_code: "EGP",
+              currency_code: "USD",
               value: orderData?.totalPrice,
             },
           },
@@ -71,38 +71,62 @@ const Payment = () => {
     }
   };
 
-  const paymentHandler = async (e) => {
-    e.preventDefault();
+const paymentHandler = async (e) => {
+  e.preventDefault();
 
-    if (!stripe || !elements) return;
+  if (!stripe || !elements) {
+    toast.error("Stripe is not loaded yet.");
+    return;
+  }
 
-    try {
-      const { data } = await axios.post(
-        `${server}/payment/process`,
-        { amount: Math.round(orderData?.totalPrice * 100) },
-        { withCredentials: true }
-      );
+  try {
+    // Get client secret from backend
+    const { data } = await axios.post(
+      `${server}/payment/process`,
+      { amount: Math.round(orderData?.totalPrice * 100) },
+      { withCredentials: true }
+    );
 
-      const result = await stripe.confirmCardPayment(data.client_secret, {
-        payment_method: {
-          card: elements.getElement(CardNumberElement), // NOT "cardNumber"
-        },
-      });
+    // Confirm card payment
+    const result = await stripe.confirmCardPayment(data.client_secret, {
+      payment_method: {
+        card: elements.getElement(CardNumberElement),
+      },
+    });
 
-      if (result.error) toast.error(result.error.message);
-      else if (result.paymentIntent.status === "succeeded") {
-        order.paymentInfo = {
-          id: result.paymentIntent.id,
-          status: result.paymentIntent.status,
-          type: "Credit Card",
-        };
-        await axios.post(`${server}/order/create-order`, order);
-        handlePostOrderSuccess();
-      }
-    } catch {
-      toast.error("Payment failed, please try again.");
+    if (result.error) {
+      console.error("Stripe error:", result.error.message);
+      toast.error(result.error.message);
+      return;
     }
-  };
+
+    if (result.paymentIntent.status !== "succeeded") {
+      toast.error("Payment was not successful. Please try again.");
+      return;
+    }
+
+    // Clone orderData to avoid mutating shared state
+    const newOrder = {
+      ...orderData,
+      paymentInfo: {
+        id: result.paymentIntent.id,
+        status: result.paymentIntent.status,
+        type: "Credit Card",
+      },
+    };
+
+    // Create order in backend
+    await axios.post(`${server}/order/create-order`, newOrder);
+
+    // Clear cart and navigate
+    handlePostOrderSuccess();
+
+  } catch (err) {
+    console.error("Payment processing error:", err);
+    toast.error("Payment failed. Please try again.");
+  }
+};
+
 
   const cashOnDeliveryHandler = async (e) => {
     e.preventDefault();
@@ -123,7 +147,7 @@ const Payment = () => {
     navigate("/order/success");
     localStorage.setItem("cartItems", JSON.stringify([]));
     localStorage.setItem("latestOrder", JSON.stringify([]));
-    dispatch(clearCart());
+dispatch(clearCart({ userId: user._id }));
   };
 
   if (!orderData) return <div>Loading order data...</div>;

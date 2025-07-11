@@ -47,6 +47,8 @@ const [searchParams, setSearchParams] = useSearchParams();
     if (sort) params.set("sort", sort);
     params.set("page", page);
     params.set("limit", 3);
+        setSearchParams(params);
+
 
     dispatch(getProducts(params.toString()));
   }, [keyword, category, subcategory, sort, page, dispatch]);

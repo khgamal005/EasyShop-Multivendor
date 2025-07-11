@@ -1,21 +1,25 @@
 import { useEffect, useState } from "react";
 import { BsFillBagFill } from "react-icons/bs";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/styles";
 import { requestRefund } from "../../redux/slices/orderSlice";
 import { RxCross1 } from "react-icons/rx";
 import { toast } from "react-toastify";
-import { getProductImageUrl } from "../../utils/imageHelpers";
+import { getEventImageUrl, getProductImageUrl } from "../../utils/imageHelpers";
+import { createConversation } from "../../redux/slices/conversationSlice";
+import { AiOutlineMessage } from "react-icons/ai";
 
 const UserOrderDetails = () => {
-  const { orders } = useSelector((state) => state.order);
+  const { orders, order } = useSelector((state) => state.order);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const [comment, setComment] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [rating, setRating] = useState(1);
   const { id } = useParams();
+    const navigate = useNavigate();
+
+  const user = useSelector((state) => state.user.user);
 
   const data = orders && orders.find((item) => item._id === id);
 
@@ -31,6 +35,23 @@ const UserOrderDetails = () => {
       }
     } catch (error) {
       toast.error("An unexpected error occurred.");
+    }
+  };
+  const handleMessageSubmit = async () => {
+    try {
+      const conversation = {
+        groupTitle: "", // Optional, for 1-1 chat
+        userId: user._id,
+        sellerId: order.cart[0].shop._id,
+      };
+
+      const res = await dispatch(createConversation(conversation)).unwrap();
+
+      setOpen(false); // close the modal
+      navigate(`/inbox?conversationId=${res._id}`);
+    } catch (err) {
+      toast.error("Failed to create or fetch conversation.");
+      console.log(err);
     }
   };
 
@@ -57,10 +78,16 @@ const UserOrderDetails = () => {
       <br />
       {data &&
         data?.cart.map((item, index) => {
+          const isEventImage = item.images[0].startsWith("event-");
+
           return (
             <div key={index} className="w-full flex items-start mb-5">
               <img
-                src={getProductImageUrl(item.images[0])}
+                src={
+                  isEventImage
+                    ? getEventImageUrl(item.images[0])
+                    : getProductImageUrl(item.images[0])
+                }
                 alt=""
                 className="w-[80x] h-[80px]"
               />
@@ -141,29 +168,36 @@ const UserOrderDetails = () => {
             {data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"}
           </h4>
           <br />
-{data?.status === "Processing refund" ? (
-  <p className="text-yellow-600 font-medium">Refund is processing...</p>
-) : data?.status === "Refund Success" ? (
-  <button
-    disabled
-    className="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed opacity-70"
-  >
-    Refund Completed
-  </button>
-) : (
-  <div
-    className={`${styles.button} bg-red-600 hover:bg-red-700 text-white transition-colors duration-200 cursor-pointer`}
-    onClick={refundHandler}
-  >
-    Request Refund & Return Order
-  </div>
-)}
+          {data?.status === "Processing refund" ? (
+            <p className="text-yellow-600 font-medium">
+              Refund is processing...
+            </p>
+          ) : data?.status === "Refund Success" ? (
+            <button
+              disabled
+              className="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed opacity-70"
+            >
+              Refund Completed
+            </button>
+          ) : (
+            <div
+              className={`${styles.button} bg-red-600 hover:bg-red-700 text-white transition-colors duration-200 cursor-pointer`}
+              onClick={refundHandler}
+            >
+              Request Refund & Return Order
+            </div>
+          )}
         </div>
       </div>
       <br />
-      <Link to="/">
-        <div className={`${styles.button} text-white`}>Send Message</div>
-      </Link>
+      <button
+        className={`${styles.button} bg-[#000] mt-4 rounded-[4px] h-11 flex items-center justify-center`}
+        onClick={handleMessageSubmit}
+      >
+        <span className="text-white flex items-center">
+          Send Message <AiOutlineMessage className="ml-1" />
+        </span>
+      </button>
       <br />
       <br />
     </div>

@@ -19,14 +19,19 @@ const cartSlice = createSlice({
     removeFromCart: (state, action) => {
       return state.filter((i) => i._id !== action.payload);
     },
-    clearCart: () => {
+    clearCart: (state, action) => {
+      const userId = action?.payload?.userId;
+      if (userId) {
+        localStorage.setItem(`cart_${userId}`, JSON.stringify([]));
+      }
       return [];
     },
-     loadCart: (state, action) => {
+    loadCart: (state, action) => {
       return action.payload || [];
     },
   },
 });
 
-export const { addToCart, removeFromCart, clearCart ,loadCart} = cartSlice.actions;
+export const { addToCart, removeFromCart, clearCart, loadCart } =
+  cartSlice.actions;
 export default cartSlice.reducer;

@@ -24,16 +24,20 @@ const ResetPassword = () => {
     dispatch(resetPassword({ email, newPassword }));
   };
 
-  useEffect(() => {
-    if (successMessage) {
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
-    }
+useEffect(() => {
+  if (successMessage) {
+    toast.success("Your password has been reset successfully!");
+
+    const timeoutId = setTimeout(() => {
+      navigate("/login");
+    }, 4000);
+
     return () => {
+      clearTimeout(timeoutId);
       dispatch(clearMessages());
     };
-  }, [successMessage, navigate, dispatch]);
+  }
+}, [successMessage, navigate, dispatch]);
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100 px-4">

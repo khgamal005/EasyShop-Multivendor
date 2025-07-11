@@ -6,8 +6,8 @@ export const navItems = [
       url: "/",
     },
     {
-      title: "Best Selling",
-      url: "/best-selling",
+      title: "Coupons",
+      url: "/Coupons",
     },
     {
       title: "Products",
@@ -32,37 +32,17 @@ export const navItems = [
   
   export const footerProductLinks = [
     {
-      name: "About us",
+
       link: "/about"
     },
-    {
-      name: "Careers",
-      link: "/carrers"
-    },
-    {
-      name: "Store Locations",
-    },
-    {
-      name: "Our Blog",
-    },
+
     {
       name: "Reviews",
     },
   ];
   
   export const footercompanyLinks = [
-    {
-      name: "Game & Video",
-    },
-    {
-      name: "Phone &Tablets",
-    },
-    {
-      name: "Computers & Laptop",
-    },
-    {
-      name: "Sport Watches",
-    },
+
     {
       name: "Events",
     },
@@ -72,12 +52,7 @@ export const navItems = [
     {
       name: "FAQ",
     },
-    {
-      name: "Reviews",
-    },
-    {
-      name: "Contact Us",
-    },
+
 
   ];
   

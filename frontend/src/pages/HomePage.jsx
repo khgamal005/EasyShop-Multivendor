@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { getCategories } from '../redux/slices/categorySlice';
 import Categories from './Categories ';
+import { loadUser } from '../redux/slices/userSlice';
+import { loadSeller } from '../redux/slices/sellerslice';
 
 
 const HomePage = () => {
@@ -22,6 +24,8 @@ const HomePage = () => {
    dispatch(getAllProducts());
    dispatch(getCategories());
        dispatch(getProducts());
+       dispatch(loadUser());
+       dispatch(loadSeller());
 
    
 

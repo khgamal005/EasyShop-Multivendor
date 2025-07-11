@@ -116,15 +116,14 @@ const Header = ({ active, activeHeading }) => {
           {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
 
           {!isSeller ? (
-            <Link to="/profile" className="bg">
+            <Link to="/profile" className="">
               {user?.avatar ? (
                 <img
-                  src={getUserImageUrl(user.avatar.url)}
-                  alt={user.name}
+                  src={getUserImageUrl(user.avatar?.url)}
+                  alt={user?.name}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "block";
+             
                   }}
                   className="w-10 h-10 rounded-full"
                 />
