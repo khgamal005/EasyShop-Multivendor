@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
-import Loader from "../componant/Layout/Loader";
-import ProductCard from "../componant/Route/ProductCard/ProductCard";
+import Loader from "../components/Layout/Loader";
+import ProductCard from "../components/Route/ProductCard/ProductCard";
 import styles from "../styles/styles";
 import { getProducts } from "../redux/slices/productslice";
-import ProductSidebar from "../componant/Products/ProductSidebar";
+import ProductSidebar from "../components/Products/ProductSidebar";
 
 const ProductsPage = () => {
   const dispatch = useDispatch();

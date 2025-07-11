@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import ProductDetails from "../componant/Products/ProductDetails";
-import SuggestedProduct from "../componant/Products/SuggestedProduct";
+import ProductDetails from "../components/Products/ProductDetails";
+import SuggestedProduct from "../components/Products/SuggestedProduct";
 
 const ProductDetailsPage = () => {
   const { products } = useSelector((state) => state.product);

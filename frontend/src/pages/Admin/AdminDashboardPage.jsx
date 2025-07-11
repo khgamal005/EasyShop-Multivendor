@@ -1,8 +1,8 @@
 import { ToastContainer } from "react-toastify";
 
 import { Outlet } from "react-router-dom";
-import AdminDashboardHeader from "../../componant/Admin/AdminDashboardHeader";
-import AdminDashboardSidebar from "../../componant/Admin/AdminDashboardSidebar";
+import AdminDashboardHeader from "../../components/Admin/AdminDashboardHeader";
+import AdminDashboardSidebar from "../../components/Admin/AdminDashboardSidebar";
 
 const AdminDashboardPage = () => {
   return (

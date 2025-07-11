@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
-import Loader from "../../componant/Layout/Loader";
+import Loader from "../../components/Layout/Loader";
 import { getAllOrdersForAdmin } from "../../redux/slices/orderSlice";
 
 const AdminOrders = () => {

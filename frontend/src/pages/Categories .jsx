@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import CategoryCard from "../componant/Categories/CategoryCard";
+import CategoryCard from "../components/Categories/CategoryCard";
 
 const Categories = () => {
   const { categories } = useSelector((state) => state.category);

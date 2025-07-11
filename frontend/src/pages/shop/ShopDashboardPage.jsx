@@ -1,7 +1,7 @@
 import { ToastContainer } from "react-toastify";
 
-import DashboardHeader from "../../componant/Shop/Layout/DashboardHeader";
-import DashboardSideBar from "../../componant/Shop/Layout/DashboardSideBar";
+import DashboardHeader from "../../components/Shop/Layout/DashboardHeader";
+import DashboardSideBar from "../../components/Shop/Layout/DashboardSideBar";
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useSocketSetup } from "../../hook/useSocketSetup";

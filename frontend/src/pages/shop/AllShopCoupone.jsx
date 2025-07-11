@@ -7,7 +7,7 @@ import {
 } from "../../redux/slices/couponeSlice";
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import Loader from "../../componant/Layout/Loader";
+import Loader from "../../components/Layout/Loader";
 import { toast } from "react-toastify";
 
 const AllShopCoupone = () => {

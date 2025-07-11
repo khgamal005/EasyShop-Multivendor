@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { getAllCoupons } from "../redux/slices/couponeSlice";
-import Loader from "../componant/Layout/Loader";
+import Loader from "../components/Layout/Loader";
 
 const Coupons = () => {
   const dispatch = useDispatch();

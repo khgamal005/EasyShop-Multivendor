@@ -1,4 +1,4 @@
-import UserOrderDetails from "../componant/order/UserOrderDetails"
+import UserOrderDetails from "../components/order/UserOrderDetails"
 
 
 const OrderDetailsPage = () => {

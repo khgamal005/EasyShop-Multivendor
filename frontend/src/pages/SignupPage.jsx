@@ -1,4 +1,4 @@
-import Singup from "../componant/Signup/Signup"
+import Singup from "../components/Signup/Signup"
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";

@@ -9,8 +9,8 @@ import {
   updateLastMessage,
 } from "../redux/slices/conversationSlice";
 import { createMessage, getMessages } from "../redux/slices/messageSlice";
-import MessageList from "../componant/userInbox/MessageList";
-import SellerInbox from "../componant/userInbox/SellerInbox";
+import MessageList from "../components/userInbox/MessageList";
+import SellerInbox from "../components/userInbox/SellerInbox";
 
 const UserInbox = () => {
   const { user, loading } = useSelector((state) => state.user);

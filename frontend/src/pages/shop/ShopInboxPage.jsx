@@ -10,8 +10,8 @@ import {
   updateLastMessage,
 } from "../../redux/slices/conversationSlice";
 import { createMessage, getMessages } from "../../redux/slices/messageSlice";
-import SellerInbox from "../../componant/Shop/SellerInbox";
-import MessageList from "../../componant/Shop/MessageList";
+import SellerInbox from "../../components/Shop/SellerInbox";
+import MessageList from "../../components/Shop/MessageList";
 
 const ShopInboxPage = () => {
   const { seller, isLoading } = useSelector((state) => state.seller);

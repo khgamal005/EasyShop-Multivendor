@@ -1,5 +1,5 @@
-import CheckoutSteps from "../componant/Checkout/CheckoutSteps"
-import Payment from "../componant/Payment/Payment"
+import CheckoutSteps from "../components/Checkout/CheckoutSteps"
+import Payment from "../components/Payment/Payment"
 
 
 const PaymentPage = () => {

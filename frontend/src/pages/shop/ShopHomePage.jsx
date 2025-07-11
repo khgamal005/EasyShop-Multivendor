@@ -1,5 +1,5 @@
-import ShopInfo from '../../componant/Shop/ShopInfo'
-import ShopProfileData from '../../componant/Shop/ShopProfileData'
+import ShopInfo from '../../components/Shop/ShopInfo'
+import ShopProfileData from '../../components/Shop/ShopProfileData'
 import styles from '../../styles/styles'
 
 

@@ -1,7 +1,7 @@
 import  { useState } from "react";
-import Loader from "../componant/Layout/Loader";
-import ProfileSideBar from "../componant/Profile/ProfileSidebar";
-import ProfileContent from "../componant/Profile/ProfileContent";
+import Loader from "../components/Layout/Loader";
+import ProfileSideBar from "../components/Profile/ProfileSidebar";
+import ProfileContent from "../components/Profile/ProfileContent";
 import { useSelector } from "react-redux";
 
 const ProfilePage = () => {

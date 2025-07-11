@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import Loader from "../componant/Layout/Loader";
+import Loader from "../components/Layout/Loader";
 import { getAllProductsShop } from "../redux/slices/productslice";
-import ProductCard from "../componant/ProductCard/ProductCard";
-import ShopInfoCard from "../componant/Products/ShopInfoCard ";
+import ProductCard from "../components/ProductCard/ProductCard";
+import ShopInfoCard from "../components/Products/ShopInfoCard ";
 
 const PreviewShopPage = () => {
   const { id } = useParams(); 

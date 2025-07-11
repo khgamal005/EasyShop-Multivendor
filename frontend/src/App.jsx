@@ -1,7 +1,7 @@
 import "./App.css";
 import { Outlet } from "react-router-dom";
-import Header from "./componant/Layout/Header";
-import Footer from "./componant/Layout/Footer";
+import Header from "./components/Layout/Header";
+import Footer from "./components/Layout/Footer";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
