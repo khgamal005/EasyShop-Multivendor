@@ -109,9 +109,9 @@ socket.on("sendMessage", ({ receiverId, ...message }) => {
 
 // === Server Boot ===
 const PORT = process.env.PORT || 8000;
-server.listen(PORT, () => {
-  console.log(` Server running at ${process.env.BACKEND_URL}`);
-});
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);});
 
 // === Handle Unhandled Promise Errors ===
 process.on("unhandledRejection", (err) => {

@@ -34,5 +34,8 @@
     "socket.io": "^4.8.1",
     "stripe": "^18.1.1",
     "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.10"
   }
 }

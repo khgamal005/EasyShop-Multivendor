@@ -21,7 +21,6 @@ exports.uploadUserImage = uploadSingleImage("avatar");
 
 exports.createUser = asyncHandler(async (req, res, next) => {
   const { name, email, password ,address,phoneNumber,zipCode} = req.body;
-  console.log(req.body)
   const avatarBuffer = req.file?.buffer;
   const tempAvatarId = avatarBuffer ? saveTempAvatar(avatarBuffer) : null;
   const user = {
