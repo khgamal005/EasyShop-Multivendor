@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import ShopCreate from '../../components/shop/ShopCreate';
+import ShopCreate from '../../components/Shop/ShopCreate';
 
 
 const ShopCreatePage = () => {
