@@ -1,64 +1,64 @@
 import { createBrowserRouter } from "react-router-dom";
-import HomePage from "../pages/HomePage";
-import SignupPage from "../pages/SignupPage";
-import LoginPage from "../pages/LoginPage";
-import ActivationPage from "../pages/ActivationPage";
-
+import React, { lazy } from "react";
 import App from "../App";
-import ProductsPage from "../pages/ProductsPage";
-import ProductDetailsPage from "../pages/ProductDetailsPage";
-import BestSellingPage from "../pages/Coupons";
-import FAQPage from "../pages/FAQPage";
-import EventsPage from "../pages/EventsPage";
-import ProfilePage from "../pages/ProfilePage";
-import ErrorPage from "../pages/ErrorPage";
 import ProtectedRoute from "./ProtectedRoute";
-import ShopCreatePage from "../pages/shop/ShopCreate";
-import ShopHomePage from "../pages/shop/ShopHomePage";
 import SellerProtectedRoute from "./SellerProtectedRoute";
-import ShopDashboardPage from "../pages/shop/ShopDashboardPage";
-import CreateProduct from "../components/Shop/CreateProduct";
-import CreateBrand from "../components/Admin/createBrand";
-import ShopLoginPage from "../pages/shop/ShopLoginPage";
-import CreateCategory from "../components/Shop/CreateCategory";
-import CreateSubCategory from "../components/Admin/CreateSubCategory ";
-import AllProducts from "../components/Shop/AllProducts";
-import EditShopPage from "../pages/shop/EditShopPage";
-import CreateEvent from "../components/Shop/CreateEvent";
-import AllEvents from "../components/Shop/AllEvents";
 import AdminProtectedRoute from "./AdminProtectedRoute";
-import AdminDashboardPage from "../pages/Admin/AdminDashboardPage";
-import CreateCoupon from "../components/Admin/CreateCoupone";
-import AllCoupons from "../pages/Admin/AllCoupons";
-import Checkout from "../components/Checkout/Checkout";
-import OrderDetailsPage from "../pages/OrderDetailsPage";
-import OrderSuccessPage from "../pages/OrderSuccessPage";
-import PaymentPage from "../pages/PaymentPage";
 import StripeWrapper from "./StripeWrapper";
-import AllShopCoupone from "../pages/shop/AllShopCoupone";
-import CreateSellerCoupone from "../components/Shop/CreateSellerCoupone";
-import AdminOrders from "../pages/Admin/AdminOrders";
-import ShopAllOrders from "../components/Shop/ShopAllOrders";
-import OrderDetails from "../components/Shop/OrderDetails";
-import WithdrawMoney from "../components/Shop/WithdrawMoney";
-import AllRefundOrders from "../components/Shop/AllRefundOrders";
-import TrackOrder from "../components/Profile/TrackOrder";
-import ChangePassword from "../components/Profile/ChangePassword";
-import ForgetPassword from "../components/Profile/ForgetPassword ";
-import VerifyResetCode from "../components/Profile/VerifyResetCode ";
-import ResetPassword from "../components/Profile/ResetPassword ";
-import AllWithdraw from "../components/Admin/AllWithdraw";
-import UserOrders from "../components/order/UserOrders";
-import UserInbox from "../pages/UserInbox";
-import ShopInboxPage from "../pages/shop/ShopInboxPage";
-import PreviewShopPage from "../pages/PreviewShopPage";
-import ActivationShop from "../pages/shop/ActivationShop";
-import Categories from "../pages/Categories ";
-import ShopResetPassword from "../components/Shop/ShopResetPassword";
-import ShopForgetPassword from "../components/Shop/ShopForgetPassword";
-import ShopVerifyResetCode from "../components/Shop/ShopVerifyResetCode";
-import Coupons from "../pages/Coupons";
 
+// Lazy-loaded pages
+const HomePage = lazy(() => import("../pages/HomePage"));
+const SignupPage = lazy(() => import("../pages/SignupPage"));
+const LoginPage = lazy(() => import("../pages/LoginPage"));
+const ActivationPage = lazy(() => import("../pages/ActivationPage"));
+const ActivationShop = lazy(() => import("../pages/shop/ActivationShop"));
+const ProductsPage = lazy(() => import("../pages/ProductsPage"));
+const ProductDetailsPage = lazy(() => import("../pages/ProductDetailsPage"));
+const FAQPage = lazy(() => import("../pages/FAQPage"));
+const EventsPage = lazy(() => import("../pages/EventsPage"));
+const ProfilePage = lazy(() => import("../pages/ProfilePage"));
+const ErrorPage = lazy(() => import("../pages/ErrorPage"));
+const ShopCreatePage = lazy(() => import("../pages/shop/ShopCreate"));
+const ShopHomePage = lazy(() => import("../pages/shop/ShopHomePage"));
+const ShopDashboardPage = lazy(() => import("../pages/shop/ShopDashboardPage"));
+const CreateProduct = lazy(() => import("../components/Shop/CreateProduct"));
+const CreateBrand = lazy(() => import("../components/Admin/createBrand"));
+const ShopLoginPage = lazy(() => import("../pages/shop/ShopLoginPage"));
+const CreateCategory = lazy(() => import("../components/Shop/CreateCategory"));
+const CreateSubCategory = lazy(() => import("../components/Admin/CreateSubCategory "));
+const AllProducts = lazy(() => import("../components/Shop/AllProducts"));
+const EditShopPage = lazy(() => import("../pages/shop/EditShopPage"));
+const CreateEvent = lazy(() => import("../components/Shop/CreateEvent"));
+const AllEvents = lazy(() => import("../components/Shop/AllEvents"));
+const AdminDashboardPage = lazy(() => import("../pages/Admin/AdminDashboardPage"));
+const CreateCoupon = lazy(() => import("../components/Admin/CreateCoupone"));
+const AllCoupons = lazy(() => import("../pages/Admin/AllCoupons"));
+const Checkout = lazy(() => import("../components/Checkout/Checkout"));
+const OrderDetailsPage = lazy(() => import("../pages/OrderDetailsPage"));
+const OrderSuccessPage = lazy(() => import("../pages/OrderSuccessPage"));
+const PaymentPage = lazy(() => import("../pages/PaymentPage"));
+const AllShopCoupone = lazy(() => import("../pages/shop/AllShopCoupone"));
+const CreateSellerCoupone = lazy(() => import("../components/Shop/CreateSellerCoupone"));
+const AdminOrders = lazy(() => import("../pages/Admin/AdminOrders"));
+const ShopAllOrders = lazy(() => import("../components/Shop/ShopAllOrders"));
+const OrderDetails = lazy(() => import("../components/Shop/OrderDetails"));
+const WithdrawMoney = lazy(() => import("../components/Shop/WithdrawMoney"));
+const AllRefundOrders = lazy(() => import("../components/Shop/AllRefundOrders"));
+const TrackOrder = lazy(() => import("../components/Profile/TrackOrder"));
+const ChangePassword = lazy(() => import("../components/Profile/ChangePassword"));
+const ForgetPassword = lazy(() => import("../components/Profile/ForgetPassword"));
+const VerifyResetCode = lazy(() => import("../components/Profile/VerifyResetCode"));
+const ResetPassword = lazy(() => import("../components/Profile/ResetPassword "));
+const AllWithdraw = lazy(() => import("../components/Admin/AllWithdraw"));
+const UserOrders = lazy(() => import("../components/order/UserOrders"));
+const UserInbox = lazy(() => import("../pages/UserInbox"));
+const ShopInboxPage = lazy(() => import("../pages/shop/ShopInboxPage"));
+const PreviewShopPage = lazy(() => import("../pages/PreviewShopPage"));
+const Categories = lazy(() => import("../pages/Categories "));
+const ShopForgetPassword = lazy(() => import("../components/Shop/ShopForgetPassword"));
+const ShopResetPassword = lazy(() => import("../components/Shop/ShopResetPassword"));
+const ShopVerifyResetCode = lazy(() => import("../components/Shop/ShopVerifyResetCode"));
+const Coupons = lazy(() => import("../pages/Coupons"));
 
 const router = createBrowserRouter([
   {
@@ -66,54 +66,17 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
-      {
-        path: "",
-        element: <HomePage />,
-      },
-      {
-        path: "login",
-        element: <LoginPage />,
-      },
-
-      {
-        path: "sign-up",
-        element: <SignupPage />,
-      },
-      {
-        path: "activation/:token",
-        element: <ActivationPage />,
-      },
-      {
-        path: "activation/seller/:token",
-        element: <ActivationShop />,
-      },
-
-      {
-        path: "products",
-        element: <ProductsPage />,
-      },
-      {
-        path: "categories",
-        element: <Categories />,
-      },
-
-      {
-        path: "product/:id",
-        element: <ProductDetailsPage />,
-      },
-
-      {
-        path: "Coupons",
-        element: <Coupons />,
-      },
-      {
-        path: "events",
-        element: <EventsPage />,
-      },
-      {
-        path: "faq",
-        element: <FAQPage />,
-      },
+      { path: "", element: <HomePage /> },
+      { path: "login", element: <LoginPage /> },
+      { path: "sign-up", element: <SignupPage /> },
+      { path: "activation/:token", element: <ActivationPage /> },
+      { path: "activation/seller/:token", element: <ActivationShop /> },
+      { path: "products", element: <ProductsPage /> },
+      { path: "categories", element: <Categories /> },
+      { path: "product/:id", element: <ProductDetailsPage /> },
+      { path: "Coupons", element: <Coupons /> },
+      { path: "events", element: <EventsPage /> },
+      { path: "faq", element: <FAQPage /> },
       {
         path: "profile",
         element: (
@@ -122,50 +85,17 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "track-order",
-        element: <TrackOrder />,
-      },
-      {
-        path: "profile-change-password",
-        element: <ChangePassword />,
-      },
-      {
-        path: "ForgetPassword",
-        element: <ForgetPassword />,
-      },
-      {
-        path: "VerifyResetCode",
-        element: <VerifyResetCode />,
-      },
-      {
-        path: "ResetPassword",
-        element: <ResetPassword />,
-      },
-      {
-        path: "shop-create",
-        element: <ShopCreatePage />,
-      },
-      {
-        path: "shop-login",
-        element: <ShopLoginPage />,
-      },
-      {
-        path: "shop/preview/:id",
-        element: <PreviewShopPage />,
-      },
-          {
-        path: "shop/ForgetPassword",
-        element: <ShopForgetPassword />,
-      },
-      {
-        path: "shop/VerifyResetCode",
-        element: <ShopVerifyResetCode />,
-      },
-      {
-        path: "shop/ResetPassword",
-        element: <ShopResetPassword />,
-      },
+      { path: "track-order", element: <TrackOrder /> },
+      { path: "profile-change-password", element: <ChangePassword /> },
+      { path: "ForgetPassword", element: <ForgetPassword /> },
+      { path: "VerifyResetCode", element: <VerifyResetCode /> },
+      { path: "ResetPassword", element: <ResetPassword /> },
+      { path: "shop-create", element: <ShopCreatePage /> },
+      { path: "shop-login", element: <ShopLoginPage /> },
+      { path: "shop/preview/:id", element: <PreviewShopPage /> },
+      { path: "shop/ForgetPassword", element: <ShopForgetPassword /> },
+      { path: "shop/VerifyResetCode", element: <ShopVerifyResetCode /> },
+      { path: "shop/ResetPassword", element: <ShopResetPassword /> },
       {
         path: "shop/:id",
         element: (
@@ -184,31 +114,12 @@ const router = createBrowserRouter([
           </StripeWrapper>
         ),
       },
-
-      {
-        path: "shop/:id/setting",
-        element: <EditShopPage />,
-      },
-      {
-        path: "checkout",
-        element: <Checkout />,
-      },
-      {
-        path: "order/success",
-        element: <OrderSuccessPage />,
-      },
-      {
-        path: "user/order/:id",
-        element: <OrderDetailsPage />,
-      },
-      {
-        path: "AllOrders",
-        element: <UserOrders />,
-      },
-      {
-        path: "inbox",
-        element: <UserInbox />,
-      },
+      { path: "shop/:id/setting", element: <EditShopPage /> },
+      { path: "checkout", element: <Checkout /> },
+      { path: "order/success", element: <OrderSuccessPage /> },
+      { path: "user/order/:id", element: <OrderDetailsPage /> },
+      { path: "AllOrders", element: <UserOrders /> },
+      { path: "inbox", element: <UserInbox /> },
     ],
   },
   {
@@ -220,18 +131,9 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
     children: [
-      {
-        index: true,
-        element: <ShopAllOrders />,
-      },
-      {
-        path: "dashboard-orders",
-        element: <ShopAllOrders />,
-      },
-      {
-        path: "order/:id",
-        element: <OrderDetails />,
-      },
+      { index: true, element: <ShopAllOrders /> },
+      { path: "dashboard-orders", element: <ShopAllOrders /> },
+      { path: "order/:id", element: <OrderDetails /> },
       { path: "products", element: <AllProducts /> },
       { path: "create-product", element: <CreateProduct /> },
       { path: "create-brand", element: <CreateBrand /> },
@@ -264,7 +166,6 @@ const router = createBrowserRouter([
       { path: "create-subcategory", element: <CreateSubCategory /> },
       { path: "events", element: <AllEvents /> },
       { path: "withdraw", element: <AllWithdraw /> },
-
       { path: "refunds", element: <div>Refunds</div> },
     ],
   },
