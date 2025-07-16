@@ -228,7 +228,7 @@ const Header = ({ active, activeHeading }) => {
                 )}
               </div>
 
-              <div className="bg-amber-500">
+              <div className="">
                 <Link
                   to={isSeller ? "/dashboard" : "/shop-create"}
                   onClick={() => setShowMobileMenu(false)}
@@ -238,6 +238,16 @@ const Header = ({ active, activeHeading }) => {
                   <IoIosArrowForward className="ml-1" />
                 </Link>
               </div>
+                    <div className="pt-0.5">
+              <Link
+                to={"/Coupons" }
+              
+                className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm"
+              >
+                {"Coupons"}
+                <IoIosArrowForward className="ml-1" />
+              </Link>
+            </div>
 
               {!isAuthenticated && (
                 <div className="p-4 border-t flex justify-center gap-4">
@@ -246,29 +256,20 @@ const Header = ({ active, activeHeading }) => {
                     onClick={() => setShowMobileMenu(false)}
                     className="text-blue-600 font-medium"
                   >
-                    Login
+                    Login as user
                   </Link>
                   <Link
                     to="/sign-up"
                     onClick={() => setShowMobileMenu(false)}
                     className="text-blue-600 font-medium"
                   >
-                    Sign up
+                    Sign up as user
                   </Link>
                 </div>
               )}
             </div>
 
-            <div className="p-4 border-t bg-white">
-              <Link
-                to={isSeller ? "/dashboard" : "/shop-create"}
-                onClick={() => setShowMobileMenu(false)}
-                className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm"
-              >
-                {isSeller ? "Dashboard" : "Become Seller"}
-                <IoIosArrowForward className="ml-1" />
-              </Link>
-            </div>
+      
           </div>
         </div>
       )}
