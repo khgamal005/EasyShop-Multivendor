@@ -16,11 +16,12 @@ import { getUserImageUrl } from "../../utils/imageHelpers";
 const Header = ({ active, activeHeading }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const { isAuthenticated, user } = useSelector((state) => state.user);
-  const { isSeller } = useSelector((state) => state.seller);
   const [openCart, setOpenCart] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [openWishlist, setOpenWishlist] = useState(false);
+
+  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const { isSeller } = useSelector((state) => state.seller);
   const cart = useSelector((state) => state.cart);
   const { categories } = useSelector((state) => state.category);
 
@@ -64,7 +65,6 @@ const Header = ({ active, activeHeading }) => {
               />
             )}
           </div>
-  
 
           {!isAuthenticated && !isSeller && (
             <div className="flex gap-4 text-sm">
@@ -80,7 +80,7 @@ const Header = ({ active, activeHeading }) => {
         </div>
 
         {/* Search */}
-        <div className=" p-2 mx-2 hidden md:block">
+        <div className="p-2 mx-2 hidden md:block">
           <div className="relative">
             <input
               type="text"
@@ -101,11 +101,10 @@ const Header = ({ active, activeHeading }) => {
               </span>
             )}
           </button>
-
           {openCart && <Cart setOpenCart={setOpenCart} />}
         </div>
 
-        {/* Actions - Hidden on mobile */}
+        {/* Actions - Desktop */}
         <div className="hidden md:flex items-center gap-4">
           <button onClick={() => setOpenWishlist(true)} className="relative">
             <AiOutlineHeart size={24} />
@@ -116,12 +115,12 @@ const Header = ({ active, activeHeading }) => {
           {openWishlist && <Wishlist setOpenWishlist={setOpenWishlist} />}
 
           {!isSeller && (
-            <Link to="/profile" className="">
+            <Link to="/profile">
               {user?.avatar ? (
                 <img
                   src={getUserImageUrl(user.avatar?.url)}
                   alt={user?.name}
-                  className="w-10 h-10 rounded-full object-cover "
+                  className="w-10 h-10 rounded-full object-cover"
                 />
               ) : (
                 <FaUserCircle className="w-10 h-10 text-gray-500" />
@@ -130,21 +129,17 @@ const Header = ({ active, activeHeading }) => {
           )}
 
           <div className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm">
-            <Link
-              to={isSeller ? "/dashboard" : "/shop-create"}
-              className="flex items-center"
-            >
+            <Link to={isSeller ? "/dashboard" : "/shop-create"} className="flex items-center">
               {isSeller ? "Dashboard" : "Become Seller"}
               <IoIosArrowForward className="ml-1" />
             </Link>
           </div>
         </div>
 
-        {/* Mobile Menu Toggle - Only show on mobile */}
+        {/* Mobile Menu Toggle */}
         <div className="md:hidden flex items-center gap-4">
-          {/* Only show profile on mobile if authenticated */}
           {isAuthenticated && !isSeller && (
-            <Link to="/profile" className="">
+            <Link to="/profile">
               {user?.avatar ? (
                 <img
                   src={getUserImageUrl(user.avatar?.url)}
@@ -156,16 +151,11 @@ const Header = ({ active, activeHeading }) => {
               )}
             </Link>
           )}
-
           <button
             onClick={() => setShowMobileMenu(!showMobileMenu)}
             className="p-1"
           >
-            {showMobileMenu ? (
-              <RxCross1 size={24} />
-            ) : (
-              <RxHamburgerMenu size={24} />
-            )}
+            {showMobileMenu ? <RxCross1 size={24} /> : <RxHamburgerMenu size={24} />}
           </button>
         </div>
       </div>
@@ -173,22 +163,18 @@ const Header = ({ active, activeHeading }) => {
       {/* Mobile Menu */}
       {showMobileMenu && (
         <div className="fixed inset-0 z-50">
-          {/* Overlay */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50"
             onClick={() => setShowMobileMenu(false)}
           ></div>
 
-          {/* Menu Content */}
           <div className="fixed w-[70%] bg-white h-screen top-0 left-0 z-50 flex flex-col">
-            {/* Header with cart and close button */}
             <div className="flex justify-between items-center p-4 border-b">
               <button onClick={() => setShowMobileMenu(false)} className="p-2">
                 <RxCross1 size={24} />
               </button>
             </div>
 
-            {/* Profile Section (under cart) */}
             {!isSeller && (
               <div className="flex items-center gap-3 p-4 border-b">
                 <Link
@@ -200,10 +186,6 @@ const Header = ({ active, activeHeading }) => {
                     <img
                       src={getUserImageUrl(user.avatar?.url)}
                       alt={user?.name}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "/default-user.png";
-                      }}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
@@ -216,7 +198,6 @@ const Header = ({ active, activeHeading }) => {
               </div>
             )}
 
-            {/* Search */}
             <div className="p-4 border-b">
               <input
                 type="text"
@@ -227,11 +208,9 @@ const Header = ({ active, activeHeading }) => {
               />
             </div>
 
-            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto">
               <Navbar active={activeHeading} />
 
-              {/* Categories Dropdown */}
               <div className="p-4 border-t">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
@@ -249,21 +228,17 @@ const Header = ({ active, activeHeading }) => {
                 )}
               </div>
 
-              {/* Wishlist Button */}
-              <div className="p-4 border-t">
-                <button
-                  onClick={() => {
-                    setOpenWishlist(true);
-                    setShowMobileMenu(false);
-                  }}
-                  className="flex items-center w-full px-4 py-2 rounded-md hover:bg-gray-50"
+              <div className="bg-amber-500">
+                <Link
+                  to={isSeller ? "/dashboard" : "/shop-create"}
+                  onClick={() => setShowMobileMenu(false)}
+                  className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm"
                 >
-                  <AiOutlineHeart size={20} className="mr-2" />
-                  My Wishlist
-                </button>
+                  {isSeller ? "Go to Dashboard" : "Become Seller"}
+                  <IoIosArrowForward className="ml-1" />
+                </Link>
               </div>
 
-              {/* Login/Signup Section */}
               {!isAuthenticated && (
                 <div className="p-4 border-t flex justify-center gap-4">
                   <Link
@@ -273,7 +248,6 @@ const Header = ({ active, activeHeading }) => {
                   >
                     Login
                   </Link>
-                  <span className="text-gray-400">/</span>
                   <Link
                     to="/sign-up"
                     onClick={() => setShowMobileMenu(false)}
@@ -285,7 +259,6 @@ const Header = ({ active, activeHeading }) => {
               )}
             </div>
 
-            {/* Fixed Bottom Button */}
             <div className="p-4 border-t bg-white">
               <Link
                 to={isSeller ? "/dashboard" : "/shop-create"}
