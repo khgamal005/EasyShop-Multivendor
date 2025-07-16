@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { FaUserCircle } from "react-icons/fa";
-
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
 import { AiOutlineHeart, AiOutlineShoppingCart } from "react-icons/ai";
 import { RxCross1, RxHamburgerMenu } from "react-icons/rx";
@@ -26,18 +25,17 @@ const Header = ({ active, activeHeading }) => {
   const { categories } = useSelector((state) => state.category);
 
   const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
-
   const navigate = useNavigate();
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
-    setSearchTerm(value); // local state to hold input
+    setSearchTerm(value);
     navigate(`/products?keyword=${encodeURIComponent(value)}`);
   };
 
   return (
     <header
-      className={`w-full bg-w ${
+      className={`w-full bg-white ${
         active ? "fixed top-0 left-0 z-20 shadow-md" : ""
       }`}
     >
@@ -49,7 +47,7 @@ const Header = ({ active, activeHeading }) => {
         </Link>
 
         {/* Desktop: Dropdown + Login/Signup */}
-        <div className=" hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-6">
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
@@ -81,7 +79,7 @@ const Header = ({ active, activeHeading }) => {
         </div>
 
         {/* Search */}
-        <div className="flex-grow mx-4 hidden md:block">
+        <div className=" p-2 mx-2 hidden md:block">
           <div className="relative">
             <input
               type="text"
@@ -93,17 +91,7 @@ const Header = ({ active, activeHeading }) => {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-          <button onClick={() => setOpenWishlist(true)} className="relative">
-            <AiOutlineHeart size={24} />
-            <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full bg-green-500 text-white">
-              ❤
-            </span>
-          </button>
-          {/* wishlist popup */}
-          {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} /> : null}
-
+        <div className="m-1">
           <button onClick={() => setOpenCart(true)} className="relative">
             <AiOutlineShoppingCart size={24} />
             {totalItems > 0 && (
@@ -112,26 +100,33 @@ const Header = ({ active, activeHeading }) => {
               </span>
             )}
           </button>
-          {/* cart popup */}
-          {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
 
-          {!isSeller ? (
+          {openCart && <Cart setOpenCart={setOpenCart} />}
+        </div>
+
+        {/* Actions - Hidden on mobile */}
+        <div className="hidden md:flex items-center gap-4">
+          <button onClick={() => setOpenWishlist(true)} className="relative">
+            <AiOutlineHeart size={24} />
+            <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full bg-green-500 text-white">
+              ❤
+            </span>
+          </button>
+          {openWishlist && <Wishlist setOpenWishlist={setOpenWishlist} />}
+
+          {!isSeller && (
             <Link to="/profile" className="">
               {user?.avatar ? (
                 <img
                   src={getUserImageUrl(user.avatar?.url)}
                   alt={user?.name}
-                  onError={(e) => {
-                    e.target.onerror = null;
-             
-                  }}
-                  className="w-10 h-10 rounded-full"
+                  className="w-10 h-10 rounded-full object-cover "
                 />
               ) : (
                 <FaUserCircle className="w-10 h-10 text-gray-500" />
               )}
             </Link>
-          ) : null}
+          )}
 
           <div className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm">
             <Link
@@ -144,40 +139,84 @@ const Header = ({ active, activeHeading }) => {
           </div>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <div className="md:hidden">
-          <button onClick={() => setShowMobileMenu(!showMobileMenu)}>
-            <RxHamburgerMenu size={24} />
+        {/* Mobile Menu Toggle - Only show on mobile */}
+        <div className="md:hidden flex items-center gap-4">
+          {/* Only show profile on mobile if authenticated */}
+          {isAuthenticated && !isSeller && (
+            <Link to="/profile" className="">
+              {user?.avatar ? (
+                <img
+                  src={getUserImageUrl(user.avatar?.url)}
+                  alt={user?.name}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <FaUserCircle className="w-8 h-8 text-gray-500" />
+              )}
+            </Link>
+          )}
+
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="p-1"
+          >
+            {showMobileMenu ? (
+              <RxCross1 size={24} />
+            ) : (
+              <RxHamburgerMenu size={24} />
+            )}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {showMobileMenu && (
-        <div className={`fixed w-full bg-[#0000005f] z-20 h-full top-0 left-0`}>
-          <div className="fixed w-[70%] bg-[#fff] h-screen top-0 left-0 z-10 overflow-y-scroll">
-            <div className="w-full justify-between flex pr-3">
-              <div>
-                <div
-                  className="relative mr-[15px]"
-                  onClick={() =>
-                    setOpenWishlist(true) || setShowMobileMenu(false)
-                  }
-                >
-                  <AiOutlineHeart size={30} className="mt-5 ml-3" />
-                  <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px]  leading-tight text-center">
-                    {/* {wishlist && wishlist.length} */}
-                  </span>
-                </div>
-              </div>
-              <RxCross1
-                size={30}
-                className="ml-4 mt-5"
-                onClick={() => setShowMobileMenu(false)}
-              />
+        <div className="fixed inset-0 z-50">
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowMobileMenu(false)}
+          ></div>
+
+          {/* Menu Content */}
+          <div className="fixed w-[70%] bg-white h-screen top-0 left-0 z-50 flex flex-col">
+            {/* Header with cart and close button */}
+            <div className="flex justify-between items-center p-4 border-b">
+              <button onClick={() => setShowMobileMenu(false)} className="p-2">
+                <RxCross1 size={24} />
+              </button>
             </div>
 
-            <div className="relative">
+            {/* Profile Section (under cart) */}
+            {!isSeller && (
+              <div className="flex items-center gap-3 p-4 border-b">
+                <Link
+                  to="/profile"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="flex items-center gap-3"
+                >
+                  {user?.avatar ? (
+                    <img
+                      src={getUserImageUrl(user.avatar?.url)}
+                      alt={user?.name}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/default-user.png";
+                      }}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <FaUserCircle className="w-10 h-10 text-gray-500" />
+                  )}
+                  <span className="font-medium">
+                    {isAuthenticated ? user?.name : "My Account"}
+                  </span>
+                </Link>
+              </div>
+            )}
+
+            {/* Search */}
+            <div className="p-4 border-b">
               <input
                 type="text"
                 placeholder="Search Product..."
@@ -187,52 +226,60 @@ const Header = ({ active, activeHeading }) => {
               />
             </div>
 
-            <Navbar active={activeHeading} />
-            <div className={`$ ml-4 !rounded-[4px]`}>
-              {isSeller ? (
-                <Link to="/dashboard" />
-              ) : (
-                <Link to="/shop-create">
-                  <h1 className="text-[#fff] flex items-center">
-                    Become Seller <IoIosArrowForward className="ml-1" />
-                  </h1>
-                </Link>
-              )}
-            </div>
-            <br />
-            <br />
-            <br />
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto">
+              <Navbar active={activeHeading} />
 
-            <div className="flex w-full justify-center ">
-              {isAuthenticated ? (
-                <div className="relative group inline-block">
-                  <Link to="/profile">
-                    <img
-                      src={getUserImageUrl(user.avatar?.url)}
-                      alt=""
-                      className="w-[60px] h-[60px]  rounded-full border-[3px] border-[#0eae88]   "
-                    />
-                  </Link>
-                  {/* Hover Text */}
-                  <div
-                    className="absolute bottom-[-30px] left-1/2 -translate-x-1/2
-                   bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 whitespace-nowrap"
-                  >
-                    Visit profile Page
+              {/* Categories Dropdown */}
+              <div className="p-4 border-t">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="flex items-center w-full px-4 py-2 border rounded-md shadow-sm hover:bg-gray-50"
+                >
+                  <BiMenuAltLeft size={20} className="mr-2" />
+                  All Categories
+                  <IoIosArrowDown size={16} className="ml-2" />
+                </button>
+                {showDropdown && (
+                  <DropDown
+                    categoriesData={categories}
+                    setDropDown={setShowDropdown}
+                  />
+                )}
+              </div>
+                      <div className="bg-amber-500">
+                    <Link
+                      to={isSeller ? "/dashboard" : "/shop-create"}
+                      onClick={() => setShowMobileMenu(false)}
+                      className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm"
+                    >
+                      {isSeller ? "Go to Dashboard" : "Become Seller"}
+                      <IoIosArrowForward className="ml-1" />
+                    </Link>
                   </div>
-                </div>
-              ) : (
-                <>
+
+              {/* Login/Signup Section */}
+              {!isAuthenticated && (
+                <div className="p-4 border-t flex justify-center gap-4">
                   <Link
                     to="/login"
-                    className="text-[18px] pr-[10px] text-[#000000b7]"
+                    onClick={() => setShowMobileMenu(false)}
+                    className="text-blue-600 font-medium"
                   >
-                    Login /
+                    Login as user
                   </Link>
-                  <Link to="/sign-up" className="text-[18px] text-[#000000b7]">
-                    Sign up
+                  <span className="text-gray-400">/</span>
+                  <Link
+                    to="/sign-up"
+                    onClick={() => setShowMobileMenu(false)}
+                    className="text-blue-600 font-medium"
+                  >
+                    Sign up as user
                   </Link>
-                </>
+                  {/* Fixed Bottom Button */}
+                  <div className="p-4 border-t bg-white"></div>
+          
+                </div>
               )}
             </div>
           </div>
