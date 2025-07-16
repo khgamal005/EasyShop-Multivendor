@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { server } from "../server";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { useLocation, useOutletContext } from "react-router-dom";
+import {  useLocation, useOutletContext } from "react-router-dom";
 
 import {
   getConversations,
@@ -24,6 +24,7 @@ const UserInbox = () => {
   const [activeStatus, setActiveStatus] = useState(false);
   const [open, setOpen] = useState(false);
 
+
   const scrollRef = useRef(null);
   const dispatch = useDispatch();
   const { socket } = useOutletContext();
@@ -33,7 +34,7 @@ const UserInbox = () => {
     "conversationId"
   );
 
-  useEffect(() => {
+    useEffect(() => {
     if (socket) {
       socket.on("getUsers", (users) => {
         console.log("🟢 Received online users:", users);
@@ -54,7 +55,7 @@ const UserInbox = () => {
       setArrivalMessage({
         sender: data.senderId,
         text: data.text,
-
+ 
         createdAt: Date.now(),
       });
     });
@@ -105,6 +106,8 @@ const UserInbox = () => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+
+
   const sendMessageHandler = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -122,7 +125,7 @@ const UserInbox = () => {
       if (savedMessage) {
         setMessages((prev) => [...prev, savedMessage]);
         setNewMessage("");
-
+      
         const receiverId = currentChat.members.find((m) => m !== user._id);
         socket.emit("sendMessage", { ...savedMessage, receiverId });
 
@@ -138,6 +141,8 @@ const UserInbox = () => {
       console.error("❌ Message send error:", err);
     }
   };
+
+
 
   return (
     <div className="w-full">
@@ -177,5 +182,8 @@ const UserInbox = () => {
     </div>
   );
 };
+
+
+
 
 export default UserInbox;

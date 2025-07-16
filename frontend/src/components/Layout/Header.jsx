@@ -64,6 +64,7 @@ const Header = ({ active, activeHeading }) => {
               />
             )}
           </div>
+  
 
           {!isAuthenticated && !isSeller && (
             <div className="flex gap-4 text-sm">
@@ -247,16 +248,20 @@ const Header = ({ active, activeHeading }) => {
                   />
                 )}
               </div>
-                      <div className="bg-amber-500">
-                    <Link
-                      to={isSeller ? "/dashboard" : "/shop-create"}
-                      onClick={() => setShowMobileMenu(false)}
-                      className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm"
-                    >
-                      {isSeller ? "Go to Dashboard" : "Become Seller"}
-                      <IoIosArrowForward className="ml-1" />
-                    </Link>
-                  </div>
+
+              {/* Wishlist Button */}
+              <div className="p-4 border-t">
+                <button
+                  onClick={() => {
+                    setOpenWishlist(true);
+                    setShowMobileMenu(false);
+                  }}
+                  className="flex items-center w-full px-4 py-2 rounded-md hover:bg-gray-50"
+                >
+                  <AiOutlineHeart size={20} className="mr-2" />
+                  My Wishlist
+                </button>
+              </div>
 
               {/* Login/Signup Section */}
               {!isAuthenticated && (
@@ -266,7 +271,7 @@ const Header = ({ active, activeHeading }) => {
                     onClick={() => setShowMobileMenu(false)}
                     className="text-blue-600 font-medium"
                   >
-                    Login as user
+                    Login
                   </Link>
                   <span className="text-gray-400">/</span>
                   <Link
@@ -274,13 +279,22 @@ const Header = ({ active, activeHeading }) => {
                     onClick={() => setShowMobileMenu(false)}
                     className="text-blue-600 font-medium"
                   >
-                    Sign up as user
+                    Sign up
                   </Link>
-                  {/* Fixed Bottom Button */}
-                  <div className="p-4 border-t bg-white"></div>
-          
                 </div>
               )}
+            </div>
+
+            {/* Fixed Bottom Button */}
+            <div className="p-4 border-t bg-white">
+              <Link
+                to={isSeller ? "/dashboard" : "/shop-create"}
+                onClick={() => setShowMobileMenu(false)}
+                className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm"
+              >
+                {isSeller ? "Dashboard" : "Become Seller"}
+                <IoIosArrowForward className="ml-1" />
+              </Link>
             </div>
           </div>
         </div>

@@ -118,8 +118,7 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
 
   return (
     <div className="border-b p-4">
-      <div className="flex flex-wrap sm:flex-nowrap items-center relative">
-        {/* Quantity controls */}
+      <div className="flex items-center">
         <div className="flex flex-col items-center gap-1">
           <div
             className="bg-[#e44343] rounded-full w-[25px] h-[25px] flex items-center justify-center cursor-pointer"
@@ -135,18 +134,14 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
             <HiOutlineMinus size={16} color="#7d879c" />
           </div>
         </div>
-
-        {/* Product image */}
         <img
           src={
             isEventImage ? getEventImageUrl(image) : getProductImageUrl(image)
           }
           alt={data.name}
-          className="w-[130px] ml-2 mr-2 rounded-[5px] hidden md:block"
+          className="w-[130px] ml-2 mr-2 rounded-[5px]"
         />
-
-        {/* Product info */}
-        <div className="flex-1 pl-[5px] mt-3 sm:mt-0">
+        <div className="flex-1 pl-[5px]">
           <h1 className="font-medium">{data.name}</h1>
           <h4 className="text-sm text-gray-600">
             ${data.discountPrice} × {value}
@@ -155,19 +150,13 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
             EGP{totalPrice.toFixed(2)}
           </h4>
         </div>
-
-        {/* Remove icon */}
-        <div className="absolute top-2 right-2 sm:static sm:ml-auto">
-          <RxCross1
-            className="cursor-pointer text-gray-700 hover:text-red-500"
-            onClick={() => removeFromCartHandler(data)}
-          />
-        </div>
+        <RxCross1
+          className="cursor-pointer"
+          onClick={() => removeFromCartHandler(data)}
+        />
       </div>
     </div>
   );
-
-
 };
 
 export default Cart;
